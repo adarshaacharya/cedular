@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+**Be extremely concise. Sacrifice grammar for the sake of concision.**
+
+** Donot create markdown docs unless I ask for it.**
+_"ALWAYS READ THIS DOCS RULES BEFORE WRITING CODE, ALWAYS KNOW REQUIREMENTS BEFORE WRITING CODE"_
+
+Baseline rules:
+- Always focus on writing clean code & DRY principles no code should be hardcoded, repeated or duplicated.
+
+
+Database:
+- Always create migration files for database changes.

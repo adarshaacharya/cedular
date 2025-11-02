@@ -1,0 +1,37 @@
+export function HeroGradient() {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-background">
+      {/* Background gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
+          <span className="bg-gradient-to-r from-foreground via-blue-400 to-cyan-400 bg-clip-text text-transparent dark:from-white dark:via-blue-200 dark:to-cyan-300">
+            Meetings on Autopilot
+          </span>
+        </h1>
+        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+          Stop wasting time scheduling. CC Kaspr on your emails and let AI
+          handle the coordination. Real scheduling, zero friction.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button className="px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-black font-bold rounded-xl hover:shadow-2xl hover:shadow-blue-500/40 transition duration-300">
+            Start Free Trial
+          </button>
+          <button className="px-8 py-4 border border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition">
+            Watch Demo
+          </button>
+        </div>
+      </div>
+
+      {/* Floating element */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-32 bg-gradient-to-t from-background to-transparent" />
+    </section>
+  );
+}
