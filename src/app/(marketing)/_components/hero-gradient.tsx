@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function HeroGradient() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-background">
@@ -21,9 +23,11 @@ export function HeroGradient() {
           handle the coordination. Real scheduling, zero friction.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-xl hover:shadow-2xl hover:shadow-primary/40 dark:hover:shadow-blue-500/40 transition duration-300">
-            Start Free Trial
-          </button>
+          <Link href="/signup">
+            <button className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-xl hover:shadow-2xl hover:shadow-primary/40 dark:hover:shadow-blue-500/40 transition duration-300">
+              Start Free Trial
+            </button>
+          </Link>
           <button className="px-8 py-4 border border-border text-foreground font-semibold rounded-xl hover:bg-secondary transition">
             Watch Demo
           </button>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function PricingTeaser() {
   return (
@@ -19,8 +20,11 @@ export function PricingTeaser() {
           size="lg"
           className="bg-primary hover:bg-accent text-primary-foreground px-8 animate-fade-in-up"
           style={{ animationDelay: "0.2s" }}
+          asChild
         >
-          Get Started Today <ArrowRight className="ml-2 w-4 h-4" />
+          <Link href="/signup">
+            Get Started Today <ArrowRight className="ml-2 w-4 h-4" />
+          </Link>
         </Button>
       </div>
     </section>

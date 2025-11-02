@@ -1,5 +1,6 @@
 import { ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -33,8 +34,11 @@ export function HeroSection() {
           <Button
             size="lg"
             className="bg-primary hover:bg-accent text-primary-foreground px-8"
+            asChild
           >
-            Get Started <ArrowRight className="ml-2 w-4 h-4" />
+            <Link href="/signup">
+              Get Started <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
           </Button>
           <Button
             size="lg"

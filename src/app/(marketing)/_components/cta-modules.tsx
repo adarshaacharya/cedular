@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export async function CTAModule() {
   return (
     <section className="py-24 px-6">
@@ -13,9 +15,11 @@ export async function CTAModule() {
               Join thousands of professionals who've eliminated scheduling chaos
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-lg hover:shadow-2xl hover:shadow-primary/50 dark:hover:shadow-blue-500/50 transition">
-                Get Started Free
-              </button>
+              <Link href="/signup">
+                <button className="px-8 py-4 bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold rounded-lg hover:shadow-2xl hover:shadow-primary/50 dark:hover:shadow-blue-500/50 transition">
+                  Get Started Free
+                </button>
+              </Link>
               <button className="px-8 py-4 border border-border text-foreground font-semibold rounded-lg hover:bg-secondary transition">
                 Schedule Demo
               </button>

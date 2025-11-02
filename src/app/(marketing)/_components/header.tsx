@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/app/(marketing)/_components/theme-toggle";
+import Link from "next/link";
 
 export function Header() {
   return (
@@ -30,9 +31,11 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 dark:hover:shadow-blue-500/50 transition">
-            Get Started
-          </button>
+          <Link href="/signup">
+            <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 dark:hover:shadow-blue-500/50 transition">
+              Get Started
+            </button>
+          </Link>
         </div>
       </div>
     </header>
