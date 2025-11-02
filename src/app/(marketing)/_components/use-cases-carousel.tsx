@@ -28,17 +28,17 @@ export function UseCasesCarousel() {
     <section className="py-24 px-6">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-4xl font-bold mb-16 text-center">
-          Built for <span className="text-blue-400">every role</span>
+          Built for <span className="text-primary">every role</span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {useCases.map((useCase, i) => (
             <div
               key={i}
-              className="group p-6 rounded-xl border border-white/10 hover:border-blue-500/50 bg-gradient-to-br from-white/5 to-white/10 hover:from-blue-500/10 hover:to-cyan-500/10 transition duration-300"
+              className="group p-6 rounded-xl border border-border hover:border-primary/50 bg-card/50 hover:bg-card dark:hover:from-primary/10 dark:hover:to-accent/10 transition duration-300"
             >
               <div className="text-4xl mb-4">{useCase.icon}</div>
-              <h3 className="font-bold text-lg mb-2 group-hover:text-blue-300 transition">{useCase.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">{useCase.desc}</p>
+              <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition">{useCase.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{useCase.desc}</p>
             </div>
           ))}
         </div>

@@ -30,7 +30,7 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-black font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/50 transition">
+          <button className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/50 dark:hover:shadow-blue-500/50 transition">
             Get Started
           </button>
         </div>

@@ -13,12 +13,12 @@ export function StatsGrid() {
           {stats.map((stat, i) => (
             <div
               key={i}
-              className="group p-6 rounded-xl border border-white/10 hover:border-cyan-500/50 bg-white/5 hover:bg-white/10 transition text-center"
+              className="group p-6 rounded-xl border border-border hover:border-primary/50 bg-card/50 hover:bg-card transition text-center"
             >
-              <div className="text-3xl md:text-4xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text mb-2">
+              <div className="text-3xl md:text-4xl font-bold text-transparent bg-gradient-to-r from-primary to-accent bg-clip-text mb-2">
                 {stat.number}
               </div>
-              <p className="text-gray-400 text-sm md:text-base">{stat.label}</p>
+              <p className="text-muted-foreground text-sm md:text-base">{stat.label}</p>
             </div>
           ))}
         </div>

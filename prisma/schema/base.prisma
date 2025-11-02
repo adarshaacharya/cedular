@@ -1,0 +1,12 @@
+// Base Prisma Schema - Datasource and Generator Configuration
+// This is the main schema file containing database connection settings
+
+generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
