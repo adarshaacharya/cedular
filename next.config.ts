@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+// Import env here to validate during build
+import "./src/env";
+
 const config: NextConfig = {
   // Enable Cache Components (opt-in caching)
   cacheComponents: true,

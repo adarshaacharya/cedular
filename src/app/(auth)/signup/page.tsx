@@ -46,7 +46,7 @@ export default function SignupPage() {
               id="name"
               name="name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Enter your full name"
               className="pl-10"
               disabled={isPending}
               required
@@ -76,7 +76,7 @@ export default function SignupPage() {
               id="email"
               name="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="user@example.com"
               className="pl-10"
               disabled={isPending}
               required
@@ -103,7 +103,7 @@ export default function SignupPage() {
           <PasswordInput
             id="password"
             name="password"
-            placeholder="••••••••"
+            placeholder=""
             disabled={isPending}
             required
             minLength={8}
@@ -120,6 +120,32 @@ export default function SignupPage() {
               role="alert"
             >
               {state.errors.password[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <PasswordInput
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder=""
+            disabled={isPending}
+            required
+            aria-invalid={state?.errors?.confirmPassword ? "true" : "false"}
+            aria-describedby={
+              state?.errors?.confirmPassword
+                ? "confirmPassword-error"
+                : undefined
+            }
+          />
+          {state?.errors?.confirmPassword && (
+            <p
+              id="confirmPassword-error"
+              className="text-sm text-destructive"
+              role="alert"
+            >
+              {state.errors.confirmPassword[0]}
             </p>
           )}
         </div>

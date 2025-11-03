@@ -46,7 +46,7 @@ export default function SignInPage() {
               id="email"
               name="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="user@example.com"
               className="pl-10"
               disabled={isPending}
               required
