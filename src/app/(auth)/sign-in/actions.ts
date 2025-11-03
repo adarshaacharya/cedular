@@ -2,7 +2,8 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { signIn } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -49,15 +50,24 @@ export async function signInAction(
 
   const { email, password } = validationResult.data;
 
-  const result = await signIn.email({
-    email,
-    password,
-  });
+  // Use server-side API for server actions
+  try {
+    await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+      headers: await headers(),
+    });
 
-  if (result.error) {
+    // Redirect to dashboard or home page on success
+    redirect("/");
+  } catch (error) {
     return {
       errors: {
-        _form: [result.error.message || "Invalid email or password"],
+        _form: [
+          error instanceof Error ? error.message : "Invalid email or password",
+        ],
       },
       success: false,
       inputs: {
@@ -66,7 +76,4 @@ export async function signInAction(
       },
     };
   }
-
-  // Redirect to dashboard or home page on success
-  redirect("/");
 }

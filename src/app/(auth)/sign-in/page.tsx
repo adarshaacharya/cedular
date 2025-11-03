@@ -73,7 +73,7 @@ export default function SignInPage() {
           <PasswordInput
             id="password"
             name="password"
-            placeholder="••••••••"
+            placeholder=""
             disabled={isPending}
             required
             aria-invalid={state?.errors?.password ? "true" : "false"}

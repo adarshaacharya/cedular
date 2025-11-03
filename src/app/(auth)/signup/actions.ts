@@ -2,7 +2,8 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { signUp } from "@/lib/auth-client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const signupSchema = z
   .object({
@@ -72,17 +73,26 @@ export async function signupAction(
 
   const { name, email, password } = validationResult.data;
 
-  const result = await signUp.email({
-    name,
-    email,
-    password,
-  });
+  // Use server-side API for server actions
+  try {
+    await auth.api.signUpEmail({
+      body: {
+        name,
+        email,
+        password,
+      },
+      headers: await headers(),
+    });
 
-  if (result.error) {
+    // Redirect to sign-in page on success
+    redirect("/sign-in");
+  } catch (error) {
     return {
       errors: {
         _form: [
-          result.error.message || "Failed to create account. Please try again.",
+          error instanceof Error
+            ? error.message
+            : "Failed to create account. Please try again.",
         ],
       },
       success: false,
@@ -94,7 +104,4 @@ export async function signupAction(
       },
     };
   }
-
-  // Redirect to sign-in page on success
-  redirect("/sign-in");
 }
