@@ -6,7 +6,7 @@ export function HowItWorks() {
     {
       icon: Mail,
       title: "CC Your AI Assistant",
-      description: "Forward or CC scheduling emails to your@assistant.Kaspr.ai",
+      description: "Forward or CC scheduling emails to your@assistant.Cedular.ai",
     },
     {
       icon: Zap,
@@ -45,7 +45,7 @@ export function HowItWorks() {
                 className="relative group animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500" />
                 <div className="relative bg-background border border-border rounded-lg p-8 hover:border-primary/50 transition">
                   <div className="mb-4">
                     <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">

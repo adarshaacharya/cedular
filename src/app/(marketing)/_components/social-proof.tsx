@@ -10,7 +10,7 @@ export function SocialProof() {
   const testimonials = [
     {
       content:
-        "Kaspr has completely transformed how our team manages schedules. No more back-and-forth emails!",
+        "Cedular has completely transformed how our team manages schedules. No more back-and-forth emails!",
       author: "Sarah Chen",
       role: "Operations Manager",
     },

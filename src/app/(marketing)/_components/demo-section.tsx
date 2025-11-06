@@ -13,7 +13,7 @@ export async function DemoSection() {
             </p>
             <ul className="space-y-3 mb-8">
               {[
-                "CC Kaspr on any email",
+                "CC Cedular on any email",
                 "AI understands the request",
                 "Perfect meeting time found",
                 "Calendar updated instantly",

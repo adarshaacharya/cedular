@@ -84,8 +84,8 @@ export async function signupAction(
       headers: await headers(),
     });
 
-    // Redirect to sign-in page on success
-    redirect("/sign-in");
+    // Redirect to dashboard on success
+    redirect("/dashboard");
   } catch (error) {
     return {
       errors: {

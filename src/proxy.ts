@@ -1,31 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-
 const authPages = ["/sign-in", "/signup"];
 /**
- * Better Auth Middleware for Next.js
+ * Better Auth Proxy for Next.js
  *
  * SECURITY WARNING: getSessionCookie() only checks for cookie existence,
  * it does NOT validate the session. Always validate sessions on the server
  * for protected actions/pages using auth.api.getSession()
  *
- * This middleware is for optimistic redirection only, not security.
+ * This proxy is for optimistic redirection only, not security.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
 
   // Redirect authenticated users away from auth pages
   if (sessionCookie && authPages.includes(pathname)) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Protect routes - uncomment when you add protected routes
-  // Example: Protect /dashboard routes
-  // if (!sessionCookie && pathname.startsWith("/dashboard")) {
-  //   return NextResponse.redirect(new URL("/sign-in", request.url));
-  // }
+  // Protect dashboard routes
+  if (!sessionCookie && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
+  }
 
   return NextResponse.next();
 }

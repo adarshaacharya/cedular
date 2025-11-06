@@ -5,30 +5,32 @@ import Link from "next/link";
 export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-20"></div>
-        <div className="absolute bottom-20 left-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl opacity-20"></div>
+      {/* Background gradient orbs - using CSS variables */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
+        <div
+          className="absolute bottom-20 right-10 w-96 h-96 bg-accent/30 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
         <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-balance animate-fade-in-up mb-6">
-          AI that finds the{" "}
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            moment
+          <span className="bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+            Meetings on Autopilot
           </span>
         </h1>
 
         <p
-          className="text-xl text-muted-foreground text-balance animate-fade-in-up mb-8 max-w-2xl mx-auto"
+          className="text-xl text-muted-foreground text-balance animate-fade-in-up mb-8 max-w-2xl mx-auto leading-relaxed"
           style={{ animationDelay: "0.1s" }}
         >
-          Your AI scheduling assistant that handles meeting coordination through
-          email. Just CC your assistant and let AI do the work.
+          Stop wasting time scheduling. CC Cedular on your emails and let AI
+          handle the coordination. Real scheduling, zero friction.
         </p>
 
         <div
-          className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+          className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up mb-16"
           style={{ animationDelay: "0.2s" }}
         >
           <Button
@@ -37,7 +39,7 @@ export function HeroSection() {
             asChild
           >
             <Link href="/signup">
-              Get Started <ArrowRight className="ml-2 w-4 h-4" />
+              Start Free Trial <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
           <Button
@@ -45,13 +47,13 @@ export function HeroSection() {
             variant="outline"
             className="border-border hover:bg-card px-8 bg-transparent"
           >
-            <Play className="w-4 h-4 mr-2" /> See How It Works
+            <Play className="w-4 h-4 mr-2" /> Watch Demo
           </Button>
         </div>
 
         {/* Hero visual - animated email threads */}
         <div
-          className="mt-16 animate-fade-in-up"
+          className="animate-fade-in-up"
           style={{ animationDelay: "0.3s" }}
         >
           <div className="bg-card border border-border rounded-lg p-8 max-w-2xl mx-auto backdrop-blur-sm">
@@ -95,6 +97,9 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* Floating element */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 }

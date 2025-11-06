@@ -13,7 +13,7 @@ export function PricingTeaser() {
           className="text-lg text-muted-foreground mb-8 text-balance animate-fade-in-up"
           style={{ animationDelay: "0.1s" }}
         >
-          Get full access to Kaspr with generous free limits. Only pay when
+          Get full access to Cedular with generous free limits. Only pay when
           you&apos;re ready to scale.
         </p>
         <Button

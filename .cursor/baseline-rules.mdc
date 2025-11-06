@@ -14,7 +14,7 @@ Baseline rules:
 # Nextjs/ Frontend:
 - Use Next.js 16 latest feature like cache components, partial prerendering, server components, client components, Server Actions, React Compiler, etc.
 - Don't use emoji's randomly in the UI 
-- Don't hardcode tailwind classes, use tailwind theming system, since we are in multi-theme project.
+- Don't hardcode tailwind classes / color, use tailwind theming system, since we are in multi-theme project.
 
 Database:
 - Always create migration files for database changes.

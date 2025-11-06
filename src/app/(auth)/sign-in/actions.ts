@@ -60,8 +60,8 @@ export async function signInAction(
       headers: await headers(),
     });
 
-    // Redirect to dashboard or home page on success
-    redirect("/");
+    // Redirect to dashboard on success
+    redirect("/dashboard");
   } catch (error) {
     return {
       errors: {

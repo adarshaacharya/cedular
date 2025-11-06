@@ -14,7 +14,7 @@ export async function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg" />
-              <h3 className="text-lg font-bold text-foreground">Kaspr</h3>
+              <h3 className="text-lg font-bold text-foreground">Cedular</h3>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               Meetings on autopilot. Scheduling intelligence delivered via
@@ -43,7 +43,7 @@ export async function Footer() {
         </div>
 
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center text-muted-foreground text-xs gap-4">
-          <p>&copy; 2025 Kaspr. All rights reserved.</p>
+          <p>&copy; 2025 Cedular. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="#" className="hover:text-primary transition">
               Terms

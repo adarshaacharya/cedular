@@ -34,7 +34,7 @@ export function UseCasesCarousel() {
           {useCases.map((useCase, i) => (
             <div
               key={i}
-              className="group p-6 rounded-xl border border-border hover:border-primary/50 bg-card/50 hover:bg-card dark:hover:from-primary/10 dark:hover:to-accent/10 transition duration-300"
+              className="group p-6 rounded-xl border border-border hover:border-primary/50 bg-card/50 hover:bg-card transition duration-300"
             >
               <div className="text-4xl mb-4">{useCase.icon}</div>
               <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition">{useCase.title}</h3>
