@@ -1,0 +1,18 @@
+model EmailThread {
+    id            String   @id @default(uuid())
+    userId        String
+    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    threadId      String   @unique // Gmail thread ID (unique identifier)
+    subject       String?
+    participants  String[] // Array of email addresses
+    status        String   @default("pending") // pending, processing, scheduled, failed
+    intent        String? // schedule, reschedule, cancel
+    workflowRunId String? // For future workflow integration
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    @@index([userId])
+    @@index([status])
+    @@index([threadId])
+    @@map("email_threads")
+}

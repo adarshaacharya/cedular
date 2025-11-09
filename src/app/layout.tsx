@@ -2,6 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 
@@ -24,7 +25,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
         <ThemeProvider>
-          {children}
+          <NuqsAdapter>
+            {children}
+          </NuqsAdapter>
           <Analytics />
         </ThemeProvider>
       </body>

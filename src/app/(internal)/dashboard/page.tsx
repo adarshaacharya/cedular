@@ -1,6 +1,10 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ThreadsList } from "@/app/(internal)/email-threads/_components/threads-list";
+import { getPendingThreadsCount } from "@/app/(internal)/email-threads/actions";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -27,18 +31,23 @@ export default async function DashboardPage() {
             </div>
             <div className="text-3xl font-bold text-foreground">0</div>
           </Card>
+
           <Card className="p-6">
             <div className="text-sm text-muted-foreground mb-1">
               Pending Requests
             </div>
-            <div className="text-3xl font-bold text-foreground">0</div>
+            <Suspense fallback={<Skeleton className="h-9 w-16" />}>
+              <PendingCount />
+            </Suspense>
           </Card>
+
           <Card className="p-6">
             <div className="text-sm text-muted-foreground mb-1">
               Response Time
             </div>
             <div className="text-3xl font-bold text-foreground">—</div>
           </Card>
+
           <Card className="p-6">
             <div className="text-sm text-muted-foreground mb-1">
               Success Rate
@@ -47,25 +56,18 @@ export default async function DashboardPage() {
           </Card>
         </div>
 
-        <Card className="p-8">
-          <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
-          <div className="space-y-4 text-muted-foreground">
-            <p>
-              Your dashboard is ready! Connect your email and calendar to start
-              scheduling meetings automatically.
-            </p>
-            <div className="space-y-2">
-              <p className="font-medium text-foreground">Next steps:</p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Connect your Google account</li>
-                <li>Set your working hours and preferences</li>
-                <li>Get your unique assistant email address</li>
-                <li>Start CC&apos;ing Cedular on scheduling emails</li>
-              </ul>
-            </div>
-          </div>
-        </Card>
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">
+            Recent Scheduling Requests
+          </h2>
+          <ThreadsList />
+        </div>
       </div>
     </div>
   );
+}
+
+async function PendingCount() {
+  const count = await getPendingThreadsCount();
+  return <div className="text-3xl font-bold text-foreground">{count}</div>;
 }

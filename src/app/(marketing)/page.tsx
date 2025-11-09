@@ -14,23 +14,12 @@ import { Footer } from "@/app/(marketing)/_components/footer";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { cacheTag, cacheLife } from "next/cache";
-
-async function getUserSession(headersList: HeadersInit) {
-  "use cache";
-
-  cacheTag("marketing-page");
-  cacheLife("days");
-
-  const session = await auth.api.getSession({
-    headers: headersList,
-  });
-  return session;
-}
 
 export default async function Home() {
   const headersList = await headers();
-  const session = await getUserSession(headersList);
+  const session = await auth.api.getSession({
+    headers: headersList,
+  });
 
   if (session?.user) {
     redirect("/dashboard");
