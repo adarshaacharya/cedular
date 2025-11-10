@@ -5,11 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThreadsList } from "@/app/(internal)/email-threads/_components/threads-list";
 import { getPendingThreadsCount } from "@/app/(internal)/email-threads/actions";
+import { getGoogleConnectionStatus } from "./actions";
+import { GoogleConnectionCard } from "./_components/google-connection-card";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
+  const googleStatus = await getGoogleConnectionStatus();
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
@@ -23,6 +27,16 @@ export default async function DashboardPage() {
             Here&apos;s what&apos;s happening with your scheduling.
           </p>
         </div>
+
+        {/* Google Connection Card */}
+        {!googleStatus.connected && (
+          <div className="mb-6">
+            <GoogleConnectionCard
+              connected={googleStatus.connected}
+              email={googleStatus.email}
+            />
+          </div>
+        )}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card className="p-6">

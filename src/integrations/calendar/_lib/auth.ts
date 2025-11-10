@@ -4,6 +4,7 @@
 
 import { google } from "googleapis";
 import prisma from "@/lib/prisma";
+import logger from "@/lib/logger";
 import { CALENDAR_API_VERSION, TOKEN_REFRESH_THRESHOLD_MS } from "../constants";
 import { createOAuth2Client } from "../utils";
 
@@ -52,7 +53,7 @@ export async function refreshCalendarToken(userId: string) {
 
     return credentials;
   } catch (error) {
-    console.error("Failed to refresh Calendar token:", error);
+    logger.error({ error, userId }, "Failed to refresh Calendar token");
     throw new Error("Failed to refresh Calendar token");
   }
 }
@@ -104,4 +105,3 @@ export async function getCalendarClient(userId: string) {
     auth: oauth2Client,
   });
 }
-

@@ -4,12 +4,8 @@
 
 import { google } from "googleapis";
 import prisma from "@/lib/prisma";
-import { env } from "@/env";
-import {
-  GMAIL_API_VERSION,
-  GMAIL_USER_ID,
-  TOKEN_REFRESH_THRESHOLD_MS,
-} from "../constants";
+import logger from "@/lib/logger";
+import { GMAIL_API_VERSION, TOKEN_REFRESH_THRESHOLD_MS } from "../constants";
 import { createOAuth2Client } from "../utils";
 
 /**
@@ -57,7 +53,7 @@ export async function refreshGmailToken(userId: string) {
 
     return credentials;
   } catch (error) {
-    console.error("Failed to refresh Gmail token:", error);
+    logger.error({ error, userId }, "Failed to refresh Gmail token");
     throw new Error("Failed to refresh Gmail token");
   }
 }
