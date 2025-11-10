@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Card } from "@/components/ui/card";
@@ -8,10 +8,15 @@ import { getPendingThreadsCount } from "@/app/(internal)/email-threads/actions";
 import { getGoogleConnectionStatus } from "./actions";
 import { GoogleConnectionCard } from "./_components/google-connection-card";
 
-export default async function DashboardPage() {
-  const session = await auth.api.getSession({
+// Cache the session lookup for request deduplication
+const getCachedSession = cache(async () => {
+  return await auth.api.getSession({
     headers: await headers(),
   });
+});
+
+export default async function DashboardPage() {
+  const session = await getCachedSession();
 
   const googleStatus = await getGoogleConnectionStatus();
 

@@ -42,3 +42,8 @@ _"ALWAYS READ THIS DOCS RULES BEFORE WRITING CODE, ALWAYS KNOW REQUIREMENTS BEFO
 
 - Always create migration files for database changes using prisma cli
 
+
+
+## AI SDK v6:
+
+- aI sdk has v6 version which is still in beta (its really stable and production ready), but we will be using it for all ai related operations. Please do search for the latest documentation and examples before writing code. Link : https://v6.ai-sdk.
