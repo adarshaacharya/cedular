@@ -1,0 +1,26 @@
+model UserPreferences {
+    id     String @id @default(uuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Gmail OAuth tokens
+    gmailAccessToken  String?   @db.Text
+    gmailRefreshToken String?   @db.Text
+    gmailTokenExpiry  DateTime?
+
+    // Calendar OAuth tokens
+    calendarAccessToken String? @db.Text
+    calendarRefreshToken String? @db.Text
+    calendarTokenExpiry DateTime?
+
+    // User settings
+    calendarId String? // Primary calendar ID
+    timezone String @default("UTC")
+    assistantEmail String? // User's dedicated scheduling assistant email
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    @@map("user_preferences")
+}

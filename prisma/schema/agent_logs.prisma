@@ -1,0 +1,18 @@
+// Agent logs for debugging and monitoring AI agent executions
+
+model AgentLog {
+    id         String   @id @default(uuid())
+    userId     String?
+    agentName  String // email-parser, calendar, response, etc.
+    model      String? // gpt-4o, claude-3-5-sonnet, etc.
+    input      Json? // Input data sent to agent
+    output     Json? // Output data from agent
+    latencyMs  Int? // Execution time in milliseconds
+    tokensUsed Int? // Token usage count
+    timestamp  DateTime @default(now())
+
+    @@index([userId])
+    @@index([agentName])
+    @@index([timestamp])
+    @@map("agent_logs")
+}
