@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,16 +5,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { ConnectToGoogle } from "./connect-google";
 import { getGoogleConnectionStatus } from "../actions";
-import { Show } from "@/components/show";
+
+// Online status indicator with live signal
+function OnlineIndicator() {
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
+      <div className="relative inline-flex h-3 w-3">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 animate-ping" />
+        <span className="relative inline-flex h-3 w-3 rounded-full bg-green-600" />
+      </div>
+      <span className="text-xs font-medium text-green-600">Online</span>
+    </div>
+  );
+}
 
 export async function GoogleConnectionCard() {
   const googleStatus = await getGoogleConnectionStatus();
 
   return (
-    <Show if={!googleStatus.connected}>
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -42,9 +53,7 @@ export async function GoogleConnectionCard() {
                     Connected as {googleStatus.email}
                   </p>
                 </div>
-                <Button variant="outline" size="sm" disabled>
-                  Connected
-                </Button>
+                <OnlineIndicator />
               </div>
             </div>
           ) : (
@@ -52,6 +61,6 @@ export async function GoogleConnectionCard() {
           )}
         </CardContent>
       </Card>
-    </Show>
+    </>
   );
 }

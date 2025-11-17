@@ -121,7 +121,7 @@ export function ThreadsTable({ threads }: ThreadsTableProps) {
   });
 
   return (
-    <div className="data-table-container">
+    <div className="p-10">
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>

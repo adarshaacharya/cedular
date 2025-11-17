@@ -1,19 +1,11 @@
 "use server";
 
-import { cache } from "react";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth/server";
-import { headers } from "next/headers";
+import { getServerSession } from "@/lib/auth/get-session";
 
-// Cache the session lookup for request deduplication
-const getCachedSession = cache(async () => {
-  return await auth.api.getSession({
-    headers: await headers(),
-  });
-});
 
 export async function getEmailThreads() {
-  const session = await getCachedSession();
+  const session = await getServerSession();
 
   if (!session?.user) {
     return [];
@@ -33,7 +25,7 @@ export async function getEmailThreads() {
 }
 
 export async function getPendingThreadsCount() {
-  const session = await getCachedSession();
+  const session = await getServerSession();
 
   if (!session?.user) {
     return 0;

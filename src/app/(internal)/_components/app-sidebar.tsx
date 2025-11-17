@@ -37,21 +37,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Meetings",
-      url: "/dashboard/meetings",
+      url: "/meetings",
       icon: Calendar,
-      isActive: pathname.startsWith("/dashboard/meetings"),
+      isActive: pathname.startsWith("/meetings"),
     },
     {
       title: "Email Threads",
-      url: "/dashboard/threads",
+      url: "/email-threads",
       icon: Mail,
-      isActive: pathname.startsWith("/dashboard/threads"),
+      isActive: pathname.startsWith("/email-threads"),
     },
     {
       title: "Settings",
-      url: "/dashboard/settings",
+      url: "/settings",
       icon: Settings,
-      isActive: pathname.startsWith("/dashboard/settings"),
+      isActive: pathname.startsWith("/settings"),
     },
   ];
 

@@ -21,12 +21,17 @@ import type {
 /**
  * Get calendar events for a specific attendee email within a time range
  */
-export async function getCalendarEvents(
-  attendeeEmail: string,
-  userId: string,
-  timeMin: Date,
-  timeMax: Date
-): Promise<CalendarEvent[]> {
+export async function getCalendarEvents({
+  attendeeEmail,
+  userId,
+  timeMin,
+  timeMax,
+}: {
+  attendeeEmail: string;
+  userId: string;
+  timeMin: Date;
+  timeMax: Date;
+}): Promise<CalendarEvent[]> {
   const calendar = await getCalendarClient(userId);
 
   try {

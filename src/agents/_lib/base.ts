@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import prisma from "@/lib/prisma";
+import prisma from "../../lib/prisma";
 
 export const DEFAULT_MODEL = openai("gpt-4o");
 
