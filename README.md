@@ -69,3 +69,18 @@ pnpm prisma migrate reset --force
    ```bash
    pnpm dev
    ```
+
+
+
+
+Next steps:
+
+Phase 4: Workflow Job Processing
+
+Email processor workflow that orchestrates: fetch email → parse → find slots → generate response → send
+Phase 5: Gmail Webhook Handler
+
+API route to receive notifications from Gmail
+Phase 6: Frontend/UI
+
+Dashboard, settings, etc.
