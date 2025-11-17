@@ -3,7 +3,7 @@
 import { ThemeToggle } from "@/app/(marketing)/_components/theme-toggle";
 import { UserMenu } from "@/app/(marketing)/_components/user-menu";
 import Link from "next/link";
-import { useSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth/client";
 
 export function Header() {
   const { data: session, isPending } = useSession();

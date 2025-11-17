@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   BadgeCheck,
@@ -7,15 +7,11 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
-import { signOut } from "@/lib/auth-client"
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth/client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,25 +20,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function NavUser({
   user,
 }: {
   user: {
-    name: string
-    email: string
-    avatar: string
-  }
+    name: string;
+    email: string;
+    avatar: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
-  const router = useRouter()
+  const { isMobile } = useSidebar();
+  const router = useRouter();
 
   const getUserInitials = (name: string) => {
     return name
@@ -50,19 +46,19 @@ export function NavUser({
       .map((n) => n[0])
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const handleSignOut = async () => {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/")
-          router.refresh()
+          router.push("/");
+          router.refresh();
         },
       },
-    })
-  }
+    });
+  };
 
   return (
     <SidebarMenu>
@@ -137,5 +133,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

@@ -12,45 +12,43 @@ import { PricingTeaser } from "@/app/(marketing)/_components/pricing-teaser";
 import { CTAModule } from "@/app/(marketing)/_components/cta-modules";
 import { Footer } from "@/app/(marketing)/_components/footer";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { AuthRedirector } from "@/components/auth-redirector";
 
 export default async function Home() {
-  const headersList = await headers();
-  const session = await auth.api.getSession({
-    headers: headersList,
-  });
-
-  if (session?.user) {
-    redirect("/dashboard");
-  }
-
   return (
-    <main className="min-h-screen bg-background text-foreground overflow-hidden">
-      <Header />
-      {/* Hero - First impression */}
-      <HeroSection />
-      {/* Problem Statement - Build empathy */}
-      <ProblemStatement />
-      {/* Social Proof - Build trust early */}
-      <SocialProof />
-      {/* How It Works - Show simplicity */}
-      <HowItWorks />
-      {/* Features - Show value */}
-      <FeaturesSection />
-      {/* AI Capabilities - Differentiate */}
-      <AICapabilities />
-      {/* Demo Section - Visual proof */}
-      <DemoSection />
-      {/* Stats - Build credibility */}
-      <StatsGrid />
-      {/* Use Cases - Show versatility */}
-      <UseCasesCarousel />
-      {/* Pricing Teaser - Remove friction */}
-      <PricingTeaser />
-      {/* Final CTA - Convert */}
-      <CTAModule />
-      <Footer />
-    </main>
+    <>
+      <Suspense fallback={null}>
+        <AuthRedirector />
+      </Suspense>
+      <main className="min-h-screen bg-background text-foreground overflow-hidden">
+        <Header />
+        {/* Hero - First impression */}
+        <HeroSection />
+        {/* Problem Statement - Build empathy */}
+        <ProblemStatement />
+        {/* Social Proof - Build trust early */}
+        <SocialProof />
+        {/* How It Works - Show simplicity */}
+        <HowItWorks />
+        {/* Features - Show value */}
+        <FeaturesSection />
+        {/* AI Capabilities - Differentiate */}
+        <AICapabilities />
+        {/* Demo Section - Visual proof */}
+        <DemoSection />
+        {/* Stats - Build credibility */}
+        <StatsGrid />
+        {/* Use Cases - Show versatility */}
+        <UseCasesCarousel />
+        {/* Pricing Teaser - Remove friction */}
+        <PricingTeaser />
+        {/* Final CTA - Convert */}
+        <CTAModule />
+        <Footer />
+      </main>
+    </>
   );
 }

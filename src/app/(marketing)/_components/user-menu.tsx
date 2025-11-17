@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { LogOut, Sparkles, BadgeCheck, CreditCard, Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

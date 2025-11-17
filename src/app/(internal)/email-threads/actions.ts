@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
 
 // Cache the session lookup for request deduplication

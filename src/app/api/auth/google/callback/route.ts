@@ -12,7 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { env } from "@/env";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import prisma from "@/lib/prisma";
 import logger from "@/lib/logger";
 

@@ -1,25 +1,31 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { LayoutDashboard, Calendar, Mail, Settings, Sparkles } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useSession } from "@/lib/auth-client"
+import * as React from "react";
+import {
+  LayoutDashboard,
+  Calendar,
+  Mail,
+  Settings,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession } from "@/lib/auth/client";
 
-import { NavMain } from "@/components/navbar/nav-main"
-import { NavUser } from "@/components/navbar/nav-user"
+import { NavMain } from "@/components/navbar/nav-main";
+import { NavUser } from "@/components/navbar/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { TeamSwitcher } from "@/components/navbar/team-switcher"
+} from "@/components/ui/sidebar";
+import { TeamSwitcher } from "@/components/navbar/team-switcher";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname()
-  const { data: session } = useSession()
+  const pathname = usePathname();
+  const { data: session } = useSession();
 
   // Navigation items for our dashboard
   const navMain = [
@@ -47,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Settings,
       isActive: pathname.startsWith("/dashboard/settings"),
     },
-  ]
+  ];
 
   // Team switcher data (just using Cedular as the team)
   const teams = [
@@ -56,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       logo: Sparkles,
       plan: "Pro",
     },
-  ]
+  ];
 
   // User data from session
   const user = session?.user
@@ -69,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         name: "User",
         email: "",
         avatar: "",
-      }
+      };
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -84,6 +90,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
-

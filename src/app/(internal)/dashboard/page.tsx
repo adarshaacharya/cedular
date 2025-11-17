@@ -1,47 +1,24 @@
-import { Suspense, cache } from "react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThreadsList } from "@/app/(internal)/email-threads/_components/threads-list";
 import { getPendingThreadsCount } from "@/app/(internal)/email-threads/actions";
-import { getGoogleConnectionStatus } from "./actions";
 import { GoogleConnectionCard } from "./_components/google-connection-card";
-
-// Cache the session lookup for request deduplication
-const getCachedSession = cache(async () => {
-  return await auth.api.getSession({
-    headers: await headers(),
-  });
-});
+import { WelcomeBanner } from "./_components/welcome-banner";
 
 export default async function DashboardPage() {
-  const session = await getCachedSession();
-
-  const googleStatus = await getGoogleConnectionStatus();
-
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="max-w-7xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Welcome back,{" "}
-            {session?.user?.name || session?.user?.email || "User"}!
-          </h1>
-          <p className="text-muted-foreground">
-            Here&apos;s what&apos;s happening with your scheduling.
-          </p>
-        </div>
+        <Suspense fallback={<Skeleton className="h-8 w-1/3 mb-8" />}>
+          <WelcomeBanner />
+        </Suspense>
 
-        {/* Google Connection Card */}
-        {!googleStatus.connected && (
+        <Suspense fallback={<Skeleton className="h-24 mb-6" />}>
           <div className="mb-6">
-            <GoogleConnectionCard
-              connected={googleStatus.connected}
-              email={googleStatus.email}
-            />
+            <GoogleConnectionCard />
           </div>
-        )}
+        </Suspense>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card className="p-6">
