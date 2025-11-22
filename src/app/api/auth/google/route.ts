@@ -15,6 +15,7 @@ import logger from "@/lib/logger";
 // Required scopes for Gmail and Calendar access
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/gmail.send", // Send emails on behalf of user
   "https://www.googleapis.com/auth/calendar",
 ];
 

@@ -26,6 +26,7 @@ export const MIME_TYPES = {
 // Gmail labels
 export const GMAIL_LABELS = {
   INBOX: "INBOX",
+  UNREAD: "UNREAD",
 } as const;
 
 // Email content type

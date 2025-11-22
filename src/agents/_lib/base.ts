@@ -19,11 +19,18 @@ export async function runAgent<T extends z.ZodType>({
   const startTime = Date.now();
 
   try {
+    console.log(`[Agent: ${agentName}] Starting...`);
+
     const result = await generateObject<T>({
       model: DEFAULT_MODEL,
       schema,
       prompt,
     });
+
+    console.log(
+      `[Agent: ${agentName}] Raw result:`,
+      JSON.stringify(result.object, null, 2)
+    );
 
     const endTime = Date.now();
     const latencyMs = endTime - startTime;
@@ -45,6 +52,12 @@ export async function runAgent<T extends z.ZodType>({
   } catch (error) {
     const endTime = Date.now();
     const latencyMs = endTime - startTime;
+
+    console.error(`[Agent: ${agentName}] Error:`, error);
+    if (error instanceof Error) {
+      console.error(`[Agent: ${agentName}] Error message:`, error.message);
+      console.error(`[Agent: ${agentName}] Error stack:`, error.stack);
+    }
 
     logAgentRun<{ error: string }>({
       agentName,

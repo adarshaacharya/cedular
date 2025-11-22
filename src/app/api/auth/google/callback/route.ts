@@ -74,6 +74,14 @@ export async function GET(request: NextRequest) {
       throw new Error("Failed to get tokens from Google");
     }
 
+    // Set credentials to fetch user info
+    oauth2Client.setCredentials(tokens);
+
+    // Fetch user's Gmail address
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+    const profile = await gmail.users.getProfile({ userId: "me" });
+    const userEmail = profile.data.emailAddress;
+
     // Calculate token expiry date
     const expiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : null;
 
@@ -91,6 +99,7 @@ export async function GET(request: NextRequest) {
         calendarAccessToken: tokens.access_token, // Same token for both
         calendarRefreshToken: tokens.refresh_token,
         calendarTokenExpiry: expiryDate,
+        assistantEmail: userEmail, // Save the connected Gmail address
         timezone: "UTC", // Default, user can update later
       },
       update: {
@@ -100,6 +109,7 @@ export async function GET(request: NextRequest) {
         calendarAccessToken: tokens.access_token,
         calendarRefreshToken: tokens.refresh_token,
         calendarTokenExpiry: expiryDate,
+        assistantEmail: userEmail, // Update the connected Gmail address
       },
     });
 

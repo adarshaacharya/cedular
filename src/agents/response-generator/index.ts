@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
 
-export async function* generateResponse({
+export async function generateResponse({
   emailContext,
   parsedIntent,
   availableSlots,
@@ -12,7 +12,7 @@ export async function* generateResponse({
   parsedIntent: string;
   availableSlots: Record<string, string>;
   userId: string;
-}) {
+}): Promise<string> {
   const startTime = Date.now();
 
   try {
@@ -91,8 +91,6 @@ Generate an appropriate email response:`;
         timestamp: new Date(),
       },
     });
-
-    throw error;
 
     throw error;
   }

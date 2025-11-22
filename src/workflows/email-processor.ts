@@ -8,11 +8,16 @@
  * 5. Send email (Gmail Integration)
  */
 
-import { fetchEmailThread, sendEmail } from "@/integrations/gmail";
+import {
+  fetchEmailThread,
+  fetchLatestUnreadThread,
+  sendEmail,
+} from "@/integrations/gmail";
 import { parseEmail } from "@/agents/email-parser";
 import { generateResponse } from "@/agents/response-generator";
 import prisma from "@/lib/prisma";
 import { runCalendarAgent } from "@/agents/calendar-agent";
+import { createEmailThread } from "@/services/email-thread-service";
 
 export interface EmailProcessorInput {
   threadId: string;
@@ -41,8 +46,25 @@ export async function processEmail(
     });
 
     // Step 1: Fetch email from Gmail
-    console.log(`[Workflow] Fetching email thread: ${threadId}`);
-    const emailThread = await fetchEmailThread(threadId, userId);
+    let emailThread;
+
+    if (threadId) {
+      console.log(`[Workflow] Fetching email thread: ${threadId}`);
+      emailThread = await fetchEmailThread(threadId, userId);
+    } else {
+      console.log(`[Workflow] Fetching latest unread email`);
+      emailThread = await fetchLatestUnreadThread(userId);
+
+      if (!emailThread) {
+        console.log(`[Workflow] No unread emails found`);
+        return {
+          success: false,
+          threadId: "",
+          error: "No unread emails found",
+          duration: Date.now() - startTime,
+        };
+      }
+    }
 
     if (!emailThread) {
       throw new Error("Failed to fetch email thread");
@@ -51,6 +73,21 @@ export async function processEmail(
     const senderEmail = emailThread.from;
     const emailBody = emailThread.body;
     const emailSubject = emailThread.subject;
+
+    // Skip if email is from the assistant itself (prevent infinite loop)
+    if (
+      userPreferences?.assistantEmail &&
+      senderEmail
+        .toLowerCase()
+        .includes(userPreferences.assistantEmail.toLowerCase())
+    ) {
+      console.log(`[Workflow] Skipping email from assistant itself`);
+      return {
+        success: true,
+        threadId,
+        duration: Date.now() - startTime,
+      };
+    }
 
     // Step 2: Parse email with Email Parser Agent
     console.log(`[Workflow] Parsing email intent`);
@@ -98,21 +135,12 @@ export async function processEmail(
 
     // Step 4: Generate email response
     console.log(`[Workflow] Generating email response`);
-    let generatedResponse = "";
-
-    const responseStream = generateResponse({
+    const generatedResponse = await generateResponse({
       emailContext: emailBody,
       parsedIntent: parsedIntent.intent,
       availableSlots: slotsFormatted,
       userId,
     });
-
-    // Collect streamed response
-    for await (const chunk of responseStream) {
-      if (typeof chunk === "string") {
-        generatedResponse += chunk;
-      }
-    }
 
     if (!generatedResponse) {
       throw new Error("Failed to generate email response");
@@ -123,10 +151,20 @@ export async function processEmail(
     const sendResult = await sendEmail(
       senderEmail,
       generatedResponse,
-      threadId,
+      emailThread.threadId || "",
       userId,
       `Re: ${emailSubject}`
     );
+
+    // Step 6: Save email thread to database
+    await createEmailThread({
+      userId,
+      threadId: emailThread.threadId || "",
+      subject: emailSubject,
+      participants: [senderEmail],
+      intent: parsedIntent.intent,
+      status: "completed",
+    });
 
     await prisma.agentLog.create({
       data: {
@@ -136,7 +174,7 @@ export async function processEmail(
         latencyMs: Date.now() - startTime,
         tokensUsed: 0,
         input: {
-          threadId,
+          threadId: emailThread.threadId,
           messageId,
           intent: parsedIntent.intent,
         },
@@ -147,7 +185,9 @@ export async function processEmail(
         },
       },
     });
-    console.log(`[Workflow] Completed successfully for thread: ${threadId}`);
+    console.log(
+      `[Workflow] Completed successfully for thread: ${emailThread.threadId}`
+    );
 
     return {
       success: true,

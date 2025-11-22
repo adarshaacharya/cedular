@@ -18,7 +18,47 @@ import type {
 } from "./types";
 
 /**
- * Fetch email thread from Gmail
+ * Fetch the latest unread email thread from inbox
+ */
+export async function fetchLatestUnreadThread(
+  userId: string
+): Promise<ParsedEmailThread | null> {
+  const gmail = await getGmailClient(userId);
+
+  try {
+    // List threads with UNREAD label
+    const listResponse = await gmail.users.threads.list({
+      userId: GMAIL_USER_ID,
+      labelIds: [GMAIL_LABELS.INBOX, GMAIL_LABELS.UNREAD],
+      maxResults: 1,
+    });
+
+    const threads = listResponse.data.threads;
+    if (!threads || threads.length === 0) {
+      return null;
+    }
+
+    const threadId = threads[0].id;
+    if (!threadId) {
+      return null;
+    }
+
+    // Fetch the full thread
+    const response = await gmail.users.threads.get({
+      userId: GMAIL_USER_ID,
+      id: threadId,
+      format: "full",
+    });
+
+    return parseEmailThread(response.data);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to fetch latest unread thread: ${errorMessage}`);
+  }
+}
+
+/**
+ * Fetch email thread from Gmail by ID
  */
 export async function fetchEmailThread(
   threadId: string,
