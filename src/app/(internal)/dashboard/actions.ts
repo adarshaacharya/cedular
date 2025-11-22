@@ -23,6 +23,7 @@ export async function getGoogleConnectionStatus() {
     select: {
       gmailAccessToken: true,
       gmailRefreshToken: true,
+      assistantEmail: true,
     },
   });
 
@@ -30,6 +31,6 @@ export async function getGoogleConnectionStatus() {
     connected: Boolean(
       preferences?.gmailAccessToken && preferences?.gmailRefreshToken
     ),
-    email: session.user.email,
+    email: preferences?.assistantEmail,
   };
 }
