@@ -9,12 +9,15 @@ import { useDataTable } from "@/components/data-table/_hooks/use-data-table";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
+import React from "react";
 
 interface ThreadsTableProps {
-  threads: EmailThreadModel[];
+  threadsPromise: Promise<EmailThreadModel[]>;
 }
 
-export function ThreadsTable({ threads }: ThreadsTableProps) {
+export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
+  const threads = React.use(threadsPromise);
+
   const columns = useMemo<ColumnDef<EmailThreadModel>[]>(
     () => [
       {
