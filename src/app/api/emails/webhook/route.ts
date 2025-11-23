@@ -2,12 +2,12 @@
  * Gmail Webhook Handler
  *
  * Receives push notifications from Gmail when new emails arrive
- * Triggers the workflow job for each new email
- * Validates the notification is from Gmail
+ * Uses Gmail History API to track only new messages
+ * Prevents infinite loops and duplicate processing
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { processEmail } from "@/workflows/email-processor";
+import { processEmailFromHistory } from "@/workflows/email-processor";
 import prisma from "@/lib/prisma";
 
 interface GmailPushNotification {
@@ -73,26 +73,28 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = userPreferences.userId;
+    const currentHistoryId = gmailData.historyId.toString();
 
-    // Get the latest thread from Gmail history
-    // Note: In production, you'd use the historyId to fetch only new messages
-    // For now, we'll trigger the workflow and let it handle the latest email
+    console.log(
+      `[Webhook] Processing history for user: ${userId}, historyId: ${currentHistoryId}`
+    );
 
-    console.log(`[Webhook] Triggering workflow for user: ${userId}`);
+    // Reliable approach: Use History API to process all new emails
+    // This ensures we don't miss emails and prevents duplicates
+    const { processEmailFromHistory } = await import(
+      "@/workflows/email-processor"
+    );
 
-    // Trigger the email processing workflow
-    // Note: In production, you'd want to use a proper job queue
-    // For MVP, we'll process it directly (but non-blocking)
-    processEmail({
-      threadId: "", // Will be fetched from Gmail in the workflow
+    processEmailFromHistory({
       userId,
-      messageId: body.message.messageId,
+      historyId: currentHistoryId,
+      notificationMessageId: body.message.messageId,
     })
       .then((result) => {
-        console.log("[Webhook] Workflow completed:", result);
+        console.log("[Webhook] History processing completed:", result);
       })
       .catch((error) => {
-        console.error("[Webhook] Workflow failed:", error);
+        console.error("[Webhook] History processing failed:", error);
       });
 
     // Return 200 immediately so Gmail doesn't retry

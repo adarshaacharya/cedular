@@ -16,6 +16,20 @@ export function extractEmailAddress(headerValue: string): string {
 }
 
 /**
+ * Extract name from email header value
+ * Handles formats like "Name <email@example.com>" or "email@example.com"
+ */
+export function extractEmailName(headerValue: string): string {
+  const nameMatch = headerValue.match(/^([^<]+)</);
+  if (nameMatch) {
+    return nameMatch[1].trim();
+  }
+  // If no name part, extract username from email
+  const emailMatch = headerValue.match(/([^@]+)@/);
+  return emailMatch ? emailMatch[1] : headerValue.trim();
+}
+
+/**
  * Extract all email addresses from a comma-separated header value
  */
 export function extractEmailAddresses(headerValue: string): string[] {

@@ -3,7 +3,7 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import prisma from "../../lib/prisma";
 
-export const DEFAULT_MODEL = openai("gpt-4o");
+export const DEFAULT_MODEL = openai("gpt-4o-mini");
 
 export async function runAgent<T extends z.ZodType>({
   agentName,

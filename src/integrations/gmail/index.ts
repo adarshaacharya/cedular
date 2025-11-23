@@ -183,5 +183,32 @@ export async function stopPushNotifications(userId: string): Promise<void> {
   }
 }
 
+/**
+ * Mark email thread as read (removes UNREAD label)
+ */
+export async function markThreadAsRead(
+  threadId: string,
+  userId: string
+): Promise<void> {
+  const gmail = await getGmailClient(userId);
+
+  try {
+    await gmail.users.threads.modify({
+      userId: GMAIL_USER_ID,
+      id: threadId,
+      requestBody: {
+        removeLabelIds: [GMAIL_LABELS.UNREAD],
+      },
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to mark thread as read: ${errorMessage}`);
+  }
+}
+
 // Re-export auth functions
 export { getGmailClient, refreshGmailToken } from "./_lib/auth";
+
+// Re-export history functions
+export { getHistorySinceId, getCurrentHistoryId } from "./history";
+export type { HistoryEvent, HistoryResult } from "./history";

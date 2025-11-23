@@ -4,9 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { setupPushNotifications } from "@/integrations/gmail";
+import { setupPushNotifications, getCurrentHistoryId } from "@/integrations/gmail";
 import { auth } from "@/lib/auth/server";
 import { env } from "@/env";
+import prisma from "@/lib/prisma";
 
 // Allow GET for easy browser testing
 export async function GET(request: NextRequest) {
@@ -43,6 +44,15 @@ async function handleSetup(request: NextRequest) {
     const result = await setupPushNotifications(session.user.id, topic);
 
     console.log("[Setup] Success!", result);
+
+    // Initialize lastProcessedHistoryId for the user
+    const currentHistoryId = await getCurrentHistoryId(session.user.id);
+    await prisma.userPreferences.update({
+      where: { userId: session.user.id },
+      data: { lastProcessedHistoryId: currentHistoryId },
+    });
+
+    console.log("[Setup] Initialized lastProcessedHistoryId:", currentHistoryId);
 
     return NextResponse.json({
       success: true,

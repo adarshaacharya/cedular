@@ -17,6 +17,9 @@ model UserPreferences {
     calendarId String? // Primary calendar ID
     timezone String @default("UTC")
     assistantEmail String? // User's dedicated scheduling assistant email
+    
+    // Gmail push notification tracking
+    lastProcessedHistoryId String? // Last processed Gmail history ID (prevents duplicate processing)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
