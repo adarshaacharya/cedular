@@ -55,6 +55,7 @@ export function DataTableSliderFilter<TData>({
   column,
   title,
 }: DataTableSliderFilterProps<TData>) {
+  "use no memo";
   const id = React.useId();
 
   const columnFilterValue = parseValuesAsNumbers(column.getFilterValue());

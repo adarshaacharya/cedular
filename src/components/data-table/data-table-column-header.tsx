@@ -30,6 +30,7 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
   ...props
 }: DataTableColumnHeaderProps<TData, TValue>) {
+  "use no memo";
   if (!column.getCanSort() && !column.getCanHide()) {
     return <div className={cn(className)}>{label}</div>;
   }

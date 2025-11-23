@@ -28,15 +28,16 @@ export function DataTableViewOptions<TData>({
   table,
   ...props
 }: DataTableViewOptionsProps<TData>) {
+  "use no memo";
   const columns = React.useMemo(
     () =>
       table
         .getAllColumns()
         .filter(
           (column) =>
-            typeof column.accessorFn !== "undefined" && column.getCanHide(),
+            typeof column.accessorFn !== "undefined" && column.getCanHide()
         ),
-    [table],
+    [table]
   );
 
   return (
@@ -72,7 +73,7 @@ export function DataTableViewOptions<TData>({
                   <Check
                     className={cn(
                       "ml-auto size-4 shrink-0",
-                      column.getIsVisible() ? "opacity-100" : "opacity-0",
+                      column.getIsVisible() ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
