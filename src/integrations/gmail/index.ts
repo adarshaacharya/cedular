@@ -80,17 +80,22 @@ export async function fetchEmailThread(
   }
 }
 
+export interface SendEmailOptions {
+  to: string;
+  body: string;
+  userId: string;
+  subject?: string;
+  threadId?: string | null;
+  messageId?: string | null; // For proper reply threading
+}
+
 /**
  * Send email via Gmail
  */
 export async function sendEmail(
-  to: string,
-  body: string,
-  threadId: string | null,
-  userId: string,
-  subject?: string
+  options: SendEmailOptions
 ): Promise<SendEmailResult> {
-  const gmail = await getGmailClient(userId);
+  const gmail = await getGmailClient(options.userId);
 
   try {
     const profile = await gmail.users.getProfile({ userId: GMAIL_USER_ID });
@@ -100,17 +105,32 @@ export async function sendEmail(
       throw new Error("Could not get user email address");
     }
 
-    const emailSubject = subject || "Re:";
-    const emailLines = [
-      `To: ${to}`,
-      `From: ${fromEmail}`,
-      `Subject: ${emailSubject}`,
-      `Content-Type: ${EMAIL_CONTENT_TYPE}`,
-      "",
-      body,
-    ];
+    const emailSubject = options.subject || "Re:";
 
-    const email = emailLines.join("\r\n");
+    // Generate a unique Message-ID for the new email
+    const messageId = `<${Date.now()}.${Math.random()
+      .toString(36)
+      .substring(2)}@${fromEmail.split("@")[1]}>`;
+
+    // Build email headers
+    let emailHeaders = `Message-ID: ${messageId}\r\n`;
+    emailHeaders += `To: ${options.to}\r\n`;
+    emailHeaders += `From: ${fromEmail}\r\n`;
+    emailHeaders += `Subject: ${emailSubject}\r\n`;
+    emailHeaders += `Content-Type: ${EMAIL_CONTENT_TYPE}\r\n`;
+
+    // Add proper reply headers if replying to a message
+    if (options.messageId) {
+      // Format messageId for email headers (ensure it's in angle brackets)
+      const replyToId = options.messageId.startsWith("<")
+        ? options.messageId
+        : `<${options.messageId}>`;
+      emailHeaders += `In-Reply-To: ${replyToId}\r\n`;
+      emailHeaders += `References: ${replyToId}\r\n`;
+    }
+
+    // Add blank line between headers and body, then the body
+    const email = emailHeaders + `\r\n${options.body}`;
     const encodedMessage = encodeEmailMessage(email);
 
     const message: {
@@ -120,8 +140,8 @@ export async function sendEmail(
       raw: encodedMessage,
     };
 
-    if (threadId) {
-      message.threadId = threadId;
+    if (options.threadId) {
+      message.threadId = options.threadId;
     }
 
     const response = await gmail.users.messages.send({

@@ -88,6 +88,7 @@ export async function processEmail(
       : "Assistant";
 
     console.log(`[Workflow] Email from: ${senderEmail} (name: ${senderName})`);
+    console.log(`[Workflow] Original subject: "${emailSubject}"`);
     console.log(
       `[Workflow] Assistant email: ${userPreferences?.assistantEmail} (name: ${assistantName})`
     );
@@ -171,13 +172,26 @@ export async function processEmail(
 
     // Step 5: Send email via Gmail
     console.log(`[Workflow] Sending email response`);
-    const sendResult = await sendEmail(
-      senderEmail,
-      generatedResponse,
-      emailThread.threadId || "",
-      userId,
-      `Re: ${emailSubject}`
+    console.log(`[Workflow] Reply subject: "Re: ${emailSubject}"`);
+    console.log(
+      `[Workflow] Response preview: ${generatedResponse.substring(0, 100)}...`
     );
+
+    // Get the latest message ID for proper reply threading
+    const latestMessageId =
+      emailThread.messages[emailThread.messages.length - 1]?.id;
+
+    const sendResult = await sendEmail({
+      to: senderEmail,
+      body: generatedResponse,
+      threadId: emailThread.threadId,
+      userId,
+      subject:
+        emailSubject && emailSubject.trim()
+          ? `Re: ${emailSubject.replace(/^Re:\s*/i, "")}` // Remove existing "Re:" prefix if present
+          : "Re: Meeting Request",
+      messageId: latestMessageId, // For proper reply headers
+    });
 
     // Step 6: Mark the original email as read (prevent reprocessing)
     if (emailThread.threadId) {
