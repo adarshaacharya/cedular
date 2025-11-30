@@ -70,8 +70,29 @@ pnpm prisma migrate reset --force
    pnpm dev
    ```
 
+## Gmail Webhook Setup (Local Development)
+
+To receive Gmail webhook notifications locally:
+
+- Install ngrok: `brew install ngrok` (or download from ngrok.com)
+- Start ngrok: `ngrok http 3000` → gives you a public URL (e.g., `https://abc123.ngrok.io`)
+- Update Pub/Sub push endpoint in Google Cloud Console to: `https://abc123.ngrok.io/api/emails/webhook`
+- Send an email to your assistant → webhook will arrive at `POST /api/emails/webhook`
+- Watch logs in terminal to see webhook processing
+
+**Note:** Webhook endpoint is `/api/emails/webhook` — it receives Gmail push notifications and triggers email processing.
 
 
+
+
+### Dangerous but useful
+
+Reset the Postgres volume so it re-initializes and creates the DB:
+```sh 
+docker compose down -v
+docker compose up -d
+npx prisma db push
+```
 
 Next steps:
 
@@ -84,3 +105,14 @@ API route to receive notifications from Gmail
 Phase 6: Frontend/UI
 
 Dashboard, settings, etc.
+
+
+After that, run the setup endpoint to reinitialize Gmail watch:
+
+```
+http://localhost:3000/api/gmail/setup
+```
+
+## Test user
+- Email: testuser@example.com
+- Password: Test@1234

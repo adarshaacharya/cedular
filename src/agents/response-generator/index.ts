@@ -25,11 +25,13 @@ export async function generateResponse({
       .join("\n");
 
     const systemPrompt = `You are an expert email writer for scheduling meetings.
-Your task is to generate a professional, friendly email response based on:
+Your task is to generate a professional, friendly HTML email response based on:
 - The original email context from the sender
 - The parsed scheduling intent (schedule/reschedule/cancel/info_request)
 - Available time slots from the recipient's calendar
 - The sender's name and your name (the assistant)
+
+IMPORTANT: Return the email as HTML with proper formatting.
 
 Guidelines:
 1. Keep tone conversational but professional
@@ -39,10 +41,24 @@ Guidelines:
 5. If rescheduling: acknowledge the change and suggest alternatives
 6. If canceling: politely explain and offer to reschedule
 7. Always include a clear next step (what the recipient should do)
-8. Keep email concise (2-3 paragraphs max)
-9. End with a natural sign-off using your actual name, not placeholders
-10. Be specific about times and dates, not vague
-11. Make it sound like a real email from a helpful assistant`;
+8. Use separate <p> tags for each paragraph (proper spacing)
+9. Use <br /> for line breaks within a paragraph if needed
+10. Format time slots as a clean bulleted list using <ul> and <li> tags
+11. End with a natural sign-off using your actual name, not placeholders
+12. Be specific about times and dates, not vague
+13. Make it sound like a real email from a helpful assistant
+14. Do NOT include <html>, <body>, or <head> tags - just the content with <p>, <ul>, <li>, etc.
+
+Example format:
+<p>Hi [Name],</p>
+<p>Thank you for reaching out...</p>
+<p>Here are some available times:</p>
+<ul>
+<li>Tuesday at 9:00 AM - 9:30 AM</li>
+<li>Tuesday at 10:00 AM - 10:30 AM</li>
+</ul>
+<p>Please let me know...</p>
+<p>Best regards,<br />[Your Name]</p>`;
 
     const userPrompt = `
 Original Email Context:
