@@ -65,6 +65,12 @@ function buildPrompt({
     4. Prefer times in preferred time windows if specified
     5. Rank by likelihood of participant availability
 
+    IMPORTANT: Return start and end times as FULL ISO 8601 datetime strings including the date.
+    Example: "2025-12-02T09:00:00" NOT just "09:00"
+    
+    Use dates within the next 7 days from today.
+    Today's date is: ${new Date().toISOString().split("T")[0]}
+
     Return as JSON with exactly 3 slots, ordered by preference.
     </candidate-time-slots>
     `;

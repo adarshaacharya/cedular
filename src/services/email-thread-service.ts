@@ -5,27 +5,41 @@
  */
 
 import prisma from "@/lib/prisma";
+import {
+  EmailThreadIntent,
+  EmailThreadStatus,
+} from "@/prisma/generated/prisma/enums";
 
 interface CreateEmailThreadInput {
   userId: string;
   threadId: string;
   subject: string;
   participants: string[];
-  intent: string;
-  status?: "pending" | "processing" | "scheduled" | "failed" | "completed";
+  intent: EmailThreadIntent;
+  status?: EmailThreadStatus;
+  proposedSlots?: Array<{ start: string; end: string; score: number }>;
 }
 
 export async function createEmailThread(
   input: CreateEmailThreadInput
 ): Promise<void> {
-  await prisma.emailThread.create({
-    data: {
+  await prisma.emailThread.upsert({
+    where: { threadId: input.threadId },
+    update: {
+      subject: input.subject,
+      participants: input.participants,
+      intent: input.intent,
+      status: input.status || EmailThreadStatus.awaiting_confirmation,
+      proposedSlots: input.proposedSlots,
+    },
+    create: {
       userId: input.userId,
       threadId: input.threadId,
       subject: input.subject,
       participants: input.participants,
       intent: input.intent,
-      status: input.status || "completed",
+      status: input.status || EmailThreadStatus.awaiting_confirmation,
+      proposedSlots: input.proposedSlots,
     },
   });
 }
@@ -45,7 +59,7 @@ export async function getEmailThreadByThreadId(
 export async function updateEmailThreadStatus(
   threadId: string,
   userId: string,
-  status: "pending" | "processing" | "scheduled" | "failed" | "completed"
+  status: EmailThreadStatus
 ): Promise<void> {
   await prisma.emailThread.updateMany({
     where: {

@@ -128,9 +128,37 @@ export async function createCalendarEvent(
     });
 
     return response.data as CalendarEvent;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to create calendar event: ${errorMessage}`);
+  } catch (error: unknown) {
+    // Log full error details for debugging
+    console.error("[Calendar] createCalendarEvent failed:", {
+      event: {
+        summary: event.summary,
+        start: event.start,
+        end: event.end,
+        attendees: event.attendees,
+      },
+      error,
+    });
+
+    // Try to extract Google API error details
+    const gError = error as {
+      response?: {
+        data?: { error?: { message?: string; errors?: unknown[] } };
+      };
+    };
+    const apiError = gError?.response?.data?.error;
+    const errorMessage =
+      apiError?.message ||
+      (error instanceof Error ? error.message : String(error));
+    const errorDetails = apiError?.errors
+      ? JSON.stringify(apiError.errors)
+      : "";
+
+    throw new Error(
+      `Failed to create calendar event: ${errorMessage}${
+        errorDetails ? ` - Details: ${errorDetails}` : ""
+      }`
+    );
   }
 }
 

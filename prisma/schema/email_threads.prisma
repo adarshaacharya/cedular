@@ -1,18 +1,64 @@
+enum EmailThreadStatus {
+    pending
+    processing
+    scheduled
+    awaiting_confirmation
+    confirmed
+    failed
+}
+
+enum EmailThreadIntent {
+    schedule
+    reschedule
+    cancel
+    confirm
+}
+
 model EmailThread {
-    id            String   @id @default(uuid())
+    id            String             @id @default(uuid())
     userId        String
-    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    threadId      String   @unique // Gmail thread ID (unique identifier)
+    user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+    threadId      String             @unique // Gmail thread ID (unique identifier)
     subject       String?
     participants  String[] // Array of email addresses
-    status        String   @default("pending") // pending, processing, scheduled, failed
-    intent        String? // schedule, reschedule, cancel
+    status        EmailThreadStatus  @default(pending)
+    intent        EmailThreadIntent?
+    proposedSlots Json? // Array of proposed time slots: [{start, end, score, reason}, ...]
     workflowRunId String? // For future workflow integration
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    createdAt     DateTime           @default(now())
+    updatedAt     DateTime           @updatedAt
+    meetings      Meeting[]
 
     @@index([userId])
     @@index([status])
     @@index([threadId])
     @@map("email_threads")
+}
+
+enum MeetingStatus {
+    proposed
+    confirmed
+    cancelled
+}
+
+model Meeting {
+    id            String      @id @default(uuid())
+    emailThreadId String
+    emailThread   EmailThread @relation(fields: [emailThreadId], references: [id])
+
+    title        String
+    description  String?
+    participants String[] // Array of email addresses
+    startTime    DateTime
+    endTime      DateTime
+    timezone     String
+
+    calendarEventId String? // ID of the event in the calendar system
+    status          MeetingStatus @default(proposed)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([emailThreadId])
+    @@map("meetings")
 }

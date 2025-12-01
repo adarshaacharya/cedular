@@ -3,29 +3,23 @@
  * Uses Gmail History API to prevent infinite loops
  *
  * Steps:
- * 1. Get history changes since last processed historyId
- * 2. Process only messagesAdded events (skip sent emails)
- * 3. Parse email (Email Parser Agent)
- * 4. Find calendar slots (Calendar Agent)
- * 5. Generate response (Response Generator Agent)
- * 6. Send email (Gmail Integration)
- * 7. Update lastProcessedHistoryId
+ * 1. Fetch email from Gmail
+ * 2. Parse email intent
+ * 3. Route to appropriate handler (schedule/confirm/reschedule/cancel)
+ * 4. Handler does the work (find slots, create event, send email, etc.)
  */
 
 import {
   fetchEmailThread,
   fetchLatestUnreadThread,
-  sendEmail,
-  markThreadAsRead,
   getHistorySinceId,
   getCurrentHistoryId,
 } from "@/integrations/gmail";
 import { extractEmailName } from "@/integrations/gmail/utils";
 import { parseEmail } from "@/agents/email-parser";
-import { generateResponse } from "@/agents/response-generator";
 import prisma from "@/lib/prisma";
-import { runCalendarAgent } from "@/agents/calendar-agent";
-import { createEmailThread } from "@/services/email-thread-service";
+import { EmailThreadIntent } from "@/prisma/generated/prisma/enums";
+import { handleConfirm, handleSchedule } from "./handlers";
 
 export interface EmailProcessorInput {
   threadId: string;
@@ -111,13 +105,63 @@ export async function processEmail(
       }
     }
 
+    // Check if this thread already exists in DB (for context)
+    const existingDbThread = await prisma.emailThread.findFirst({
+      where: { threadId: emailThread.threadId || threadId },
+    });
+
     // Step 2: Parse email with Email Parser Agent
     console.log(`[Workflow] Parsing email intent`);
     const parsedIntent = await parseEmail({
       subject: emailSubject,
       emailBody: emailBody,
       userId: senderEmail,
+      threadHistory: emailThread.messages,
+      existingThreadStatus: existingDbThread?.status,
     });
+
+    console.log(
+      `[Workflow] Detected intent: ${parsedIntent.intent}${
+        existingDbThread
+          ? ` (existing thread status: ${existingDbThread.status})`
+          : " (new thread)"
+      }`
+    );
+
+    // Ensure userPreferences exists for handlers
+    if (!userPreferences) {
+      return {
+        success: false,
+        threadId,
+        error: "User preferences not found",
+        duration: Date.now() - startTime,
+      };
+    }
+
+    const handlerInput = {
+      emailThread: {
+        threadId: emailThread.threadId || threadId,
+        subject: emailSubject,
+        body: emailBody,
+        from: senderEmail,
+        messages: emailThread.messages.map((m) => ({ id: m.id || "" })),
+      },
+      parsedIntent,
+      userId,
+      userPreferences,
+      senderName,
+      assistantName,
+    };
+
+    if (parsedIntent.intent === EmailThreadIntent.confirm) {
+      const result = await handleConfirm(handlerInput);
+      return { ...result, duration: Date.now() - startTime };
+    }
+
+    if (parsedIntent.intent === EmailThreadIntent.schedule) {
+      const result = await handleSchedule(handlerInput);
+      return { ...result, duration: Date.now() - startTime };
+    }
 
     // Skip if not a scheduling request
     if (parsedIntent.intent === "info_request") {
@@ -129,113 +173,11 @@ export async function processEmail(
       };
     }
 
-    // Step 3: Find optimal calendar slots
-    console.log(`[Workflow] Finding optimal calendar slots`);
-    const { slots: availableSlots } = await runCalendarAgent(
-      {
-        participants: parsedIntent.participants,
-        duration: parsedIntent.duration || 60,
-        preferences: {
-          timezone: userPreferences?.timezone || "UTC",
-          workingHoursStart: "09:00",
-          workingHoursEnd: "17:00",
-          bufferMinutes: 15,
-        },
-      },
-      userId
-    );
-
-    if (!availableSlots || availableSlots.length === 0) {
-      console.warn(`[Workflow] No available slots found`);
-    }
-
-    // Format slots for response generator
-    const slotsFormatted = availableSlots.reduce((acc, slot) => {
-      acc[`${slot.start} - ${slot.end}`] = slot.score.toString();
-      return acc;
-    }, {} as Record<string, string>);
-
-    // Step 4: Generate email response
-    console.log(`[Workflow] Generating email response`);
-    const generatedResponse = await generateResponse({
-      emailContext: emailBody,
-      parsedIntent: parsedIntent.intent,
-      availableSlots: slotsFormatted,
-      userId,
-      senderName,
-      assistantName,
-    });
-
-    if (!generatedResponse) {
-      throw new Error("Failed to generate email response");
-    }
-
-    // Step 5: Send email via Gmail
-    console.log(`[Workflow] Sending email response`);
-    console.log(`[Workflow] Reply subject: "Re: ${emailSubject}"`);
-    console.log(
-      `[Workflow] Response preview: ${generatedResponse.substring(0, 100)}...`
-    );
-
-    // Get the latest message ID for proper reply threading
-    const latestMessageId =
-      emailThread.messages[emailThread.messages.length - 1]?.id;
-
-    const sendResult = await sendEmail({
-      to: senderEmail,
-      body: generatedResponse,
-      threadId: emailThread.threadId,
-      userId,
-      subject:
-        emailSubject && emailSubject.trim()
-          ? `Re: ${emailSubject.replace(/^Re:\s*/i, "")}` // Remove existing "Re:" prefix if present
-          : "Re: Meeting Request",
-      messageId: latestMessageId, // For proper reply headers
-    });
-
-    // Step 6: Mark the original email as read (prevent reprocessing)
-    if (emailThread.threadId) {
-      console.log(`[Workflow] Marking email as read`);
-      await markThreadAsRead(emailThread.threadId, userId);
-    }
-
-    // Step 7: Save email thread to database
-    await createEmailThread({
-      userId,
-      threadId: emailThread.threadId || "",
-      subject: emailSubject,
-      participants: [senderEmail],
-      intent: parsedIntent.intent,
-      status: "completed",
-    });
-
-    await prisma.agentLog.create({
-      data: {
-        userId,
-        agentName: "workflow_orchestrator",
-        model: "workflow",
-        latencyMs: Date.now() - startTime,
-        tokensUsed: 0,
-        input: {
-          threadId: emailThread.threadId,
-          messageId,
-          intent: parsedIntent.intent,
-        },
-        output: {
-          success: true,
-          slotsCount: availableSlots.length,
-          responseMessageId: sendResult.messageId,
-        },
-      },
-    });
-    console.log(
-      `[Workflow] Completed successfully for thread: ${emailThread.threadId}`
-    );
-
+    // Unknown intent - log and skip
+    console.log(`[Workflow] Unknown intent: ${parsedIntent.intent}, skipping`);
     return {
       success: true,
       threadId,
-      responseMessageId: sendResult.messageId ?? undefined,
       duration: Date.now() - startTime,
     };
   } catch (error) {
@@ -292,7 +234,7 @@ export async function processEmailFromHistory(
   input: HistoryProcessorInput
 ): Promise<HistoryProcessorResult> {
   const startTime = Date.now();
-  const { userId, historyId, notificationMessageId } = input;
+  const { userId } = input;
 
   try {
     console.log(`[History Workflow] Starting for user: ${userId}`);

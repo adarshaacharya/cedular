@@ -17,8 +17,12 @@ export const calendarAgentInputSchema = z.object({
 
 export const timeSlotSchema = z
   .object({
-    start: z.string(),
-    end: z.string(),
+    start: z
+      .string()
+      .describe("Full ISO 8601 datetime string (e.g., 2025-12-02T09:00:00)"),
+    end: z
+      .string()
+      .describe("Full ISO 8601 datetime string (e.g., 2025-12-02T09:30:00)"),
     score: z.number().min(0).max(100),
     reason: z.string().describe("The reason for the score"),
   })

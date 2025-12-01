@@ -94,17 +94,7 @@ docker compose up -d
 npx prisma db push
 ```
 
-Next steps:
 
-Phase 4: Workflow Job Processing
-
-Email processor workflow that orchestrates: fetch email → parse → find slots → generate response → send
-Phase 5: Gmail Webhook Handler
-
-API route to receive notifications from Gmail
-Phase 6: Frontend/UI
-
-Dashboard, settings, etc.
 
 
 After that, run the setup endpoint to reinitialize Gmail watch:
@@ -116,3 +106,17 @@ http://localhost:3000/api/gmail/setup
 ## Test user
 - Email: testuser@example.com
 - Password: Test@1234
+
+
+How It Should Work (Full Flow):
+User sends email: "Schedule 30min meeting with sarah@company.com"
+✅ System parses intent → Calendar agent finds slots → Response generator suggests times
+✅ System sends reply: "How about Tuesday 2pm, Wednesday 10am, or Thursday 3pm?"
+❌ User replies: "Tuesday 2pm works"
+❌ System should:
+Parse the confirmation
+Extract the chosen slot
+Call createCalendarEvent() with that slot
+Create event on user's calendar AND all participant calendars
+Send confirmation email: "Meeting scheduled for Tuesday 2pm"
+Save meeting to meetings table
