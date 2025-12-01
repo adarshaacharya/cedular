@@ -12,6 +12,7 @@ enum EmailThreadIntent {
     reschedule
     cancel
     confirm
+    info_request
 }
 
 model EmailThread {

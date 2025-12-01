@@ -19,7 +19,15 @@ import { extractEmailName } from "@/integrations/gmail/utils";
 import { parseEmail } from "@/agents/email-parser";
 import prisma from "@/lib/prisma";
 import { EmailThreadIntent } from "@/prisma/generated/prisma/enums";
-import { handleConfirm, handleSchedule } from "./handlers";
+import {
+  handleConfirm,
+  handleSchedule,
+  handleReschedule,
+  handleCancel,
+  HandlerInput,
+  HandlerOutput,
+} from "./handlers";
+import { handleInfoRequest } from "./handlers/info-request.handler";
 
 export interface EmailProcessorInput {
   threadId: string;
@@ -153,24 +161,42 @@ export async function processEmail(
       assistantName,
     };
 
-    if (parsedIntent.intent === EmailThreadIntent.confirm) {
-      const result = await handleConfirm(handlerInput);
-      return { ...result, duration: Date.now() - startTime };
-    }
+    // if (parsedIntent.intent === EmailThreadIntent.confirm) {
+    //   const result = await handleConfirm(handlerInput);
+    //   return { ...result, duration: Date.now() - startTime };
+    // }
 
-    if (parsedIntent.intent === EmailThreadIntent.schedule) {
-      const result = await handleSchedule(handlerInput);
-      return { ...result, duration: Date.now() - startTime };
-    }
+    // if (parsedIntent.intent === EmailThreadIntent.schedule) {
+    //   const result = await handleSchedule(handlerInput);
+    //   return { ...result, duration: Date.now() - startTime };
+    // }
 
-    // Skip if not a scheduling request
-    if (parsedIntent.intent === "info_request") {
-      console.log(`[Workflow] Skipping info_request email`);
-      return {
-        success: true,
-        threadId,
-        duration: Date.now() - startTime,
-      };
+    // if (parsedIntent.intent === EmailThreadIntent.reschedule) {
+    //   const result = await handleReschedule(handlerInput);
+    //   return { ...result, duration: Date.now() - startTime };
+    // }
+
+    // if (parsedIntent.intent === EmailThreadIntent.cancel) {
+    //   const result = await handleCancel(handlerInput);
+    //   return { ...result, duration: Date.now() - startTime };
+    // }
+
+    const handlerMapper: Record<
+      EmailThreadIntent,
+      (input: HandlerInput) => Promise<HandlerOutput>
+    > = {
+      [EmailThreadIntent.confirm]: handleConfirm,
+      [EmailThreadIntent.schedule]: handleSchedule,
+      [EmailThreadIntent.reschedule]: handleReschedule,
+      [EmailThreadIntent.cancel]: handleCancel,
+      [EmailThreadIntent.info_request]: handleInfoRequest,
+    };
+
+    const handlerFunction = handlerMapper[parsedIntent.intent];
+
+    if (handlerFunction) {
+      const result = await handlerFunction(handlerInput);
+      return { ...result, duration: Date.now() - startTime };
     }
 
     // Unknown intent - log and skip
