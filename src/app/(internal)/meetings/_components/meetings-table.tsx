@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import React from "react";
+import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
@@ -23,6 +24,7 @@ interface MeetingsTableProps {
 
 export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   const meetings = React.use(meetingsPromise);
+  const router = useRouter();
 
   const columns = useMemo<ColumnDef<MeetingWithThread>[]>(
     () => [
@@ -176,7 +178,10 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   });
 
   return (
-    <DataTable table={table}>
+    <DataTable
+      table={table}
+      onRowClick={(row) => router.push(`/meetings/${row.original.id}`)}
+    >
       <DataTableToolbar table={table} />
     </DataTable>
   );

@@ -4,6 +4,38 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
 import type { MeetingStatus } from "@/prisma/generated/prisma/enums";
 
+export async function getMeetingById(id: string) {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const meeting = await prisma.meeting.findFirst({
+    where: {
+      id,
+      emailThread: {
+        userId: session.user.id,
+      },
+    },
+    include: {
+      emailThread: {
+        select: {
+          id: true,
+          subject: true,
+          threadId: true,
+          status: true,
+          intent: true,
+          participants: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return meeting;
+}
+
 export async function getMeetings() {
   const session = await getServerSession();
 

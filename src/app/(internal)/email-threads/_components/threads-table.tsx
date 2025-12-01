@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
@@ -17,6 +18,7 @@ interface ThreadsTableProps {
 
 export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
   const threads = React.use(threadsPromise);
+  const router = useRouter();
 
   const columns = useMemo<ColumnDef<EmailThreadModel>[]>(
     () => [
@@ -125,7 +127,10 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
 
   return (
     <div className="p-10">
-      <DataTable table={table}>
+      <DataTable
+        table={table}
+        onRowClick={(row) => router.push(`/email-threads/${row.original.id}`)}
+      >
         <DataTableToolbar table={table} />
       </DataTable>
     </div>
