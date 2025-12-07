@@ -1,10 +1,11 @@
 import { Suspense } from "react";
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ThreadsList } from "@/app/(internal)/email-threads/_components/threads-list";
-import { getPendingThreadsCount } from "@/app/(internal)/email-threads/actions";
+
 import { GoogleConnectionCard } from "./_components/google-connection-card";
 import { WelcomeBanner } from "./_components/welcome-banner";
+import { QuickActions } from "./_components/quick-actions";
+import { DashboardStats } from "./_components/stats";
 
 export default async function DashboardPage() {
   return (
@@ -20,36 +21,16 @@ export default async function DashboardPage() {
           </div>
         </Suspense>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground mb-1">
-              Meetings This Week
-            </div>
-            <div className="text-3xl font-bold text-foreground">0</div>
-          </Card>
+        <div className="mb-8">
+          <Suspense fallback={<Skeleton className="h-40 w-full mb-8" />}>
+            <DashboardStats />
+          </Suspense>
 
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground mb-1">
-              Pending Requests
-            </div>
-            <Suspense fallback={<Skeleton className="h-9 w-16" />}>
-              <PendingCount />
+          <div className="md:col-span-2 lg:col-span-2">
+            <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+              <QuickActions />
             </Suspense>
-          </Card>
-
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground mb-1">
-              Response Time
-            </div>
-            <div className="text-3xl font-bold text-foreground">—</div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="text-sm text-muted-foreground mb-1">
-              Success Rate
-            </div>
-            <div className="text-3xl font-bold text-foreground">—</div>
-          </Card>
+          </div>
         </div>
 
         <div className="mt-8">
@@ -61,9 +42,4 @@ export default async function DashboardPage() {
       </div>
     </div>
   );
-}
-
-async function PendingCount() {
-  const count = await getPendingThreadsCount();
-  return <div className="text-3xl font-bold text-foreground">{count}</div>;
 }
