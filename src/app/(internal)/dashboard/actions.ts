@@ -43,7 +43,7 @@ export async function getMeetingsThisWeekCount() {
   const session = await getServerSession();
 
   if (!session?.user) {
-    throw new Error("Unauthorized");
+    return 0;  
   }
 
   const now = new Date();

@@ -10,10 +10,11 @@ model User {
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 
-    sessions        Session[]
-    accounts        Account[]
-    emailThreads    EmailThread[]
-    userPreferences UserPreferences?
+    sessions            Session[]
+    accounts            Account[]
+    emailThreads        EmailThread[]
+    userPreferences     UserPreferences?
+    userScheduleProfile UserScheduleProfile?
 
     @@map("user")
 }

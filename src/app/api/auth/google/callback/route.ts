@@ -100,7 +100,6 @@ export async function GET(request: NextRequest) {
         calendarRefreshToken: tokens.refresh_token,
         calendarTokenExpiry: expiryDate,
         assistantEmail: userEmail, // Save the connected Gmail address
-        timezone: "UTC", // Default, user can update later
       },
       update: {
         gmailAccessToken: tokens.access_token,
@@ -113,11 +112,31 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // create user schedule profile with default values
+    await prisma.userScheduleProfile.upsert({
+      where: {
+        userId: session.user.id,
+      },
+      create: {
+        userId: session.user.id,
+        timezone: "UTC", // Default, user can update later
+        workingHoursStart: "09:00",
+        workingHoursEnd: "17:00",
+        bufferMinutes: 15,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      update: {
+        updatedAt: new Date(),
+      },
+    });
+
     // Success! Redirect to dashboard
     return NextResponse.redirect(
       new URL("/dashboard?success=google_connected", request.url)
     );
   } catch (error) {
+    console.error("OAuth callback error:", error);
     logger.error({ error }, "OAuth callback error");
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";

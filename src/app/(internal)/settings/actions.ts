@@ -20,11 +20,9 @@ export async function updateUserPreferences(formData: FormData) {
       where: { userId },
       create: {
         userId,
-        timezone,
         calendarId: calendarId || null,
       },
       update: {
-        timezone,
         calendarId: calendarId || null,
       },
     });

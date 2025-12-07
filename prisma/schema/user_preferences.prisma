@@ -9,15 +9,14 @@ model UserPreferences {
     gmailTokenExpiry  DateTime?
 
     // Calendar OAuth tokens
-    calendarAccessToken String? @db.Text
-    calendarRefreshToken String? @db.Text
-    calendarTokenExpiry DateTime?
+    calendarAccessToken  String?   @db.Text
+    calendarRefreshToken String?   @db.Text
+    calendarTokenExpiry  DateTime?
 
     // User settings
-    calendarId String? // Primary calendar ID
-    timezone String @default("UTC")
+    calendarId     String? // Primary calendar ID
     assistantEmail String? // User's dedicated scheduling assistant email
-    
+
     // Gmail push notification tracking
     lastProcessedHistoryId String? // Last processed Gmail history ID (prevents duplicate processing)
 
@@ -26,4 +25,23 @@ model UserPreferences {
 
     @@index([userId])
     @@map("user_preferences")
+}
+
+model UserScheduleProfile {
+    id     String @id @default(uuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    timezone          String @default("UTC")
+    workingHoursStart String @default("09:00")
+    workingHoursEnd   String @default("17:00")
+    bufferMinutes     Int    @default(15)
+    preferredTimes    Json? // e.g., [{ start: "09:00", end: "11:00", days: ["mon","tue"] }])
+    avoidTimes        Json? // e.g.,  [{ start: "12:00", end: "13:00", days: ["mon","tue"] }])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    @@map("user_schedule_profiles")
 }
