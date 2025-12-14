@@ -4,7 +4,10 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { setupPushNotifications, getCurrentHistoryId } from "@/integrations/gmail";
+import {
+  setupPushNotifications,
+  getCurrentHistoryId,
+} from "@/integrations/gmail";
 import { auth } from "@/lib/auth/server";
 import { env } from "@/env";
 import prisma from "@/lib/prisma";
@@ -49,10 +52,20 @@ async function handleSetup(request: NextRequest) {
     const currentHistoryId = await getCurrentHistoryId(session.user.id);
     await prisma.userPreferences.update({
       where: { userId: session.user.id },
-      data: { lastProcessedHistoryId: currentHistoryId },
+      data: {
+        lastProcessedHistoryId: currentHistoryId,
+        gmailWatchExpiration: result.expiration,
+      },
     });
 
-    console.log("[Setup] Initialized lastProcessedHistoryId:", currentHistoryId);
+    console.log(
+      "[Setup] Initialized lastProcessedHistoryId:",
+      currentHistoryId
+    );
+    console.log(
+      "[Setup] Gmail watch expires at:",
+      new Date(parseInt(result.expiration))
+    );
 
     return NextResponse.json({
       success: true,

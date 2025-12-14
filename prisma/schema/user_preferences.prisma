@@ -19,6 +19,7 @@ model UserPreferences {
 
     // Gmail push notification tracking
     lastProcessedHistoryId String? // Last processed Gmail history ID (prevents duplicate processing)
+    gmailWatchExpiration   String? // Gmail watch expiration timestamp (milliseconds)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

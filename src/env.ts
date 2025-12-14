@@ -13,6 +13,7 @@ export const env = createEnv({
     GOOGLE_REDIRECT_URI: z.string().url().optional(),
     GOOGLE_CLOUD_PROJECT_ID: z.string().optional(),
     GMAIL_PUBSUB_TOPIC: z.string().optional(),
+    CRON_SECRET: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -29,6 +30,7 @@ export const env = createEnv({
     GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
     GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
     GMAIL_PUBSUB_TOPIC: process.env.GMAIL_PUBSUB_TOPIC,
+    CRON_SECRET: process.env.CRON_SECRET,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
