@@ -1,117 +1,78 @@
 /**
  * Calendar Agent - Finds optimal meeting time slots
  *
- * Analyzes participant calendars and meeting preferences to identify
- * the 3 best time slots for scheduling a meeting.
+ * Uses tool calling to autonomously fetch calendar data and find available slots.
  */
 
-import { z } from "zod";
-import { getCalendarEvents } from "@/integrations/calendar";
-import {
-  calendarAgentInputSchema,
-  CalendarAgentOutput,
-  calendarAgentOutputSchema,
-  TimeSlot,
-  type CalendarAgentInput,
-} from "./types";
-import { addMinutes, isWithinInterval, parseISO, format } from "date-fns";
-import { CalendarEvent } from "@/integrations/calendar/types";
-import { runAgent } from "../_lib/base";
-
-function buildPrompt({
-  participants,
-  duration,
-  preferences,
-  calendarData,
-}: CalendarAgentInput & { calendarData: CalendarEvent[] }) {
-  const workingHoursStart = preferences?.workingHoursStart ?? "09:00";
-  const workingHoursEnd = preferences?.workingHoursEnd ?? "17:00";
-
-  return `
-    <identity>
-    You are a calendar scheduling expert. Analyze the calendar data and find the 3 best time slots for the meeting.
-    </identity>
-
-
-    <constraints>
-    - Meeting duration: ${duration} minutes
-    - Participants: ${participants.join(", ")}'
-    - Working hours start: ${workingHoursStart}
-    - Working hours end: ${workingHoursEnd}
-    - Timezone: ${preferences?.timezone || "UTC"}
-    - Buffer between meetings: ${preferences?.bufferMinutes ?? 15} minutes
-    ${
-      preferences?.preferredTimes
-        ? `- Preferred times: ${preferences.preferredTimes.join(", ")}`
-        : ""
-    }
-    ${
-      preferences?.avoidTimes
-        ? `- Times to avoid: ${preferences.avoidTimes.join(", ")}`
-        : ""
-    }
-    </constraints>
-
-    <calendar-data>
-    ${JSON.stringify(calendarData, null, 2)}
-    </calendar-data>
-
-
-    <candidate-time-slots>
-    Find the 3 best non-overlapping time slots that:
-    1. Don't conflict with any participant's calendar
-    2. Fall within working hours
-    3. Have sufficient buffer time before/after existing events
-    4. Prefer times in preferred time windows if specified
-    5. Rank by likelihood of participant availability
-
-    IMPORTANT: Return start and end times as FULL ISO 8601 datetime strings including the date.
-    Example: "2025-12-02T09:00:00" NOT just "09:00"
-    
-    Use dates within the next 7 days from today.
-    Today's date is: ${new Date().toISOString().split("T")[0]}
-
-    Return as JSON with exactly 3 slots, ordered by preference.
-    </candidate-time-slots>
-    `;
-}
+import { calendarAgentInputSchema, type CalendarAgentInput } from "./types";
+import { runAgentWithTools } from "../_lib/base";
+import { calendarTools } from "./tools";
 
 /**
- * Run the calendar agent to find available meeting times
+ * Run calendar agent with tool calling
+ *
+ * The agent autonomously decides which tools to call and when.
  *
  * @param input - Calendar agent input with participants and preferences
  * @param userId - User ID for logging
- * @returns Array of recommended time slots with scores and reasons
+ * @returns Result with text, tool calls, and tool results
  */
 export async function runCalendarAgent(
   input: CalendarAgentInput,
   userId: string
-): Promise<CalendarAgentOutput> {
+) {
   const validatedInput = calendarAgentInputSchema.parse(input);
 
-  const calendarData = await Promise.all(
-    validatedInput.participants.map((email) =>
-      getCalendarEvents({
-        attendeeEmail: email,
-        userId,
-        timeMin: new Date(),
-        timeMax: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days ahead
-      })
-    )
-  ).then((results) => results.flat());
+  const prompt = `
+    <identity>
+    You are a calendar scheduling expert with access to calendar tools.
+    Use the available tools to find the 3 best time slots for scheduling a meeting.
+    </identity>
 
-  const prompt = buildPrompt({
-    ...validatedInput,
-    calendarData,
-  });
+    <task>
+    Find the 3 best time slots for a meeting with:
+    - Participants: ${validatedInput.participants.join(", ")}
+    - Duration: ${validatedInput.duration} minutes
+    - Working hours: ${
+      validatedInput.preferences?.workingHoursStart || "09:00"
+    } to ${validatedInput.preferences?.workingHoursEnd || "17:00"}
+    - Timezone: ${validatedInput.preferences?.timezone || "UTC"}
+    - Buffer: ${validatedInput.preferences?.bufferMinutes || 15} minutes
+    ${
+      validatedInput.preferences?.preferredTimes
+        ? `- Preferred times: ${validatedInput.preferences.preferredTimes.join(
+            ", "
+          )}`
+        : ""
+    }
+    ${
+      validatedInput.preferences?.avoidTimes
+        ? `- Avoid times: ${validatedInput.preferences.avoidTimes.join(", ")}`
+        : ""
+    }
+    </task>
 
-  const result = await runAgent({
+    <instructions>
+    1. Use the getCalendarEvents tool to fetch calendar data for each participant
+    2. Analyze the busy periods from the calendar events
+    3. Identify free time slots that work for all participants
+    4. Consider working hours, buffer times, and user preferences
+    5. Return the 3 best slots with reasoning for each choice
+    
+    Think step by step and use tools as needed. Show your reasoning.
+    </instructions>
+
+    Today's date: ${new Date().toISOString().split("T")[0]}
+    Look for slots in the next 7 days.
+  `;
+
+  const result = await runAgentWithTools({
     agentName: "calendar-agent",
     prompt,
-    schema: calendarAgentOutputSchema,
+    tools: calendarTools,
     userId,
+    maxSteps: 10,
   });
-  const validatedOutput = calendarAgentOutputSchema.parse(result);
 
-  return validatedOutput;
+  return result;
 }
