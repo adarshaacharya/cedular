@@ -3,31 +3,72 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { userPreferencesSchema } from "./schema";
 
 export async function updateUserPreferences(formData: FormData) {
-  const userId = formData.get("userId") as string;
-  const timezone = formData.get("timezone") as string;
-  const workingHoursStart = formData.get("workingHoursStart") as string;
-  const workingHoursEnd = formData.get("workingHoursEnd") as string;
-  const calendarId = formData.get("calendarId") as string;
+  const rawData = {
+    userId: formData.get("userId") as string,
+    timezone: formData.get("timezone") as string,
+    workingHoursStart: formData.get("workingHoursStart") as string,
+    workingHoursEnd: formData.get("workingHoursEnd") as string,
+    bufferMinutes: parseInt(formData.get("bufferMinutes") as string),
+    calendarId: formData.get("calendarId") as string,
+    assistantEmail: formData.get("assistantEmail") as string,
+  };
 
-  if (!userId) {
-    throw new Error("User ID is required");
+  // Validate with Zod schema
+  const validationResult = userPreferencesSchema.safeParse(rawData);
+
+  if (!validationResult.success) {
+    const errors = validationResult.error.issues
+      .map((e) => e.message)
+      .join(", ");
+    throw new Error(errors);
+  }
+
+  const data = validationResult.data;
+
+  // Additional validation for working hours
+  if (data.workingHoursStart >= data.workingHoursEnd) {
+    throw new Error("Working hours start must be before working hours end");
   }
 
   try {
+    // Update userPreferences (OAuth/account level settings)
     await prisma.userPreferences.upsert({
-      where: { userId },
+      where: { userId: data.userId },
       create: {
-        userId,
-        calendarId: calendarId || null,
+        userId: data.userId,
+        calendarId: data.calendarId || null,
+        assistantEmail: data.assistantEmail || null,
       },
       update: {
-        calendarId: calendarId || null,
+        calendarId: data.calendarId || null,
+        assistantEmail: data.assistantEmail || null,
+      },
+    });
+
+    // Upsert userScheduleProfile (scheduling settings)
+    await prisma.userScheduleProfile.upsert({
+      where: { userId: data.userId },
+      create: {
+        userId: data.userId,
+        timezone: data.timezone,
+        workingHoursStart: data.workingHoursStart,
+        workingHoursEnd: data.workingHoursEnd,
+        bufferMinutes: data.bufferMinutes,
+      },
+      update: {
+        timezone: data.timezone,
+        workingHoursStart: data.workingHoursStart,
+        workingHoursEnd: data.workingHoursEnd,
+        bufferMinutes: data.bufferMinutes,
       },
     });
 
     revalidatePath("/settings");
+    revalidatePath("/dashboard");
+    return { success: true };
   } catch (error) {
     console.error("Error updating preferences:", error);
     throw new Error("Failed to update preferences");

@@ -23,6 +23,14 @@ async function getUserPreferences(userId: string) {
   return preferences;
 }
 
+async function getUserScheduleProfile(userId: string) {
+  const profile = await prisma.userScheduleProfile.findUnique({
+    where: { userId },
+  });
+
+  return profile;
+}
+
 async function SettingsContent() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -33,6 +41,7 @@ async function SettingsContent() {
   }
 
   const userPreferences = await getUserPreferences(session.user.id);
+  const scheduleProfile = await getUserScheduleProfile(session.user.id);
 
   return (
     <div className="max-w-4xl mx-auto w-full space-y-6">
@@ -90,6 +99,7 @@ async function SettingsContent() {
           <PreferencesForm
             userId={session.user.id}
             preferences={userPreferences}
+            scheduleProfile={scheduleProfile}
           />
         </CardContent>
       </Card>
