@@ -31,6 +31,7 @@ export const emailIntentSchema = z.object({
     .describe("Urgency level based on language and context"),
   chosenSlotIndex: z
     .number()
+    .nullable()
     .optional()
     .describe(
       "Index of the chosen time slot (0, 1, or 2) when intent is confirm"

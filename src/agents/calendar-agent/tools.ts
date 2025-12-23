@@ -46,7 +46,8 @@ export const calendarTools = {
   }),
 
   findFreeSlots: tool({
-    description: "Find free time slots given busy periods and constraints",
+    description:
+      "Find free time slots given busy periods and constraints. If no slots found, try expanding workingHoursStart/End (e.g., 08:00-18:00) or increasing daysToCheck (e.g., 14 days)",
     inputSchema: z.object({
       busyPeriods: z
         .array(
@@ -57,9 +58,24 @@ export const calendarTools = {
         )
         .describe("Array of busy time periods in ISO 8601 format"),
       duration: z.number().describe("Meeting duration in minutes"),
-      workingHoursStart: z.string().default("09:00"),
-      workingHoursEnd: z.string().default("17:00"),
-      daysToCheck: z.number().default(7),
+      workingHoursStart: z
+        .string()
+        .default("09:00")
+        .describe(
+          "Start of working hours (HH:mm). Can expand to 08:00 or 07:00 if needed"
+        ),
+      workingHoursEnd: z
+        .string()
+        .default("17:00")
+        .describe(
+          "End of working hours (HH:mm). Can expand to 18:00 or 19:00 if needed"
+        ),
+      daysToCheck: z
+        .number()
+        .default(7)
+        .describe(
+          "Number of days to search (default 7, try 14 if no slots found)"
+        ),
     }),
     execute: async ({
       busyPeriods,

@@ -54,16 +54,22 @@ export async function runCalendarAgent(
 
     <instructions>
     1. Use the getCalendarEvents tool to fetch calendar data for each participant
-    2. Analyze the busy periods from the calendar events
-    3. Identify free time slots that work for all participants
-    4. Consider working hours, buffer times, and user preferences
-    5. Return the 3 best slots with reasoning for each choice
+    2. Use findFreeSlots tool to find available time slots
+    3. Use scoreTimeSlot tool to score each free slot based on quality and preferences
+    4. Select the 3 best slots (highest scores)
+    
+    IMPORTANT - If no slots are found within working hours:
+    5. Expand search to nearby times (earlier morning like 8am or later evening like 6pm)
+    6. Try the following week if current week is fully booked
+    7. Consider slightly shorter or longer meeting durations
+    8. Always provide alternatives - never return empty results
     
     Think step by step and use tools as needed. Show your reasoning.
+    Be helpful and proactive in finding alternatives if the initial search fails.
     </instructions>
 
     Today's date: ${new Date().toISOString().split("T")[0]}
-    Look for slots in the next 7 days.
+    Look for slots in the next 7-14 days if needed.
   `;
 
   const result = await runAgentWithTools({

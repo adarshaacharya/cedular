@@ -71,7 +71,12 @@ export async function handleConfirm(
       `[ConfirmHandler] Chosen slot: ${chosenSlot.start} - ${chosenSlot.end}`
     );
 
-    const timezone = userPreferences.timezone || "UTC";
+    // Fetch user schedule profile for timezone
+    const scheduleProfile = await prisma.userScheduleProfile.findUnique({
+      where: { userId },
+    });
+
+    const timezone = scheduleProfile?.timezone || "UTC";
 
     // 3. Call createCalendarEvent()
     const calendarEvent = await createCalendarEvent(

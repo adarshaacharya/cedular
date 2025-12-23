@@ -53,7 +53,10 @@ export async function refreshGmailToken(userId: string) {
 
     return credentials;
   } catch (error) {
-    logger.error({ error, userId }, "Failed to refresh Gmail token");
+    console.error(
+      `[Auth] Failed to refresh Gmail token for user ${userId}:`,
+      error
+    );
     throw new Error("Failed to refresh Gmail token");
   }
 }

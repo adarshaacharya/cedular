@@ -7,60 +7,89 @@ import {
   EmailThreadIntent,
   EmailThreadStatus,
 } from "@/prisma/generated/prisma/enums";
+import prisma from "@/lib/prisma";
 
 export async function handleSchedule(
   input: HandlerInput
 ): Promise<HandlerOutput> {
-  const {
-    emailThread,
-    parsedIntent,
-    userId,
-    userPreferences,
-    senderName,
-    assistantName,
-  } = input;
+  const { emailThread, parsedIntent, userId, senderName, assistantName } =
+    input;
 
   try {
     console.log(
       `[ScheduleHandler] Processing schedule request for thread: ${emailThread.threadId}`
     );
 
-    // 1. Find optimal calendar slots
+    // 1. Fetch user schedule profile
+    const scheduleProfile = await prisma.userScheduleProfile.findUnique({
+      where: { userId },
+    });
+
+    // 2. Find optimal calendar slots
     console.log(`[ScheduleHandler] Finding optimal calendar slots`);
-    const { slots: availableSlots } = await runCalendarAgent(
+    const calendarResult = await runCalendarAgent(
       {
         participants: parsedIntent.participants || [],
         duration: parsedIntent.duration || 60,
         preferences: {
-          timezone: userPreferences.timezone || "UTC",
-          workingHoursStart: "09:00",
-          workingHoursEnd: "17:00",
-          bufferMinutes: 15,
+          timezone: scheduleProfile?.timezone || "UTC",
+          workingHoursStart: scheduleProfile?.workingHoursStart || "09:00",
+          workingHoursEnd: scheduleProfile?.workingHoursEnd || "17:00",
+          bufferMinutes: scheduleProfile?.bufferMinutes || 15,
         },
       },
       userId
     );
 
-    if (!availableSlots || availableSlots.length === 0) {
-      console.warn(`[ScheduleHandler] No available slots found`);
-      return {
-        success: false,
-        threadId: emailThread.threadId,
-        error: "No available time slots found",
-      };
+    // Extract scored slots from tool results
+    const availableSlots: Array<{
+      start: string;
+      end: string;
+      score: number;
+    }> = [];
+
+    // Look through all steps for scoreTimeSlot tool results
+    if (calendarResult.steps) {
+      for (const step of calendarResult.steps) {
+        if (step.toolResults) {
+          for (const toolResult of step.toolResults) {
+            if (
+              toolResult.toolName === "scoreTimeSlot" &&
+              "result" in toolResult
+            ) {
+              const scoredSlot = toolResult.result as {
+                slot: { start: string; end: string };
+                score: number;
+              };
+              availableSlots.push({
+                start: scoredSlot.slot.start,
+                end: scoredSlot.slot.end,
+                score: scoredSlot.score,
+              });
+            }
+          }
+        }
+      }
     }
 
+    // Sort by score descending and take top 3
+    availableSlots.sort((a, b) => b.score - a.score);
+    const topSlots = availableSlots.slice(0, 3);
+
     console.log(
-      `[ScheduleHandler] Found ${availableSlots.length} available slots`
+      `[ScheduleHandler] Found ${topSlots.length} available slots from agent tool calls`
     );
 
-    // 2. Format slots for response generator
-    const slotsFormatted = availableSlots.reduce((acc, slot) => {
-      acc[`${slot.start} - ${slot.end}`] = slot.score.toString();
-      return acc;
-    }, {} as Record<string, string>);
+    // 3. Format slots for response generator (or empty if none found)
+    const slotsFormatted =
+      topSlots.length > 0
+        ? topSlots.reduce((acc, slot) => {
+            acc[`${slot.start} - ${slot.end}`] = slot.score.toString();
+            return acc;
+          }, {} as Record<string, string>)
+        : {};
 
-    // 3. Generate response email with proposed times
+    // 4. Generate response email with proposed times
     console.log(`[ScheduleHandler] Generating email response`);
     const generatedResponse = await generateResponse({
       emailContext: emailThread.body,
@@ -75,7 +104,7 @@ export async function handleSchedule(
       throw new Error("Failed to generate email response");
     }
 
-    // 4. Send email
+    // 5. Send email
     console.log(`[ScheduleHandler] Sending email response`);
     const latestMessageId =
       emailThread.messages[emailThread.messages.length - 1]?.id;
@@ -96,15 +125,18 @@ export async function handleSchedule(
       `[ScheduleHandler] Response email sent: ${sentMessage.messageId}`
     );
 
-    // 5. Save email thread with proposedSlots
+    // 6. Save email thread with proposedSlots (empty array if none found)
     await createEmailThread({
       userId,
       threadId: emailThread.threadId,
       subject: emailThread.subject,
       participants: [emailThread.from],
       intent: EmailThreadIntent.schedule,
-      status: EmailThreadStatus.awaiting_confirmation,
-      proposedSlots: availableSlots.map((slot) => ({
+      status:
+        topSlots.length > 0
+          ? EmailThreadStatus.awaiting_confirmation
+          : EmailThreadStatus.failed,
+      proposedSlots: topSlots.map((slot) => ({
         start: slot.start,
         end: slot.end,
         score: slot.score,
@@ -113,7 +145,7 @@ export async function handleSchedule(
 
     console.log(`[ScheduleHandler] Email thread saved with proposed slots`);
 
-    // 6. Return result
+    // 7. Return result
     return {
       success: true,
       threadId: emailThread.threadId,

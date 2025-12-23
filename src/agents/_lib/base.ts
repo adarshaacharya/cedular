@@ -7,8 +7,6 @@ import type { ToolSet } from "ai";
 
 export const DEFAULT_MODEL = openai("gpt-4o-mini");
 
-const log = logger.child({ module: "agent-base" });
-
 /**
  * Run an agent with structured output (for parsing/extraction tasks)
  */
@@ -26,7 +24,7 @@ export async function runAgent<T extends z.ZodType>({
   const startTime = Date.now();
 
   try {
-    log.info(`[Agent: ${agentName}] Starting...`);
+    console.log(`[Agent: ${agentName}] Starting...`);
 
     const result = await generateObject<T>({
       model: DEFAULT_MODEL,
@@ -94,7 +92,7 @@ export async function runAgentWithTools({
   const startTime = Date.now();
 
   try {
-    log.info({ agentName }, "[Agent Starting...]");
+    console.log(`[Agent: ${agentName}] Starting...`);
 
     const result = await generateText({
       model: DEFAULT_MODEL,
