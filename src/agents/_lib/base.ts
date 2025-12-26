@@ -117,6 +117,12 @@ export async function runToolLoopAgent({
     const latencyMs = endTime - startTime;
     const tokensUsed = result.usage?.totalTokens;
 
+    console.log(
+      `[Agent: ${agentName}] Completed in ${latencyMs}ms, tokens: ${
+        tokensUsed || "N/A"
+      }`
+    );
+
     await logAgentRun({
       agentName,
       input: { instructions, prompt },

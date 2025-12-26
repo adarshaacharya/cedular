@@ -56,13 +56,16 @@ export async function runCalendarAgent(
     <instructions>
     Find free time in the assistant's schedule where the meeting can be scheduled.
 
-    1. Use the different tools to find the best slots, 
+    STEP-BY-STEP PROCESS:
+    1. First, call getUserCalendarEvents with userId="${userId}" and daysAhead=7 to get the assistant's busy periods
+    2. Then, call findFreeSlots with the busy periods and meeting requirements to find available slots
+    3. Finally, call scoreTimeSlot for each slot to rank them by quality
+    
     If no slots are found within working hours:
     1. Expand search to nearby times (earlier morning like 8am or later evening like 6pm)
-    2. Try the following week if current week is fully booked
+    2. Try the following week if current week is fully booked (use daysAhead=14)
     3. Consider slightly shorter or longer meeting durations
     4. Always provide alternatives - never return empty results
-    
     
     NOTE: You can only access the assistant's calendar, not the participants' calendars.
     
