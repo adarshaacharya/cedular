@@ -43,72 +43,25 @@ export async function handleSchedule(
 
     const calendarResult = await runCalendarAgent(calendarAgentInput, userId);
 
-    // --- Slot Extraction Logic ---
-    // Prefer scored slots from scoreTimeSlot, fallback to unscored slots from findFreeSlots
-    const scoredSlots: Array<{ start: string; end: string; score: number }> =
-      [];
-    const unscoredSlots: Array<{ start: string; end: string }> = [];
+    // Extract slots directly from structured output
+    const availableSlots = calendarResult.output.slots;
 
-    if (calendarResult.steps) {
-      for (const step of calendarResult.steps) {
-        if (step.toolResults) {
-          for (const toolResult of step.toolResults) {
-            if (toolResult.toolName === "scoreTimeSlot") {
-              const output = toolResult.output;
-              if (
-                output &&
-                typeof output === "object" &&
-                "slot" in output &&
-                "score" in output
-              ) {
-                const scoredSlot = output as {
-                  slot: { start: string; end: string };
-                  score: number;
-                };
-                scoredSlots.push({
-                  start: scoredSlot.slot.start,
-                  end: scoredSlot.slot.end,
-                  score: scoredSlot.score,
-                });
-              }
-            }
-            if (toolResult.toolName === "findFreeSlots") {
-              const output = toolResult.output;
-              // findFreeSlots returns { freeSlots: [...], count: N, message: "..." }
-              if (
-                output &&
-                typeof output === "object" &&
-                "freeSlots" in output &&
-                Array.isArray(output.freeSlots)
-              ) {
-                for (const slot of output.freeSlots) {
-                  if (slot && slot.start && slot.end) {
-                    unscoredSlots.push({ start: slot.start, end: slot.end });
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    if (!availableSlots || availableSlots.length === 0) {
+      console.log(`[ScheduleHandler] No available slots found by agent`);
+    } else {
+      console.log(
+        `[ScheduleHandler] Found ${availableSlots.length} slots from structured agent output`
+      );
     }
-    console.log("[ScheduleHandler][Debug] scoredSlots:", scoredSlots);
-    console.log("[ScheduleHandler][Debug] unscoredSlots:", unscoredSlots);
 
     let topSlots: Array<{ start: string; end: string; score?: number }> = [];
-    if (scoredSlots.length > 0) {
-      scoredSlots.sort((a, b) => b.score - a.score);
-      topSlots = scoredSlots.slice(0, 3);
+    if (availableSlots && availableSlots.length > 0) {
+      // Sort by score (highest first) and take top 3
+      const sortedSlots = [...availableSlots].sort((a, b) => b.score - a.score);
+      topSlots = sortedSlots.slice(0, 3);
       console.log(
-        `[ScheduleHandler] Found ${topSlots.length} scored slots from agent tool calls`
+        `[ScheduleHandler] Using top ${topSlots.length} scored slots`
       );
-    } else if (unscoredSlots.length > 0) {
-      topSlots = unscoredSlots.slice(0, 3);
-      console.log(
-        `[ScheduleHandler] No scored slots found, using ${topSlots.length} unscored slots from findFreeSlots`
-      );
-    } else {
-      console.log(`[ScheduleHandler] No available slots found by agent`);
     }
     console.log("[ScheduleHandler][Debug] topSlots:", topSlots);
 

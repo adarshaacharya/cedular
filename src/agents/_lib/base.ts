@@ -89,6 +89,7 @@ export async function runToolLoopAgent({
   tools,
   userId,
   model = DEFAULT_MODEL,
+  output,
 }: {
   agentName: string;
   instructions: string;
@@ -96,6 +97,7 @@ export async function runToolLoopAgent({
   tools: ToolSet;
   userId: string;
   model?: ReturnType<typeof openai>;
+  output?: ReturnType<typeof Output.object>;
 }) {
   const startTime = Date.now();
 
@@ -107,6 +109,7 @@ export async function runToolLoopAgent({
       model,
       instructions,
       tools,
+      output,
       // Automatically loops up to 20 steps by default
     });
 

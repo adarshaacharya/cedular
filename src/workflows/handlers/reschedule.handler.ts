@@ -8,14 +8,8 @@ import { EmailThreadStatus } from "@/prisma/generated/prisma/enums";
 export async function handleReschedule(
   input: HandlerInput
 ): Promise<HandlerOutput> {
-  const {
-    emailThread,
-    parsedIntent,
-    userId,
-    userPreferences,
-    senderName,
-    assistantName,
-  } = input;
+  const { emailThread, parsedIntent, userId, senderName, assistantName } =
+    input;
 
   try {
     console.log(
@@ -33,21 +27,28 @@ export async function handleReschedule(
       );
     }
 
-    // 2. Find new optimal calendar slots
+    // 2. Fetch user schedule profile for preferences
+    const scheduleProfile = await prisma.userScheduleProfile.findUnique({
+      where: { userId },
+    });
+
+    // 3. Find new optimal calendar slots
     console.log(`[RescheduleHandler] Finding new available slots`);
-    const { slots: availableSlots } = await runCalendarAgent(
+    const calendarResult = await runCalendarAgent(
       {
         participants: parsedIntent.participants || [],
         duration: parsedIntent.duration || 60,
         preferences: {
-          timezone: userPreferences.timezone || "UTC",
-          workingHoursStart: "09:00",
-          workingHoursEnd: "17:00",
-          bufferMinutes: 15,
+          timezone: scheduleProfile?.timezone || "UTC",
+          workingHoursStart: scheduleProfile?.workingHoursStart || "09:00",
+          workingHoursEnd: scheduleProfile?.workingHoursEnd || "17:00",
+          bufferMinutes: scheduleProfile?.bufferMinutes || 15,
         },
       },
       userId
     );
+
+    const availableSlots = calendarResult.output.slots;
 
     if (!availableSlots || availableSlots.length === 0) {
       console.warn(`[RescheduleHandler] No available slots found`);
@@ -62,13 +63,13 @@ export async function handleReschedule(
       `[RescheduleHandler] Found ${availableSlots.length} available slots`
     );
 
-    // 3. Format slots for response generator
+    // 4. Format slots for response generator
     const slotsFormatted = availableSlots.reduce((acc, slot) => {
       acc[`${slot.start} - ${slot.end}`] = slot.score.toString();
       return acc;
     }, {} as Record<string, string>);
 
-    // 4. Generate response email with new proposed times
+    // 5. Generate response email with new proposed times
     console.log(`[RescheduleHandler] Generating reschedule response`);
     const generatedResponse = await generateResponse({
       emailContext: emailThread.body,
@@ -83,7 +84,7 @@ export async function handleReschedule(
       throw new Error("Failed to generate email response");
     }
 
-    // 5. Send email
+    // 6. Send email
     console.log(`[RescheduleHandler] Sending reschedule response`);
     const latestMessageId =
       emailThread.messages[emailThread.messages.length - 1]?.id;
@@ -101,7 +102,7 @@ export async function handleReschedule(
       `[RescheduleHandler] Response email sent: ${sentMessage.messageId}`
     );
 
-    // 6. Update email thread with new proposed slots
+    // 7. Update email thread with new proposed slots
     if (dbThread) {
       await prisma.emailThread.update({
         where: { id: dbThread.id },
