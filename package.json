@@ -50,6 +50,7 @@
     "dotenv": "^17.2.3",
     "evalite": "1.0.0-beta.1",
     "googleapis": "^165.0.0",
+    "jsonrepair": "^3.13.1",
     "lucide-react": "^0.552.0",
     "next": "16.0.1",
     "nuqs": "^2.7.2",

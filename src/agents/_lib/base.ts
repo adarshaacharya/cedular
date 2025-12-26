@@ -4,7 +4,7 @@ import { Output, ToolLoopAgent } from "ai";
 import type { ToolSet } from "ai";
 import { openai } from "@ai-sdk/openai";
 
-export const DEFAULT_MODEL = openai("gpt-4o-mini");
+export const DEFAULT_MODEL = openai("gpt-4o");
 
 /**
  * Run an agent with structured output (for parsing/extraction tasks)

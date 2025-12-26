@@ -113,6 +113,10 @@ export async function parseEmail({
     - For confirm intent: User is confirming a proposed time (e.g., "Tuesday works", "option 2", "the first one")
     - Set chosenSlotIndex: 0 for first option, 1 for second, 2 for third
     - Look for keywords: "first", "second", "third", "option 1/2/3", or specific day/time
+  
+    CRITICAL: Output PURE JSON only. Do NOT wrap in json code blocks. Do NOT add markdown. Do NOT include explanations. Just the raw JSON object.
+
+
     </guidelines>
 
     <examples>

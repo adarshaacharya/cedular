@@ -104,8 +104,16 @@ export async function createCalendarEvent(
   const calendar = await getCalendarClient(userId);
 
   try {
+    console.log(
+      `[Calendar] Creating event "${event.summary}" with ${
+        event.attendees?.length || 0
+      } attendees:`,
+      event.attendees?.map((a) => a.email)
+    );
+
     const response = await calendar.events.insert({
       calendarId: PRIMARY_CALENDAR_ID,
+      sendUpdates: "all", // Send invitation emails to all attendees
       requestBody: {
         summary: event.summary,
         description: event.description,
@@ -127,6 +135,9 @@ export async function createCalendarEvent(
       conferenceDataVersion: event.conferenceData ? 1 : 0,
     });
 
+    console.log(
+      `[Calendar] Event created successfully: ${response.data.id}, sendUpdates: 'all'`
+    );
     return response.data as CalendarEvent;
   } catch (error: unknown) {
     // Log full error details for debugging
