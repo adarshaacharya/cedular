@@ -17,7 +17,7 @@ interface CreateEmailThreadInput {
   participants: string[];
   intent: EmailThreadIntent;
   status?: EmailThreadStatus;
-  proposedSlots?: Array<{ start: string; end: string; score: number }>;
+  proposedSlots?: Array<{ start: string; end: string; score?: number }>;
 }
 
 export async function createEmailThread(

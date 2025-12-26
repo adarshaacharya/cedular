@@ -7,6 +7,9 @@ export interface HandlerInput {
     subject: string;
     body: string;
     from: string;
+    to?: string;
+    cc?: string;
+    participants?: string[];
     messages: Array<{ id: string }>;
   };
   parsedIntent: EmailParseResult;

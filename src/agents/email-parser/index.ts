@@ -5,7 +5,7 @@
  */
 
 import { z } from "zod";
-import { runAgent } from "../_lib/base";
+import { runStructuredAgent } from "../_lib/base";
 
 export const emailIntentSchema = z.object({
   intent: z
@@ -16,12 +16,16 @@ export const emailIntentSchema = z.object({
     .describe("Email addresses of participants mentioned in the email"),
   proposedTimes: z
     .array(z.string())
-    .optional()
-    .describe("ISO 8601 datetime strings of proposed meeting times"),
+    .nullable()
+    .describe(
+      "ISO 8601 datetime strings of proposed meeting times, or null if none"
+    ),
   duration: z
     .number()
-    .optional()
-    .describe("Meeting duration in minutes (e.g., 30, 60, 90)"),
+    .nullable()
+    .describe(
+      "Meeting duration in minutes (e.g., 30, 60, 90), or null if not specified"
+    ),
   title: z.string().describe("Extracted meeting title or subject"),
   context: z
     .string()
@@ -32,9 +36,8 @@ export const emailIntentSchema = z.object({
   chosenSlotIndex: z
     .number()
     .nullable()
-    .optional()
     .describe(
-      "Index of the chosen time slot (0, 1, or 2) when intent is confirm"
+      "Index of the chosen time slot (0, 1, or 2) when intent is confirm, or null if not confirming"
     ),
 });
 
@@ -46,6 +49,7 @@ export type EmailParseResult = z.infer<typeof emailIntentSchema>;
  * @param emailBody - The latest email body text
  * @param subject - The email subject line
  * @param userId - User ID for logging
+ * @param participants - Participant email addresses extracted from email headers (To, From, CC)
  * @param threadHistory - Optional array of previous messages in the thread
  * @param existingThreadStatus - Optional status of existing thread in DB (e.g., 'awaiting_confirmation')
  * @returns Structured scheduling information extracted from the email
@@ -54,12 +58,14 @@ export async function parseEmail({
   emailBody,
   subject,
   userId,
+  participants,
   threadHistory,
   existingThreadStatus,
 }: {
   emailBody: string;
   subject: string;
   userId: string;
+  participants?: string[];
   threadHistory?: Array<{ body: string; snippet?: string | null }>;
   existingThreadStatus?: string | null;
 }): Promise<EmailParseResult> {
@@ -77,39 +83,25 @@ export async function parseEmail({
       ? `\n\n<important>\nThis thread is currently AWAITING CONFIRMATION. The assistant previously proposed time slots.\nIf the user is agreeing to a time, responding positively, or mentioning "option 1/2/3", "first/second/third",\nor a specific time that was proposed, the intent should be "confirm" with the appropriate chosenSlotIndex.\n</important>`
       : "";
 
-  const prompt = `
+  const instructions = `
     <identity>
     You are an expert email scheduling assistant. Your job is to parse scheduling-related emails
     and extract structured information that will be used to automatically schedule meetings.
     </identity>
 
     <task>
-    Parse the following email and extract:
+    Parse the email and extract:
     1. The scheduling intent (schedule new, reschedule existing, cancel, confirm, or info request)
-    2. All participant email addresses mentioned
-    3. Proposed meeting times (if mentioned)
-    4. Meeting duration in minutes
-    5. Meeting title/topic
-    6. Summary context
-    7. Urgency level (low/medium/high)
-    8. If intent is "confirm", set chosenSlotIndex (0, 1, or 2) based on which option user selected
-    </task>${statusHint}${
-    conversationContext
-      ? `
-
-    <thread_history>
-    ${conversationContext}
-    </thread_history>`
-      : ""
-  }
-
-    <latest_email>
-    Subject: ${subject}
-    Body: ${emailBody}
-    </latest_email>
+    2. Proposed meeting times (if mentioned)
+    3. Meeting duration in minutes
+    4. Meeting title/topic
+    5. Summary context
+    6. Urgency level (low/medium/high)
+    7. If intent is "confirm", set chosenSlotIndex (0, 1, or 2) based on which option user selected
+    </task>${statusHint}
 
     <guidelines>
-    - Extract ALL participant email addresses, even if not explicitly labeled
+    - Participants are already provided from email headers (To, From, CC), use them as-is
     - Look for duration hints like "30 min", "1 hour", "1.5 hours", "quick sync"
     - Parse common time formats: "tomorrow at 2pm", "next Tuesday 10:00", "Monday morning"
     - If no explicit time is proposed, leave proposedTimes empty
@@ -148,12 +140,49 @@ export async function parseEmail({
     Return ONLY valid JSON matching the schema. No explanations.
   `;
 
-  const result = await runAgent({
+  const prompt = `
+    Participants: ${
+      participants && participants.length > 0
+        ? participants.join(", ")
+        : "Not provided"
+    }${
+    conversationContext
+      ? `
+
+    <thread_history>
+    ${conversationContext}
+    </thread_history>`
+      : ""
+  }
+
+    <latest_email>
+    Subject: ${subject}
+    Body: ${emailBody}
+    </latest_email>
+
+    Extract the scheduling information from the email above.
+  `;
+
+  const result = await runStructuredAgent({
     agentName: "email-parser",
+    instructions,
     prompt,
     schema: emailIntentSchema,
     userId,
   });
+
+  // Use provided participants from headers instead of extracted ones
+  if (participants && participants.length > 0) {
+    result.participants = participants;
+  } else {
+    // Fallback: filter out any participant that is not a valid email
+    if (result && Array.isArray(result.participants)) {
+      const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+      result.participants = result.participants.filter(
+        (p) => typeof p === "string" && emailRegex.test(p)
+      );
+    }
+  }
 
   return result;
 }

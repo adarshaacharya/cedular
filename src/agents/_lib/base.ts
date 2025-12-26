@@ -1,22 +1,24 @@
 import { z } from "zod";
-import { openai } from "@ai-sdk/openai";
 import prisma from "../../lib/prisma";
-import logger from "@/lib/logger";
-import { generateText, generateObject, stepCountIs } from "ai";
+import { Output, ToolLoopAgent } from "ai";
 import type { ToolSet } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 export const DEFAULT_MODEL = openai("gpt-4o-mini");
 
 /**
  * Run an agent with structured output (for parsing/extraction tasks)
+ * Use this for simple extraction/parsing where you just need structured JSON output
  */
-export async function runAgent<T extends z.ZodType>({
+export async function runStructuredAgent<T extends z.ZodType>({
   agentName,
+  instructions,
   prompt,
   schema,
   userId,
 }: {
   agentName: string;
+  instructions: string;
   prompt: string;
   schema: T;
   userId: string;
@@ -26,9 +28,15 @@ export async function runAgent<T extends z.ZodType>({
   try {
     console.log(`[Agent: ${agentName}] Starting...`);
 
-    const result = await generateObject<T>({
+    const agent = new ToolLoopAgent({
       model: DEFAULT_MODEL,
-      schema,
+      instructions,
+      output: Output.object({
+        schema,
+      }),
+    });
+
+    const result = await agent.generate({
       prompt,
     });
 
@@ -36,37 +44,33 @@ export async function runAgent<T extends z.ZodType>({
     const latencyMs = endTime - startTime;
     const tokensUsed = result.usage?.totalTokens;
 
-    logAgentRun({
+    await logAgentRun({
       agentName,
-      input: prompt,
-      output: result.object as z.infer<T>,
+      input: { instructions, prompt },
+      output: result.output as z.infer<T>,
       latencyMs,
       tokensUsed: tokensUsed || null,
       userId,
-      model: DEFAULT_MODEL.modelId || "gpt-4o",
-    }).catch((error) => {
-      console.error(`Failed to log agent run for ${agentName}:`, error);
+      model: "gpt-4o-mini",
     });
 
-    return result.object as z.infer<T>;
+    return result.output as z.infer<T>;
   } catch (error) {
     const endTime = Date.now();
     const latencyMs = endTime - startTime;
 
     console.error(`[Agent: ${agentName}] Error:`, error);
 
-    logAgentRun<{ error: string }>({
+    await logAgentRun<{ error: string }>({
       agentName,
-      input: prompt,
+      input: { instructions, prompt },
       output: {
         error: error instanceof Error ? error.message : String(error),
       },
       latencyMs,
       tokensUsed: null,
       userId,
-      model: DEFAULT_MODEL.modelId || "gpt-4o",
-    }).catch((logError) => {
-      console.error(`Failed to log agent error for ${agentName}:`, logError);
+      model: "gpt-4o-mini",
     });
 
     throw error;
@@ -74,40 +78,48 @@ export async function runAgent<T extends z.ZodType>({
 }
 
 /**
- * Run an agent with tool calling
+ * Create and run a ToolLoopAgent (AI SDK 6)
+ * Use this for agents that need to autonomously call tools
+ * The agent will automatically loop through tool calls until completion (up to 20 steps)
  */
-export async function runAgentWithTools({
+export async function runToolLoopAgent({
   agentName,
+  instructions,
   prompt,
-  userId,
-  maxSteps = 5,
   tools,
+  userId,
+  model = DEFAULT_MODEL,
 }: {
   agentName: string;
+  instructions: string;
   prompt: string;
-  userId: string;
-  maxSteps?: number;
   tools: ToolSet;
+  userId: string;
+  model?: ReturnType<typeof openai>;
 }) {
   const startTime = Date.now();
 
   try {
     console.log(`[Agent: ${agentName}] Starting...`);
 
-    const result = await generateText({
-      model: DEFAULT_MODEL,
-      prompt,
+    // Create the ToolLoopAgent
+    const agent = new ToolLoopAgent({
+      model,
+      instructions,
       tools,
-      stopWhen: stepCountIs(maxSteps),
+      // Automatically loops up to 20 steps by default
     });
+
+    // Generate with the agent
+    const result = await agent.generate({ prompt });
 
     const endTime = Date.now();
     const latencyMs = endTime - startTime;
     const tokensUsed = result.usage?.totalTokens;
 
-    logAgentRun({
+    await logAgentRun({
       agentName,
-      input: prompt,
+      input: { instructions, prompt },
       output: {
         text: result.text,
         toolCalls: result.steps?.flatMap((s) => s.toolCalls || []),
@@ -116,9 +128,7 @@ export async function runAgentWithTools({
       latencyMs,
       tokensUsed: tokensUsed || null,
       userId,
-      model: DEFAULT_MODEL.modelId || "gpt-4o",
-    }).catch((error) => {
-      console.error(`Failed to log agent run for ${agentName}:`, error);
+      model: typeof model === "string" ? model : "gpt-4o-mini",
     });
 
     return result;
@@ -132,18 +142,16 @@ export async function runAgentWithTools({
       console.error(`[Agent: ${agentName}] Error stack:`, error.stack);
     }
 
-    logAgentRun<{ error: string }>({
+    await logAgentRun<{ error: string }>({
       agentName,
-      input: prompt,
+      input: { instructions, prompt },
       output: {
         error: error instanceof Error ? error.message : String(error),
       },
       latencyMs,
       tokensUsed: null,
       userId,
-      model: DEFAULT_MODEL.modelId || "gpt-4o",
-    }).catch((logError) => {
-      console.error(`Failed to log agent error for ${agentName}:`, logError);
+      model: typeof model === "string" ? model : "gpt-4o-mini",
     });
 
     throw error;
@@ -160,7 +168,7 @@ async function logAgentRun<T>({
   model,
 }: {
   agentName: string;
-  input: string;
+  input: string | object;
   output: T;
   latencyMs: number;
   tokensUsed: number | null;
@@ -172,7 +180,7 @@ async function logAgentRun<T>({
       data: {
         agentName,
         model: model || null,
-        input: { prompt: input },
+        input: typeof input === "string" ? { prompt: input } : input,
         output: output as object,
         latencyMs,
         tokensUsed: tokensUsed || null,

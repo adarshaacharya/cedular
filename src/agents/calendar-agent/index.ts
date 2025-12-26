@@ -1,17 +1,18 @@
 /**
  * Calendar Agent - Finds optimal meeting time slots
  *
- * Uses tool calling to autonomously fetch calendar data and find available slots.
+ * Uses ToolLoopAgent to autonomously fetch calendar data and find available slots.
  */
 
 import { calendarAgentInputSchema, type CalendarAgentInput } from "./types";
-import { runAgentWithTools } from "../_lib/base";
+import { runToolLoopAgent } from "../_lib/base";
 import { calendarTools } from "./tools";
 
 /**
  * Run calendar agent with tool calling
  *
  * The agent autonomously decides which tools to call and when.
+ * Uses ToolLoopAgent which automatically loops through tool calls (up to 20 steps).
  *
  * @param input - Calendar agent input with participants and preferences
  * @param userId - User ID for logging
@@ -23,7 +24,7 @@ export async function runCalendarAgent(
 ) {
   const validatedInput = calendarAgentInputSchema.parse(input);
 
-  const prompt = `
+  const instructions = `
     <identity>
     You are a calendar scheduling expert with access to calendar tools.
     Use the available tools to find the 3 best time slots for scheduling a meeting.
@@ -53,16 +54,17 @@ export async function runCalendarAgent(
     </task>
 
     <instructions>
-    1. Use the getCalendarEvents tool to fetch calendar data for each participant
-    2. Use findFreeSlots tool to find available time slots
-    3. Use scoreTimeSlot tool to score each free slot based on quality and preferences
-    4. Select the 3 best slots (highest scores)
+    Find free time in the assistant's schedule where the meeting can be scheduled.
+
+    1. Use the different tools to find the best slots, 
+    If no slots are found within working hours:
+    1. Expand search to nearby times (earlier morning like 8am or later evening like 6pm)
+    2. Try the following week if current week is fully booked
+    3. Consider slightly shorter or longer meeting durations
+    4. Always provide alternatives - never return empty results
     
-    IMPORTANT - If no slots are found within working hours:
-    5. Expand search to nearby times (earlier morning like 8am or later evening like 6pm)
-    6. Try the following week if current week is fully booked
-    7. Consider slightly shorter or longer meeting durations
-    8. Always provide alternatives - never return empty results
+    
+    NOTE: You can only access the assistant's calendar, not the participants' calendars.
     
     Think step by step and use tools as needed. Show your reasoning.
     Be helpful and proactive in finding alternatives if the initial search fails.
@@ -72,12 +74,12 @@ export async function runCalendarAgent(
     Look for slots in the next 7-14 days if needed.
   `;
 
-  const result = await runAgentWithTools({
+  const result = await runToolLoopAgent({
     agentName: "calendar-agent",
-    prompt,
+    instructions,
+    prompt: `Please find the 3 best meeting slots.`,
     tools: calendarTools,
     userId,
-    maxSteps: 10,
   });
 
   return result;

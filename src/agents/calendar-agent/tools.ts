@@ -5,7 +5,10 @@
 
 import { tool } from "ai";
 import { z } from "zod";
-import { getCalendarEvents } from "@/integrations/calendar";
+import {
+  getCalendarEvents,
+  getUserCalendarEvents,
+} from "@/integrations/calendar";
 import {
   addDays,
   addMinutes,
@@ -18,6 +21,37 @@ import {
 } from "date-fns";
 
 export const calendarTools = {
+  getUserCalendarEvents: tool({
+    description:
+      "Fetch the assistant's calendar events to find busy periods. Use this to get all events from the assistant's calendar.",
+    inputSchema: z.object({
+      userId: z.string().describe("User ID making the request"),
+      daysAhead: z.number().default(7).describe("Number of days to look ahead"),
+    }),
+    execute: async ({ userId, daysAhead }) => {
+      const timeMin = new Date();
+      const timeMax = new Date(Date.now() + daysAhead * 24 * 60 * 60 * 1000);
+
+      const result = await getUserCalendarEvents(userId, timeMin, timeMax);
+      const events = result.items;
+
+      // Convert events to busy periods format
+      const busyPeriods = events
+        .filter((event) => event.start?.dateTime && event.end?.dateTime)
+        .map((event) => ({
+          start: event.start!.dateTime!,
+          end: event.end!.dateTime!,
+          summary: event.summary || "Busy",
+        }));
+
+      return {
+        busyPeriods,
+        count: busyPeriods.length,
+        message: `Found ${busyPeriods.length} busy periods in assistant's calendar`,
+      };
+    },
+  }),
+
   getCalendarEvents: tool({
     description:
       "Fetch calendar events for a specific participant within a date range",

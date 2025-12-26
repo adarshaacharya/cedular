@@ -124,6 +124,7 @@ export async function processEmail(
       subject: emailSubject,
       emailBody: emailBody,
       userId: senderEmail,
+      participants: emailThread.participants,
       threadHistory: emailThread.messages,
       existingThreadStatus: existingDbThread?.status,
     });
@@ -152,6 +153,7 @@ export async function processEmail(
         subject: emailSubject,
         body: emailBody,
         from: senderEmail,
+        participants: emailThread.participants || [senderEmail],
         messages: emailThread.messages.map((m) => ({ id: m.id || "" })),
       },
       parsedIntent,
