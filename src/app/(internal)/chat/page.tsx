@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { ChatHeader } from "@/components/ai-elements/chat-header";
 import {
@@ -38,6 +38,7 @@ import { ThinkingMessage } from "@/components/ai-elements/thinking-message";
 export default function ChatPage() {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status, regenerate } = useChat();
+  const [hasStartedConversation, setHasStartedConversation] = useState(false);
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (!message.text) {
@@ -48,12 +49,14 @@ export default function ChatPage() {
       text: message.text,
     });
     setInput("");
+    setHasStartedConversation(true);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage({
       text: suggestion,
     });
+    setHasStartedConversation(true);
   };
 
   const calendarSuggestions = [
@@ -67,110 +70,153 @@ export default function ChatPage() {
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">
       <ChatHeader />
 
-      <div className="flex-1 mx-auto max-w-4xl w-full">
-        <Conversation className="h-full">
-          <ConversationContent>
-            {messages.length === 0 && <Greeting />}
+      {hasStartedConversation ? (
+        <motion.div
+          className="flex-1 min-h-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          <Conversation className="h-full">
+            <ConversationContent className="mx-auto max-w-4xl pb-15">
+              {messages.map((message) => (
+                <div key={message.id}>
+                  {message.parts.map((part, i) => {
+                    switch (part.type) {
+                      case "text":
+                        return (
+                          <Message
+                            key={`${message.id}-${i}`}
+                            from={message.role}
+                          >
+                            <MessageContent>
+                              <MessageResponse>{part.text}</MessageResponse>
+                            </MessageContent>
+                            {message.role === "assistant" &&
+                              i === messages.length - 1 && (
+                                <MessageActions>
+                                  <MessageAction
+                                    onClick={() => regenerate()}
+                                    label="Retry"
+                                  >
+                                    <RefreshCcwIcon className="size-3" />
+                                  </MessageAction>
+                                  <MessageAction
+                                    onClick={() =>
+                                      navigator.clipboard.writeText(part.text)
+                                    }
+                                    label="Copy"
+                                  >
+                                    <CopyIcon className="size-3" />
+                                  </MessageAction>
+                                </MessageActions>
+                              )}
+                          </Message>
+                        );
+                      case "reasoning":
+                        return (
+                          <Reasoning
+                            key={`${message.id}-${i}`}
+                            className="w-full"
+                            isStreaming={
+                              status === "streaming" &&
+                              i === message.parts.length - 1 &&
+                              message.id === messages.at(-1)?.id
+                            }
+                          >
+                            <ReasoningTrigger />
+                            <ReasoningContent>{part.text}</ReasoningContent>
+                          </Reasoning>
+                        );
+                      default:
+                        return null;
+                    }
+                  })}
+                </div>
+              ))}
 
-            {messages.map((message) => (
-              <div key={message.id}>
-                {message.parts.map((part, i) => {
-                  switch (part.type) {
-                    case "text":
-                      return (
-                        <Message key={`${message.id}-${i}`} from={message.role}>
-                          <MessageContent>
-                            <MessageResponse>{part.text}</MessageResponse>
-                          </MessageContent>
-                          {message.role === "assistant" &&
-                            i === messages.length - 1 && (
-                              <MessageActions>
-                                <MessageAction
-                                  onClick={() => regenerate()}
-                                  label="Retry"
-                                >
-                                  <RefreshCcwIcon className="size-3" />
-                                </MessageAction>
-                                <MessageAction
-                                  onClick={() =>
-                                    navigator.clipboard.writeText(part.text)
-                                  }
-                                  label="Copy"
-                                >
-                                  <CopyIcon className="size-3" />
-                                </MessageAction>
-                              </MessageActions>
-                            )}
-                        </Message>
-                      );
-                    case "reasoning":
-                      return (
-                        <Reasoning
-                          key={`${message.id}-${i}`}
-                          className="w-full"
-                          isStreaming={
-                            status === "streaming" &&
-                            i === message.parts.length - 1 &&
-                            message.id === messages.at(-1)?.id
-                          }
-                        >
-                          <ReasoningTrigger />
-                          <ReasoningContent>{part.text}</ReasoningContent>
-                        </Reasoning>
-                      );
-                    default:
-                      return null;
-                  }
-                })}
-              </div>
-            ))}
+              {status === "submitted" && <ThinkingMessage />}
+            </ConversationContent>
+            <ConversationScrollButton />
+          </Conversation>
+        </motion.div>
+      ) : (
+        /* Centered initial layout */
+        <motion.div
+          className="flex-1 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          <div className="w-full max-w-4xl mx-auto px-2 md:px-4">
+            <div className="flex flex-col gap-6 items-center">
+              <Greeting />
 
-            {status === "submitted" && <ThinkingMessage />}
-          </ConversationContent>
-          <ConversationScrollButton />
-        </Conversation>
-      </div>
+              <PromptInput onSubmit={handleSubmit}>
+                <PromptInputBody>
+                  <PromptInputTextarea
+                    onChange={(e) => setInput(e.target.value)}
+                    value={input}
+                    placeholder="Ask me anything about your calendar..."
+                  />
+                </PromptInputBody>
+                <PromptInputFooter>
+                  <PromptInputSubmit disabled={!input} status={status} />
+                </PromptInputFooter>
+              </PromptInput>
 
-      {messages.length === 0 && (
-        <div className="mx-auto w-full max-w-4xl px-2 pb-4 md:px-4">
-          <div
-            className="grid w-full gap-2 sm:grid-cols-2"
-            data-testid="suggested-actions"
-          >
-            {calendarSuggestions.map((suggestedAction, index) => (
-              <motion.div
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                initial={{ opacity: 0, y: 20 }}
-                key={suggestedAction}
-                transition={{ delay: 0.05 * index }}
-              >
-                <Suggestion
-                  className="h-auto w-full whitespace-normal p-3 text-left"
-                  onClick={handleSuggestionClick}
-                  suggestion={suggestedAction}
+              <div className="w-full">
+                <div
+                  className="grid w-full gap-2 sm:grid-cols-2"
+                  data-testid="suggested-actions"
                 >
-                  {suggestedAction}
-                </Suggestion>
-              </motion.div>
-            ))}
+                  {calendarSuggestions.map((suggestedAction, index) => (
+                    <motion.div
+                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 20 }}
+                      key={suggestedAction}
+                      transition={{ delay: 0.05 * index }}
+                    >
+                      <Suggestion
+                        className="h-auto w-full whitespace-normal p-3 text-left"
+                        onClick={handleSuggestionClick}
+                        suggestion={suggestedAction}
+                      >
+                        {suggestedAction}
+                      </Suggestion>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
-        <PromptInput onSubmit={handleSubmit}>
-          <PromptInputBody>
-            <PromptInputTextarea
-              onChange={(e) => setInput(e.target.value)}
-              value={input}
-            />
-          </PromptInputBody>
-          <PromptInputFooter>
-            <PromptInputSubmit disabled={!input} status={status} />
-          </PromptInputFooter>
-        </PromptInput>
-      </div>
+      {/* Bottom input for active conversation */}
+      <AnimatePresence>
+        {hasStartedConversation && (
+          <motion.div
+            className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            <PromptInput onSubmit={handleSubmit}>
+              <PromptInputBody>
+                <PromptInputTextarea
+                  onChange={(e) => setInput(e.target.value)}
+                  value={input}
+                />
+              </PromptInputBody>
+              <PromptInputFooter>
+                <PromptInputSubmit disabled={!input} status={status} />
+              </PromptInputFooter>
+            </PromptInput>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
