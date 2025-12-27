@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import prisma from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -11,25 +10,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GmailConnectionSection } from "./_components/gmail-connection-section";
-import { CalendarConnectionSection } from "./_components/calendar-connection-section";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GoogleServicesSection } from "./_components/google-services-section";
 import { PreferencesForm } from "./_components/preferences-form";
-
-async function getUserPreferences(userId: string) {
-  const preferences = await prisma.userPreferences.findUnique({
-    where: { userId },
-  });
-
-  return preferences;
-}
-
-async function getUserScheduleProfile(userId: string) {
-  const profile = await prisma.userScheduleProfile.findUnique({
-    where: { userId },
-  });
-
-  return profile;
-}
+import { getUserPreferences, getUserScheduleProfile } from "./actions";
 
 async function SettingsContent() {
   const session = await auth.api.getSession({
@@ -52,57 +36,56 @@ async function SettingsContent() {
         </p>
       </div>
 
-      {/* Gmail Connection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Gmail Integration</CardTitle>
-          <CardDescription>
-            Connect your Gmail account to receive and send scheduling emails
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <GmailConnectionSection
-            userId={session.user.id}
-            isConnected={!!userPreferences?.gmailAccessToken}
-            assistantEmail={userPreferences?.assistantEmail}
-          />
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="preferences" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
+        </TabsList>
 
-      {/* Calendar Connection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Calendar Integration</CardTitle>
-          <CardDescription>
-            Connect your Google Calendar to check availability and schedule
-            meetings
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CalendarConnectionSection
-            userId={session.user.id}
-            isConnected={!!userPreferences?.calendarAccessToken}
-            calendarId={userPreferences?.calendarId}
-          />
-        </CardContent>
-      </Card>
+        <TabsContent value="preferences" className="space-y-6">
+          {/* User Preferences */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Scheduling Preferences</CardTitle>
+              <CardDescription>
+                Configure your working hours, timezone, and scheduling
+                preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PreferencesForm
+                userId={session.user.id}
+                preferences={userPreferences}
+                scheduleProfile={scheduleProfile}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* User Preferences */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Scheduling Preferences</CardTitle>
-          <CardDescription>
-            Configure your working hours, timezone, and scheduling preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PreferencesForm
-            userId={session.user.id}
-            preferences={userPreferences}
-            scheduleProfile={scheduleProfile}
-          />
-        </CardContent>
-      </Card>
+        <TabsContent value="integrations" className="space-y-6">
+          {/* Google Services Connection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Google Services Integration</CardTitle>
+              <CardDescription>
+                Connect your Google account to enable Gmail processing and
+                Calendar scheduling
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GoogleServicesSection
+                userId={session.user.id}
+                isConnected={
+                  !!userPreferences?.gmailAccessToken &&
+                  !!userPreferences?.calendarAccessToken
+                }
+                assistantEmail={userPreferences?.assistantEmail}
+                calendarId={userPreferences?.calendarId}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

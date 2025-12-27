@@ -8,19 +8,7 @@ import {
 import { CheckCircle2, XCircle } from "lucide-react";
 import { ConnectToGoogle } from "./connect-google";
 import { getGoogleConnectionStatus } from "../actions";
-
-// Online status indicator with live signal
-function OnlineIndicator() {
-  return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
-      <div className="relative inline-flex h-3 w-3">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 animate-ping" />
-        <span className="relative inline-flex h-3 w-3 rounded-full bg-green-600" />
-      </div>
-      <span className="text-xs font-medium text-green-600">Online</span>
-    </div>
-  );
-}
+import { GreenBlink } from "@/components/atoms/green-blink";
 
 export async function GoogleConnectionCard() {
   const googleStatus = await getGoogleConnectionStatus();
@@ -53,7 +41,12 @@ export async function GoogleConnectionCard() {
                     Connected as {googleStatus.email}
                   </p>
                 </div>
-                <OnlineIndicator />
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-200">
+                  <GreenBlink size="md" />
+                  <span className="text-xs font-medium text-green-600">
+                    Online
+                  </span>
+                </div>
               </div>
             </div>
           ) : (

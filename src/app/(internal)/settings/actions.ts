@@ -5,6 +5,22 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { userPreferencesSchema } from "./schema";
 
+export async function getUserPreferences(userId: string) {
+  const preferences = await prisma.userPreferences.findUnique({
+    where: { userId },
+  });
+
+  return preferences;
+}
+
+export async function getUserScheduleProfile(userId: string) {
+  const profile = await prisma.userScheduleProfile.findUnique({
+    where: { userId },
+  });
+
+  return profile;
+}
+
 export async function updateUserPreferences(formData: FormData) {
   const rawData = {
     userId: formData.get("userId") as string,
@@ -75,12 +91,12 @@ export async function updateUserPreferences(formData: FormData) {
   }
 }
 
-export async function connectGmail(userId: string) {
-  // Redirect to existing Google OAuth flow
+export async function connectGoogleServices() {
+  // Redirect to Google OAuth flow (handles both Gmail and Calendar)
   redirect("/api/auth/google");
 }
 
-export async function disconnectGmail(formData: FormData) {
+export async function disconnectGoogleServices(formData: FormData) {
   const userId = formData.get("userId") as string;
 
   if (!userId) {
@@ -88,49 +104,25 @@ export async function disconnectGmail(formData: FormData) {
   }
 
   try {
+    // Clear all Google service tokens and data
     await prisma.userPreferences.update({
       where: { userId },
       data: {
+        // Clear all Google service tokens and data
         gmailAccessToken: null,
         gmailRefreshToken: null,
         gmailTokenExpiry: null,
-        assistantEmail: null,
-      },
-    });
-
-    revalidatePath("/settings");
-  } catch (error) {
-    console.error("Error disconnecting Gmail:", error);
-    throw new Error("Failed to disconnect Gmail");
-  }
-}
-
-export async function connectCalendar(userId: string) {
-  // Redirect to existing Google OAuth flow (handles both Gmail and Calendar)
-  redirect("/api/auth/google");
-}
-
-export async function disconnectCalendar(formData: FormData) {
-  const userId = formData.get("userId") as string;
-
-  if (!userId) {
-    throw new Error("User ID is required");
-  }
-
-  try {
-    await prisma.userPreferences.update({
-      where: { userId },
-      data: {
         calendarAccessToken: null,
         calendarRefreshToken: null,
         calendarTokenExpiry: null,
+        assistantEmail: null,
         calendarId: null,
       },
     });
 
     revalidatePath("/settings");
   } catch (error) {
-    console.error("Error disconnecting calendar:", error);
-    throw new Error("Failed to disconnect calendar");
+    console.error("Error disconnecting Google services:", error);
+    throw new Error("Failed to disconnect Google services");
   }
 }
