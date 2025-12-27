@@ -43,7 +43,7 @@ export async function signInAction(
       message: validationResult.error.message,
       inputs: {
         email: (rawData.email as string | null) ?? undefined,
-        // Don't send password back for security
+        password: rawData.password as string | null ?? undefined,
       },
     };
   }
@@ -72,7 +72,7 @@ export async function signInAction(
       success: false,
       inputs: {
         email,
-        // Don't send password back for security
+        password,
       },
     };
   }

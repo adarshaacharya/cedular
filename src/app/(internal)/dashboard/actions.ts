@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
-import { startOfWeek, endOfWeek } from "date-fns";
+import { startOfWeek, endOfWeek, startOfDay, endOfDay } from "date-fns";
 
 /**
  * Check if user has Google (Gmail/Calendar) connected
@@ -43,7 +43,7 @@ export async function getMeetingsThisWeekCount() {
   const session = await getServerSession();
 
   if (!session?.user) {
-    return 0;  
+    return 0;
   }
 
   const now = new Date();
@@ -68,90 +68,6 @@ export async function getMeetingsThisWeekCount() {
   return count;
 }
 
-/**
- * Calculate average response time in hours for completed threads
- * (time from creation to first status change from 'pending')
- */
-export async function getAverageResponseTime() {
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
-
-  // Get threads that have moved beyond pending status
-  const threads = await prisma.emailThread.findMany({
-    where: {
-      userId: session.user.id,
-      status: {
-        not: "pending",
-      },
-    },
-    select: {
-      createdAt: true,
-      updatedAt: true,
-    },
-    take: 50, // Sample of recent 50 threads
-  });
-
-  if (threads.length === 0) {
-    return null;
-  }
-
-  // Calculate average time difference in hours
-  const totalHours = threads.reduce((sum, thread) => {
-    const diff = thread.updatedAt.getTime() - thread.createdAt.getTime();
-    const hours = diff / (1000 * 60 * 60);
-    return sum + hours;
-  }, 0);
-
-  const avgHours = totalHours / threads.length;
-
-  // Format response time nicely
-  if (avgHours < 1) {
-    return `${Math.round(avgHours * 60)}m`;
-  } else if (avgHours < 24) {
-    return `${avgHours.toFixed(1)}h`;
-  } else {
-    return `${(avgHours / 24).toFixed(1)}d`;
-  }
-}
-
-/**
- * Calculate success rate (percentage of threads that reached confirmed status)
- */
-export async function getSuccessRate() {
-  const session = await getServerSession();
-
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
-
-  const [totalThreads, confirmedThreads] = await Promise.all([
-    prisma.emailThread.count({
-      where: {
-        userId: session.user.id,
-        status: {
-          not: "pending", // Only count threads that have been processed
-        },
-      },
-    }),
-    prisma.emailThread.count({
-      where: {
-        userId: session.user.id,
-        status: "confirmed",
-      },
-    }),
-  ]);
-
-  if (totalThreads === 0) {
-    return null;
-  }
-
-  const rate = (confirmedThreads / totalThreads) * 100;
-  return `${Math.round(rate)}%`;
-}
-
 export async function getPendingRequestsCount() {
   const session = await getServerSession();
 
@@ -165,4 +81,112 @@ export async function getPendingRequestsCount() {
       status: "pending",
     },
   });
+}
+
+/**
+ * Get count of meetings scheduled for today
+ */
+export async function getTodayMeetingsCount() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return 0;
+  }
+
+  const now = new Date();
+  const dayStart = startOfDay(now);
+  const dayEnd = endOfDay(now);
+
+  const count = await prisma.meeting.count({
+    where: {
+      emailThread: {
+        userId: session.user.id,
+      },
+      status: {
+        in: ["confirmed", "proposed"],
+      },
+      startTime: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+    },
+  });
+
+  return count;
+}
+
+/**
+ * Get last 5 email threads with basic information
+ */
+export async function getRecentThreads() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return [];
+  }
+
+  const threads = await prisma.emailThread.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    select: {
+      id: true,
+      subject: true,
+      participants: true,
+      status: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 5,
+  });
+
+  return threads;
+}
+/**
+ * Get next 3 upcoming confirmed meetings
+ */
+export async function getUpcomingMeetings() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return [];
+  }
+
+  const now = new Date();
+
+  const meetings = await prisma.meeting.findMany({
+    where: {
+      emailThread: {
+        userId: session.user.id,
+      },
+      status: "confirmed",
+      startTime: {
+        gte: now,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      startTime: true,
+      endTime: true,
+      emailThread: {
+        select: {
+          participants: true,
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+    take: 3,
+  });
+
+  return meetings.map((meeting) => ({
+    id: meeting.id,
+    title: meeting.title,
+    time: meeting.startTime,
+    participants: meeting.emailThread.participants.length,
+  }));
 }
