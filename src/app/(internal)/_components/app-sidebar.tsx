@@ -7,6 +7,7 @@ import {
   Mail,
   Settings,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -40,6 +41,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/meetings",
       icon: Calendar,
       isActive: pathname.startsWith("/meetings"),
+    },
+    {
+      title: "Chat Assistant",
+      url: "/chat",
+      icon: MessageCircle,
+      isActive: pathname.startsWith("/chat"),
     },
     {
       title: "Email Threads",
