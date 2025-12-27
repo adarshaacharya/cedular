@@ -15,6 +15,7 @@ model User {
     emailThreads        EmailThread[]
     userPreferences     UserPreferences?
     userScheduleProfile UserScheduleProfile?
+    chats               Chat[]
 
     @@map("user")
 }

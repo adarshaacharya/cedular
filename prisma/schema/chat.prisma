@@ -1,0 +1,33 @@
+// Chat Models
+// Stores chat conversations and messages for users
+
+enum ChatMessageRole {
+    user
+    assistant
+}
+
+model Chat {
+    id        String   @id @default(uuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    title     String? // Optional: auto-generate from first message
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    messages ChatMessage[]
+
+    @@index([userId])
+    @@map("chat")
+}
+
+model ChatMessage {
+    id        String          @id @default(uuid())
+    chatId    String
+    chat      Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    role      ChatMessageRole
+    content   Json // Store UIMessage format
+    createdAt DateTime        @default(now())
+
+    @@index([chatId])
+    @@map("chat_message")
+}
