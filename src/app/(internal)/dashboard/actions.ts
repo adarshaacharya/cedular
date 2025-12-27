@@ -190,3 +190,52 @@ export async function getUpcomingMeetings() {
     participants: meeting.emailThread.participants.length,
   }));
 }
+
+/**
+ * Get the next upcoming confirmed meeting with full details
+ */
+export async function getNextMeeting() {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return null;
+  }
+
+  const now = new Date();
+
+  const meeting = await prisma.meeting.findFirst({
+    where: {
+      emailThread: {
+        userId: session.user.id,
+      },
+      status: "confirmed",
+      startTime: {
+        gte: now,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      startTime: true,
+      endTime: true,
+      description: true,
+      participants: true,
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+
+  if (!meeting) {
+    return null;
+  }
+
+  return {
+    id: meeting.id,
+    title: meeting.title,
+    startTime: meeting.startTime,
+    endTime: meeting.endTime,
+    description: meeting.description,
+    participants: meeting.participants,
+  };
+}

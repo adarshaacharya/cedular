@@ -12,14 +12,15 @@ import { Calendar, Mail } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
-function getStatusVariant(status: string) {
+function getStatusVariant(
+  status: string
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "pending":
-      return "secondary";
+      return "outline";
     case "processing":
-      return "default";
+      return "secondary";
     case "scheduled":
-      return "default";
     case "confirmed":
       return "default";
     case "failed":
@@ -29,6 +30,26 @@ function getStatusVariant(status: string) {
   }
 }
 
+function getStatusColor(status: string): string {
+  switch (status) {
+    case "pending":
+      return "bg-orange-500";
+    case "processing":
+      return "bg-blue-500";
+    case "scheduled":
+    case "confirmed":
+      return "bg-green-500";
+    case "failed":
+      return "bg-red-500";
+    default:
+      return "bg-gray-500";
+  }
+}
+
+function getStatusLabel(status: string): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 export async function RecentActivity() {
   const [threads, googleStatus] = await Promise.all([
     getRecentThreads(),
@@ -36,7 +57,7 @@ export async function RecentActivity() {
   ]);
 
   return (
-    <Card className="mb-8">
+    <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle>Recent Activity</CardTitle>
         <CardDescription>
@@ -62,33 +83,47 @@ export async function RecentActivity() {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {threads.map((thread) => (
-              <div
+              <Link
                 key={thread.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                href={`/email-threads/${thread.id}`}
+                className="block"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate">
-                      {thread.subject || "No subject"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {thread.participants?.[0]} •{" "}
-                      {formatDistanceToNow(thread.createdAt, {
-                        addSuffix: true,
-                      })}
-                    </p>
+                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 hover:shadow-md transition-all cursor-pointer group">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div
+                      className={`w-2 h-2 rounded-full ${getStatusColor(
+                        thread.status
+                      )} ${thread.status === "pending" ? "animate-pulse" : ""}`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate group-hover:text-primary transition-colors">
+                        {thread.subject || "No subject"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {thread.participants?.[0]} •{" "}
+                        {formatDistanceToNow(thread.createdAt, {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
                   </div>
+                  <Badge
+                    variant={getStatusVariant(thread.status)}
+                    className="ml-2"
+                  >
+                    {getStatusLabel(thread.status)}
+                  </Badge>
                 </div>
-                <Badge variant={getStatusVariant(thread.status)}>
-                  {thread.status}
-                </Badge>
-              </div>
+              </Link>
             ))}
             {threads.length >= 5 && (
-              <Button variant="outline" className="w-full" asChild>
+              <Button
+                variant="outline"
+                className="w-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                asChild
+              >
                 <Link href="/email-threads">View All Requests</Link>
               </Button>
             )}
