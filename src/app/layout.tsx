@@ -5,6 +5,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Nunito_Sans } from "next/font/google";
+import { Toaster } from "sonner";
 
 const fontSans = Nunito_Sans({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeProvider>
           <NuqsAdapter>{children}</NuqsAdapter>
           <Analytics />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
