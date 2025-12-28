@@ -145,6 +145,7 @@ export async function getUserChats() {
     where: {
       userId: session.user.id,
     },
+    take: 20,
     orderBy: {
       updatedAt: "desc",
     },

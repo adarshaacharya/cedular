@@ -28,7 +28,11 @@ import {
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  chatHistoryTrigger?: React.ReactNode;
+}
+
+export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
 
@@ -51,7 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
         {
           title: "History",
-          url: "/chat/history",
+          component: chatHistoryTrigger,
         },
       ],
     },

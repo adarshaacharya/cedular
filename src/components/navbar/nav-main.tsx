@@ -29,7 +29,8 @@ export function NavMain({
     isActive?: boolean;
     items?: {
       title: string;
-      url: string;
+      url?: string;
+      component?: React.ReactNode;
     }[];
   }[];
   label?: string;
@@ -60,11 +61,17 @@ export function NavMain({
                     <SidebarMenuSub>
                       {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
+                          {subItem.component ? (
+                            <div className="px-2 py-1.5">
+                              {subItem.component}
+                            </div>
+                          ) : (
+                            <SidebarMenuSubButton asChild>
+                              <a href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </a>
+                            </SidebarMenuSubButton>
+                          )}
                         </SidebarMenuSubItem>
                       ))}
                     </SidebarMenuSub>
