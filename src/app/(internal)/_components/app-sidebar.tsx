@@ -8,8 +8,9 @@ import {
   Settings,
   Sparkles,
   MessageCircle,
+  Send,
+  LifeBuoy,
 } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/auth/client";
 
@@ -23,13 +24,14 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { TeamSwitcher } from "@/components/navbar/team-switcher";
+import { NavSecondary } from "@/components/navbar/nav-secondary";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { data: session } = useSession();
 
-  // Navigation items for our dashboard
-  const navMain = [
+  // Assistant section - AI-focused features
+  const navAssistant = [
     {
       title: "Dashboard",
       url: "/dashboard",
@@ -37,16 +39,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isActive: pathname === "/dashboard",
     },
     {
+      title: "Chat Assistant",
+      url: "#",
+      icon: MessageCircle,
+      items: [
+        {
+          title: "New Chat",
+          url: "/chat",
+        },
+        {
+          title: "History",
+          url: "/chat/history",
+        },
+      ],
+    },
+  ];
+
+  // Workspace section - Core business tools
+  const navWorkspace = [
+    {
       title: "Meetings",
       url: "/meetings",
       icon: Calendar,
       isActive: pathname.startsWith("/meetings"),
-    },
-    {
-      title: "Chat Assistant",
-      url: "/chat",
-      icon: MessageCircle,
-      isActive: pathname.startsWith("/chat"),
     },
     {
       title: "Email Threads",
@@ -59,6 +74,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/settings",
       icon: Settings,
       isActive: pathname.startsWith("/settings"),
+    },
+  ];
+
+  const navSecondary = [
+    {
+      title: "Support",
+      url: "#",
+      icon: LifeBuoy,
+    },
+    {
+      title: "Feedback",
+      url: "#",
+      icon: Send,
     },
   ];
 
@@ -90,7 +118,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <NavMain items={navAssistant} label="Assistant" />
+        <NavMain items={navWorkspace} label="Workspace" />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
