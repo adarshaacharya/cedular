@@ -21,9 +21,11 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { TeamSwitcher } from "@/components/navbar/team-switcher";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -90,15 +92,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ];
 
-  // Team switcher data (just using Cedular as the team)
-  const teams = [
-    {
-      name: "Cedular",
-      logo: Sparkles,
-      plan: "Pro",
-    },
-  ];
-
   // User data from session
   const user = session?.user
     ? {
@@ -115,7 +108,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={teams} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg">
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">Cedular</span>
+                <span className="truncate text-xs">AI Assistant</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navAssistant} label="Assistant" />
