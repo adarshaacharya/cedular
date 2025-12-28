@@ -72,9 +72,9 @@ export async function loadChat(chatId: string): Promise<UIMessage[] | null> {
 }
 
 /**
- * Saves new messages to a chat (append-only strategy)
+ * Saves messages to a chat (replace-all strategy)
  * @param chatId - The chat ID
- * @param messages - The new messages to append
+ * @param messages - The complete message history to save
  */
 export async function saveChat(
   chatId: string,
@@ -82,18 +82,21 @@ export async function saveChat(
 ): Promise<void> {
   if (messages.length === 0) return;
 
-  await prisma.chatMessage.createMany({
-    data: messages.map((msg) => ({
-      chatId,
-      role: msg.role === "user" ? "user" : "assistant",
-      content: msg as unknown as Prisma.InputJsonValue, // Store entire UIMessage as JSON
-    })),
-  });
-
-  await prisma.chat.update({
-    where: { id: chatId },
-    data: { updatedAt: new Date() },
-  });
+  // Replace all messages in a transaction
+  await prisma.$transaction([
+    prisma.chatMessage.deleteMany({ where: { chatId } }),
+    prisma.chatMessage.createMany({
+      data: messages.map((msg) => ({
+        chatId,
+        role: msg.role === "user" ? "user" : "assistant",
+        content: msg as unknown as Prisma.InputJsonValue,
+      })),
+    }),
+    prisma.chat.update({
+      where: { id: chatId },
+      data: { updatedAt: new Date() },
+    }),
+  ]);
 }
 
 /**

@@ -6,7 +6,7 @@ import {
   validateUIMessages,
 } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createChat, loadChat, saveChat } from "@/lib/services/chat-store";
+import { createChat, saveChat } from "@/lib/services/chat-store";
 import { getServerSession } from "@/lib/auth/get-session";
 import prisma from "@/lib/prisma";
 
@@ -18,37 +18,33 @@ export async function POST(req: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { id: chatId, message }: { id: string; message?: UIMessage } =
+  const { id: chatId, messages }: { id: string; messages: UIMessage[] } =
     await req.json();
+
+  // Validate we have messages to process
+  if (!messages?.length) {
+    return new Response("Messages are required", { status: 400 });
+  }
+
+  try {
+    validateUIMessages({ messages });
+  } catch {
+    return new Response("Invalid messages", { status: 400 });
+  }
 
   // Check if chat exists and belongs to user
   const chat = await prisma.chat.findFirst({
     where: { id: chatId, userId: session.user.id },
   });
 
-  // Create chat if it doesn't exist
-  if (!chat && message?.role === "user") {
+  // Create chat if it doesn't exist and wait for it
+  if (!chat) {
     await createChat(session.user.id, chatId);
-  }
-
-  // Load existing messages
-  const messagesFromDb = chat ? (await loadChat(chatId)) || [] : [];
-  const uiMessages = [...messagesFromDb, ...(message ? [message] : [])];
-
-  try {
-    validateUIMessages({ messages: uiMessages });
-  } catch {
-    return new Response("Invalid messages", { status: 400 });
-  }
-
-  // Save user message
-  if (message?.role === "user") {
-    await saveChat(chatId, [message]);
   }
 
   const result = streamText({
     model: openai("gpt-4o-mini"),
-    messages: await convertToModelMessages(uiMessages),
+    messages: await convertToModelMessages(messages),
     system: `You are a helpful calendar assistant that can:
 - Check my calendar availability
 - Schedule meetings and events  
@@ -64,11 +60,12 @@ If user asks unrelated question, politely decline and suggest using the availabl
 
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
-    originalMessages: uiMessages,
+    originalMessages: messages,
     generateMessageId: createIdGenerator(),
     onFinish: async ({ messages: finalMessages }) => {
       try {
-        await saveChat(chatId, finalMessages);
+        // Save all messages (incoming + AI response)
+        await saveChat(chatId, [...messages, ...finalMessages]);
       } catch (error) {
         console.error("Failed to save chat:", error);
       }
