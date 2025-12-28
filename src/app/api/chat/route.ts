@@ -6,152 +6,77 @@ import {
   validateUIMessages,
 } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createChat, loadChat, saveChat } from "@/lib/chat-store";
+import { createChat, loadChat, saveChat } from "@/lib/services/chat-store";
 import { getServerSession } from "@/lib/auth/get-session";
 import prisma from "@/lib/prisma";
 
-// Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  // Check authentication
   const session = await getServerSession();
   if (!session?.user?.id) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const body = await req.json();
+  const { id: chatId, message }: { id: string; message?: UIMessage } =
+    await req.json();
 
-  const {
-    id: chatId,
-    message,
-    messages,
-  }: {
-    id: string;
-    message?: UIMessage;
-    messages?: UIMessage[];
-  } = body;
-
-  // Check if this is a tool approval flow (all messages sent)
-  const isToolApprovalFlow = Boolean(messages);
-
-  // Load chat and messages from database
+  // Check if chat exists and belongs to user
   const chat = await prisma.chat.findFirst({
-    where: {
-      id: chatId,
-      userId: session.user.id,
-    },
+    where: { id: chatId, userId: session.user.id },
   });
 
-  let messagesFromDb: UIMessage[] = [];
-
-  if (chat) {
-    // Chat exists, load messages unless this is tool approval
-    if (!isToolApprovalFlow) {
-      messagesFromDb = (await loadChat(chatId)) || [];
-    }
-  } else if (message?.role === "user") {
-    await createChat(chatId);
+  // Create chat if it doesn't exist
+  if (!chat && message?.role === "user") {
+    await createChat(session.user.id, chatId);
   }
 
-  // Use all messages for tool approval, otherwise DB messages + new message
-  const uiMessages = isToolApprovalFlow
-    ? (messages as UIMessage[])
-    : [...messagesFromDb, ...(message ? [message] : [])];
+  // Load existing messages
+  const messagesFromDb = chat ? (await loadChat(chatId)) || [] : [];
+  const uiMessages = [...messagesFromDb, ...(message ? [message] : [])];
 
-  // Validate messages for security
   try {
     validateUIMessages({ messages: uiMessages });
   } catch {
     return new Response("Invalid messages", { status: 400 });
   }
 
-  // Save user message immediately if not tool approval
+  // Save user message
   if (message?.role === "user") {
-    await prisma.chatMessage.create({
-      data: {
-        chatId,
-        role: "user",
-        content: message as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-      },
-    });
+    await saveChat(chatId, [message]);
   }
-
-  // Generate server-side IDs for consistency
-  const generateId = createIdGenerator();
 
   const result = streamText({
     model: openai("gpt-4o-mini"),
     messages: await convertToModelMessages(uiMessages),
-    system:
-      "You are a helpful assistant that can answer questions and help with tasks",
+    system: `You are a helpful calendar assistant that can:
+- Check my calendar availability
+- Schedule meetings and events  
+- Find optimal meeting times
+- Manage calendar events
+- Answer calendar-related questions
+
+Use the available tools to help with calendar tasks.
+If user asks unrelated question, politely decline and suggest using the available tools.`,
   });
 
-  // Consume the stream to ensure it runs to completion & triggers onFinish
-  // even when the client response is aborted:
-  result.consumeStream(); // no await
+  result.consumeStream();
 
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
-    originalMessages: isToolApprovalFlow ? uiMessages : undefined,
-    generateMessageId: generateId,
+    originalMessages: uiMessages,
+    generateMessageId: createIdGenerator(),
     onFinish: async ({ messages: finalMessages }) => {
-      // Save finished messages to database
       try {
-        if (isToolApprovalFlow) {
-          // For tool approval, update existing messages and save new ones
-          for (const finishedMsg of finalMessages) {
-            const existingMsg = uiMessages.find((m) => m.id === finishedMsg.id);
-            if (existingMsg) {
-              await prisma.chatMessage.updateMany({
-                where: { chatId, id: finishedMsg.id },
-                data: {
-                  content: finishedMsg as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-                },
-              });
-            } else {
-              // Save new message
-              await prisma.chatMessage.create({
-                data: {
-                  chatId,
-                  role: finishedMsg.role === "user" ? "user" : "assistant",
-                  content: finishedMsg as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-                },
-              });
-            }
-          }
-        } else {
-          // Normal flow - save all messages
-          await saveChat(chatId, [
-            ...messagesFromDb,
-            ...(message ? [message] : []),
-            ...finalMessages,
-          ]);
-        }
-
-        // Update chat timestamp
-        await prisma.chat.update({
-          where: { id: chatId },
-          data: { updatedAt: new Date() },
-        });
+        await saveChat(chatId, finalMessages);
       } catch (error) {
         console.error("Failed to save chat:", error);
-        // Don't throw - we don't want to fail the response if save fails
       }
     },
     onError: (error) => {
-      if (error == null) {
-        return "unknown error";
-      }
-
-      if (typeof error === "string") {
-        return error;
-      }
-
-      if (error instanceof Error) {
-        return error.message;
-      }
-
+      if (error == null) return "unknown error";
+      if (typeof error === "string") return error;
+      if (error instanceof Error) return error.message;
       return JSON.stringify(error);
     },
   });

@@ -59,6 +59,7 @@
     "framer-motion": "^12.23.26",
     "googleapis": "^165.0.0",
     "jsonrepair": "^3.13.1",
+    "little-date": "^1.2.1",
     "lucide-react": "^0.552.0",
     "motion": "^12.23.26",
     "nanoid": "^5.1.6",

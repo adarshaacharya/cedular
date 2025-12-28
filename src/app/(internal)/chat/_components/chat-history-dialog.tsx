@@ -38,7 +38,7 @@ export function ChatHistoryDialog({
           </button>
         )}
       </DialogTrigger>
-      <DialogContent className="min-w-2xl max-h-[80vh] overflow-hidden">
+      <DialogContent className="min-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="size-5" />

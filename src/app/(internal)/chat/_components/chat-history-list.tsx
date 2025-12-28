@@ -1,4 +1,4 @@
-import { getUserChats } from "@/lib/chat-store";
+import { getUserChats } from "@/lib/services/chat-store";
 import { UIMessage } from "ai";
 import Link from "next/link";
 import { MessageCircle, Calendar } from "lucide-react";
