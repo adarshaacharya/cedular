@@ -1,8 +1,17 @@
 import { z } from "zod";
+import { getTimeZones } from "@vvo/tzdb";
+
+// Get all valid timezone names for validation
+const validTimezones = getTimeZones().map((tz) => tz.name);
 
 export const userPreferencesSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
-  timezone: z.string().min(1, "Timezone is required"),
+  timezone: z
+    .string()
+    .min(1, "Timezone is required")
+    .refine((tz) => validTimezones.includes(tz), {
+      message: "Please select a valid timezone",
+    }),
   workingHoursStart: z
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Invalid time format (HH:mm)"),

@@ -13,6 +13,7 @@ interface CreateMeetingFromCalendarInput {
   calendarEvent: CalendarEvent;
   userId: string;
   status?: MeetingStatus;
+  meetingLink?: string;
 }
 
 interface CreateMeetingFromEmailThreadInput {
@@ -24,6 +25,7 @@ interface CreateMeetingFromEmailThreadInput {
   endTime: Date;
   timezone: string;
   calendarEventId?: string;
+  meetingLink?: string;
   status?: MeetingStatus;
 }
 
@@ -33,7 +35,12 @@ interface CreateMeetingFromEmailThreadInput {
 export async function createMeetingFromCalendarEvent(
   input: CreateMeetingFromCalendarInput
 ): Promise<Meeting> {
-  const { calendarEvent, userId, status = MeetingStatus.confirmed } = input;
+  const {
+    calendarEvent,
+    userId,
+    status = MeetingStatus.confirmed,
+    meetingLink,
+  } = input;
 
   // Check for duplicate
   const existingMeeting = await prisma.meeting.findFirst({
@@ -48,6 +55,10 @@ export async function createMeetingFromCalendarEvent(
   const participants =
     calendarEvent.attendees?.filter((a) => a.email)?.map((a) => a.email!) || [];
 
+  // Extract meeting link from calendar event if not provided
+  const finalMeetingLink =
+    meetingLink || calendarEvent.conferenceData?.entryPoints?.[0]?.uri || null;
+
   // Create meeting WITHOUT email thread (standalone calendar event)
   return prisma.meeting.create({
     data: {
@@ -59,6 +70,7 @@ export async function createMeetingFromCalendarEvent(
       endTime: new Date(calendarEvent.end!.dateTime!),
       timezone: calendarEvent.start!.timeZone || "UTC",
       calendarEventId: calendarEvent.id,
+      meetingLink: finalMeetingLink,
       status,
     },
   });
@@ -79,6 +91,7 @@ export async function createMeetingFromEmailThread(
     endTime,
     timezone,
     calendarEventId,
+    meetingLink,
     status = MeetingStatus.confirmed,
   } = input;
 
@@ -93,6 +106,7 @@ export async function createMeetingFromEmailThread(
       endTime,
       timezone,
       calendarEventId,
+      meetingLink,
       status,
     },
   });

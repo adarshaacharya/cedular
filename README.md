@@ -59,6 +59,11 @@ pnpm prisma migrate reset --force
    pnpm db:migrate
    ```
 
+   or with name
+   ```bash
+   npx prisma migrate dev --name add_user_id_to_meetings
+   ```
+
 3. Generate Prisma Client:
 
    ```bash

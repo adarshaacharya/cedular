@@ -14,20 +14,22 @@ export async function getMeetingById(id: string) {
   const meeting = await prisma.meeting.findFirst({
     where: {
       id,
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
     },
     include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
       emailThread: {
         select: {
           id: true,
           subject: true,
           threadId: true,
-          status: true,
-          intent: true,
-          participants: true,
-          createdAt: true,
         },
       },
     },
@@ -45,9 +47,7 @@ export async function getMeetings() {
 
   const meetings = await prisma.meeting.findMany({
     where: {
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
     },
     include: {
       emailThread: {
@@ -76,32 +76,24 @@ export async function getMeetingsCount() {
   const [total, confirmed, proposed, cancelled] = await Promise.all([
     prisma.meeting.count({
       where: {
-        emailThread: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
       },
     }),
     prisma.meeting.count({
       where: {
-        emailThread: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
         status: "confirmed",
       },
     }),
     prisma.meeting.count({
       where: {
-        emailThread: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
         status: "proposed",
       },
     }),
     prisma.meeting.count({
       where: {
-        emailThread: {
-          userId: session.user.id,
-        },
+        userId: session.user.id,
         status: "cancelled",
       },
     }),
@@ -124,9 +116,7 @@ export async function updateMeetingStatus(
   const meeting = await prisma.meeting.findFirst({
     where: {
       id: meetingId,
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
     },
   });
 

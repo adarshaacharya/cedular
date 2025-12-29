@@ -13,8 +13,10 @@ import { format, formatDistanceToNow } from "date-fns";
 import type { MeetingModel } from "@/prisma/generated/prisma/models/Meeting";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
 import { Calendar, Clock, Users } from "lucide-react";
+import { UserModel } from "@/prisma/generated/prisma/models/User";
 
 type MeetingWithThread = MeetingModel & {
+  user: Pick<UserModel, "id" | "name" | "email" | "image">;
   emailThread: Pick<EmailThreadModel, "id" | "subject" | "threadId">;
 };
 

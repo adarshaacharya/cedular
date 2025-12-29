@@ -257,6 +257,8 @@ export function createCalendarTools(userId: string) {
           const meeting = await createMeetingFromCalendarEvent({
             calendarEvent: createdEvent,
             userId,
+            meetingLink:
+              createdEvent.conferenceData?.entryPoints?.[0]?.uri || undefined,
           });
 
           console.log(

@@ -108,7 +108,9 @@ export async function handleConfirm(
       startTime: new Date(chosenSlot.start),
       endTime: new Date(chosenSlot.end),
       timezone: timezone,
-      calendarEventId: calendarEvent.id,
+      calendarEventId: calendarEvent.id || undefined,
+      meetingLink:
+        calendarEvent.conferenceData?.entryPoints?.[0]?.uri || undefined,
       status: MeetingStatus.confirmed,
     });
 

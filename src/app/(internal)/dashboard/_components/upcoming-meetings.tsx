@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Clock } from "lucide-react";
+import { Calendar, Users, Clock, MapPin, ExternalLink } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
@@ -74,6 +74,20 @@ export async function UpcomingMeetings() {
                         {meeting.participants} participant
                         {meeting.participants > 1 ? "s" : ""}
                       </span>
+                    </div>
+                    <span>•</span>
+                    <div className="flex items-center gap-1">
+                      {meeting.meetingLink && (
+                        <a
+                          href={meeting.meetingLink || ""}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          Link
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>

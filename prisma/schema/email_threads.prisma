@@ -58,6 +58,7 @@ model Meeting {
     timezone     String
 
     calendarEventId String? // ID of the event in the calendar system
+    meetingLink     String? // Video conference link (Google Meet, Zoom, etc.)
     status          MeetingStatus @default(proposed)
 
     createdAt DateTime @default(now())

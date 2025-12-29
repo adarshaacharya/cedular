@@ -2,7 +2,7 @@ import { getNextMeeting } from "../actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, MapPin, Calendar } from "lucide-react";
+import { Clock, Users, MapPin, Calendar, ExternalLink } from "lucide-react";
 import { formatDistanceToNow, format, differenceInMinutes } from "date-fns";
 import Link from "next/link";
 
@@ -35,7 +35,7 @@ export async function NextMeeting() {
   return (
     <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-8 shadow-sm">
       <CardContent className="pt-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Badge
@@ -85,7 +85,7 @@ export async function NextMeeting() {
                   {meeting.participants.length > 1 ? "s" : ""}
                 </span>
               </div>
-              {meeting.description && meeting.description.includes("http") && (
+              {meeting.meetingLink && (
                 <>
                   <span>•</span>
                   <div className="flex items-center gap-2">
@@ -96,33 +96,23 @@ export async function NextMeeting() {
               )}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 lg:flex-col">
-            {meeting.description && meeting.description.includes("http") && (
-              <Button
-                asChild
-                size="lg"
-                className="bg-blue-600 text-white hover:bg-blue-700"
-              >
-                <Link
-                  href={
-                    meeting.description.match(/https?:\/\/[^\s]+/)?.[0] || "#"
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Join Meeting
-                </Link>
-              </Button>
-            )}
+
+          {meeting.meetingLink && (
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-slate-300 dark:border-slate-700"
             >
-              <Link href="/calendar">View Calendar</Link>
+              <Link
+                href={meeting.meetingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Join Meeting
+              </Link>
             </Button>
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>

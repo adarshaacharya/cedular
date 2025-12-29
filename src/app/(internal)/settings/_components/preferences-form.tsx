@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateUserPreferences } from "../actions";
 import { useTransition, useState } from "react";
+import { getTimeZones } from "@vvo/tzdb";
 
 interface PreferencesFormProps {
   userId: string;
@@ -20,18 +21,18 @@ interface PreferencesFormProps {
   } | null;
 }
 
-const timezones = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "Europe/London",
-  "Europe/Paris",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Australia/Sydney",
-  "UTC",
-];
+// Get all timezones and format them for display
+const getAllTimezones = () => {
+  const tzdb = getTimeZones();
+
+  return tzdb
+    .map((tz) => ({
+      value: tz.name,
+      label: `${tz.name.replace(/_/g, " ")} (${tz.mainCities.join(", ")})`,
+      group: tz.group,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+};
 
 export function PreferencesForm({
   userId,
@@ -49,11 +50,17 @@ export function PreferencesForm({
     startTransition(async () => {
       try {
         await updateUserPreferences(formData);
-        setMessage({ type: "success", text: "Preferences updated successfully!" });
+        setMessage({
+          type: "success",
+          text: "Preferences updated successfully!",
+        });
       } catch (error) {
         setMessage({
           type: "error",
-          text: error instanceof Error ? error.message : "Failed to update preferences",
+          text:
+            error instanceof Error
+              ? error.message
+              : "Failed to update preferences",
         });
       }
     });
@@ -72,14 +79,14 @@ export function PreferencesForm({
           defaultValue={scheduleProfile?.timezone || "UTC"}
           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          {timezones.map((tz) => (
-            <option key={tz} value={tz}>
-              {tz}
+          {getAllTimezones().map((tz) => (
+            <option key={tz.value} value={tz.value}>
+              {tz.label}
             </option>
           ))}
         </select>
         <p className="text-sm text-muted-foreground">
-          Your timezone for scheduling meetings
+          Your timezone for scheduling meetings (includes all world timezones)
         </p>
       </div>
 
@@ -144,7 +151,7 @@ export function PreferencesForm({
           className="w-full"
         />
         <p className="text-sm text-muted-foreground">
-          The calendar to check for availability (usually "primary")
+          The calendar to check for availability (usually &quot;primary&quot;)
         </p>
       </div>
 

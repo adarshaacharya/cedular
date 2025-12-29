@@ -166,6 +166,7 @@ export async function getUpcomingMeetings() {
       startTime: true,
       endTime: true,
       participants: true,
+      meetingLink: true,
     },
     orderBy: {
       startTime: "asc",
@@ -178,6 +179,7 @@ export async function getUpcomingMeetings() {
     title: meeting.title,
     time: meeting.startTime,
     participants: meeting.participants.length,
+    meetingLink: meeting.meetingLink,
   }));
 }
 
@@ -208,6 +210,7 @@ export async function getNextMeeting() {
       endTime: true,
       description: true,
       participants: true,
+      meetingLink: true,
     },
     orderBy: {
       startTime: "asc",
@@ -225,5 +228,6 @@ export async function getNextMeeting() {
     endTime: meeting.endTime,
     description: meeting.description,
     participants: meeting.participants,
+    meetingLink: meeting.meetingLink,
   };
 }
