@@ -2,18 +2,19 @@
 
 import { useMemo } from "react";
 import React from "react";
-import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { useDataTable } from "@/components/data-table/_hooks/use-data-table";
 import { Badge } from "@/components/ui/badge";
-import { format, formatDistanceToNow } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import type { MeetingModel } from "@/prisma/generated/prisma/models/Meeting";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Calendar, Clock, Users, Video } from "lucide-react";
 import { UserModel } from "@/prisma/generated/prisma/models/User";
+import Link from "next/link";
 
 type MeetingWithThread = MeetingModel & {
   user: Pick<UserModel, "id" | "name" | "email" | "image">;
@@ -26,7 +27,6 @@ interface MeetingsTableProps {
 
 export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   const meetings = React.use(meetingsPromise);
-  const router = useRouter();
 
   const columns = useMemo<ColumnDef<MeetingWithThread>[]>(
     () => [
@@ -54,10 +54,28 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
         enableColumnFilter: true,
       },
       {
-        id: "dateTime",
+        id: "date",
         accessorKey: "startTime",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Date & Time" />
+          <DataTableColumnHeader column={column} label="Date" />
+        ),
+        cell: ({ row }) => {
+          const startTime = row.original.startTime;
+          return (
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm">
+                {format(new Date(startTime), "MMM d, yyyy")}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "time",
+        accessorKey: "startTime",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Time" />
         ),
         cell: ({ row }) => {
           const startTime = row.original.startTime;
@@ -67,14 +85,8 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
           return (
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm">
-                  {format(new Date(startTime), "MMM d, yyyy")}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs">
                   {format(new Date(startTime), "h:mm a")} -{" "}
                   {format(new Date(endTime), "h:mm a")}
                 </span>
@@ -154,17 +166,24 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
         },
       },
       {
-        id: "createdAt",
-        accessorKey: "createdAt",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} label="Created" />
-        ),
+        id: "meetingLink",
+        header: "Meeting Link",
         cell: ({ row }) => {
-          const date = row.getValue<Date>("createdAt");
-          return (
-            <span className="text-muted-foreground text-sm">
-              {formatDistanceToNow(new Date(date), { addSuffix: true })}
-            </span>
+          const meetingLink = row.original.meetingLink;
+          return meetingLink ? (
+            <Button asChild variant="ghost" size="sm" className="h-8 px-2">
+              <Link
+                href={meetingLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Video className="h-4 w-4 mr-1" />
+                Join
+              </Link>
+            </Button>
+          ) : (
+            <span className="text-xs text-muted-foreground">No link</span>
           );
         },
       },
