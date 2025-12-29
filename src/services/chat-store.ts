@@ -1,6 +1,6 @@
 import { UIMessage } from "ai";
 import prisma from "@/lib/prisma";
-import { Prisma } from "../../../prisma/generated/prisma/client";
+import { Prisma } from "../../prisma/generated/prisma/client";
 
 /**
  * Creates a new chat for the given user

@@ -3,6 +3,7 @@
  *
  * Factory function that creates AI SDK tools with userId baked in.
  * These tools wrap existing calendar integration functions.
+ * TODO: findFreeSlots and scoreTimeSlot tools
  */
 
 import { tool } from "ai";
@@ -16,6 +17,7 @@ import {
   getCalendarEvent,
   type CreateEventInput,
 } from "@/integrations/calendar";
+import { createMeetingFromCalendarEvent } from "@/services/meetings-service";
 
 const attendeeSchema = z.object({
   email: z.string().email(),
@@ -251,12 +253,19 @@ export function createCalendarTools(userId: string) {
 
           const createdEvent = await createCalendarEvent(eventData, userId);
 
+          // Save to database for dashboard visibility
+          const meeting = await createMeetingFromCalendarEvent({
+            calendarEvent: createdEvent,
+            userId,
+          });
+
           console.log(
             `[Calendar] Event ${createdEvent.summary} has been created successfully for user ${userId}`
           );
           return {
             success: true,
             event: createdEvent,
+            meeting,
             message: `Event "${createdEvent.summary}" has been created successfully`,
             calendarLink: createdEvent.htmlLink,
             conferenceLink: createdEvent.conferenceData?.entryPoints?.[0]?.uri,

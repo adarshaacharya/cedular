@@ -2,6 +2,7 @@ import { HandlerInput, HandlerOutput } from "./types";
 import { createCalendarEvent } from "@/integrations/calendar";
 import { sendEmail } from "@/integrations/gmail";
 import prisma from "@/lib/prisma";
+import { createMeetingFromEmailThread } from "@/services/meetings-service";
 import {
   EmailThreadStatus,
   MeetingStatus,
@@ -99,18 +100,16 @@ export async function handleConfirm(
     console.log(`[ConfirmHandler] Calendar event created: ${calendarEvent.id}`);
 
     // 4. Save to meetings table
-    const meeting = await prisma.meeting.create({
-      data: {
-        emailThreadId: dbThread.id,
-        title: dbThread.subject || "Meeting",
-        description: `Scheduled via ${assistantName}`,
-        participants: dbThread.participants || [],
-        startTime: new Date(chosenSlot.start),
-        endTime: new Date(chosenSlot.end),
-        timezone: timezone,
-        calendarEventId: calendarEvent.id,
-        status: MeetingStatus.confirmed,
-      },
+    const meeting = await createMeetingFromEmailThread({
+      emailThreadId: dbThread.id,
+      title: dbThread.subject || "Meeting",
+      description: `Scheduled via ${assistantName}`,
+      participants: dbThread.participants || [],
+      startTime: new Date(chosenSlot.start),
+      endTime: new Date(chosenSlot.end),
+      timezone: timezone,
+      calendarEventId: calendarEvent.id,
+      status: MeetingStatus.confirmed,
     });
 
     console.log(`[ConfirmHandler] Meeting saved: ${meeting.id}`);

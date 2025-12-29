@@ -43,9 +43,12 @@ enum MeetingStatus {
 }
 
 model Meeting {
-    id            String      @id @default(uuid())
-    emailThreadId String
-    emailThread   EmailThread @relation(fields: [emailThreadId], references: [id])
+    id            String       @id @default(uuid())
+    emailThreadId String?
+    emailThread   EmailThread? @relation(fields: [emailThreadId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     title        String
     description  String?
@@ -61,5 +64,6 @@ model Meeting {
     updatedAt DateTime @updatedAt
 
     @@index([emailThreadId])
+    @@index([userId])
     @@map("meetings")
 }

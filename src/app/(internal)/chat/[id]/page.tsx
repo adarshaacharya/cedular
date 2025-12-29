@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Chat } from "@/app/(internal)/chat/_components/chat";
-import { loadChat } from "@/lib/services/chat-store";
+import { loadChat } from "@/services/chat-store";
 
 export default function Page(props: { params: Promise<{ id: string }> }) {
   return (

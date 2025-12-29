@@ -52,9 +52,7 @@ export async function getMeetingsThisWeekCount() {
 
   const count = await prisma.meeting.count({
     where: {
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
       status: {
         in: ["confirmed", "proposed"], // Include both confirmed and proposed meetings
       },
@@ -99,9 +97,7 @@ export async function getTodayMeetingsCount() {
 
   const count = await prisma.meeting.count({
     where: {
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
       status: {
         in: ["confirmed", "proposed"],
       },
@@ -158,9 +154,7 @@ export async function getUpcomingMeetings() {
 
   const meetings = await prisma.meeting.findMany({
     where: {
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
       status: "confirmed",
       startTime: {
         gte: now,
@@ -171,11 +165,7 @@ export async function getUpcomingMeetings() {
       title: true,
       startTime: true,
       endTime: true,
-      emailThread: {
-        select: {
-          participants: true,
-        },
-      },
+      participants: true,
     },
     orderBy: {
       startTime: "asc",
@@ -187,7 +177,7 @@ export async function getUpcomingMeetings() {
     id: meeting.id,
     title: meeting.title,
     time: meeting.startTime,
-    participants: meeting.emailThread.participants.length,
+    participants: meeting.participants.length,
   }));
 }
 
@@ -205,9 +195,7 @@ export async function getNextMeeting() {
 
   const meeting = await prisma.meeting.findFirst({
     where: {
-      emailThread: {
-        userId: session.user.id,
-      },
+      userId: session.user.id,
       status: "confirmed",
       startTime: {
         gte: now,

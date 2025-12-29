@@ -6,7 +6,7 @@ import {
   validateUIMessages,
 } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createChat, saveChat } from "@/lib/services/chat-store";
+import { createChat, saveChat } from "@/services/chat-store";
 import { getServerSession } from "@/lib/auth/get-session";
 import prisma from "@/lib/prisma";
 import { createCalendarTools } from "./tools/calendar-tools";

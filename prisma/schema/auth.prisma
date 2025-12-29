@@ -16,6 +16,7 @@ model User {
     userPreferences     UserPreferences?
     userScheduleProfile UserScheduleProfile?
     chats               Chat[]
+    meetings            Meeting[]
 
     @@map("user")
 }
