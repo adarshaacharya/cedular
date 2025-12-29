@@ -5,7 +5,6 @@ import { useChat, UIMessage } from "@ai-sdk/react";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateUUID } from "@/lib/utils";
-import { useChatNavigationReset } from "@/app/(internal)/chat/_hooks/use-chat-navigation-reset";
 
 import { ChatHeader } from "@/components/ai-elements/chat-header";
 import {
@@ -43,20 +42,18 @@ interface ChatProps {
   initialMessages: UIMessage[];
 }
 
+const calendarSuggestions = [
+  "Schedule a meeting with the design team next week",
+  "Find available slots for a 30-minute call tomorrow",
+  "Check my calendar for conflicts on Friday afternoon",
+  "Set up a recurring weekly team standup",
+];
+
 export function Chat({ id, initialMessages }: ChatProps) {
   const [input, setInput] = useState("");
   const [hasStartedConversation, setHasStartedConversation] = useState(
     initialMessages.length > 0
   );
-
-  // Reset state when navigating from existing chat to new chat
-  useChatNavigationReset({
-    onReset: () => {
-      setInput("");
-      setHasStartedConversation(false);
-    },
-  });
-
   const { messages, sendMessage, status, regenerate } = useChat({
     id,
     messages: initialMessages,
@@ -67,30 +64,28 @@ export function Chat({ id, initialMessages }: ChatProps) {
     },
   });
 
-  // Send message and update state
-  const handleSendMessage = (message: PromptInputMessage) => {
+  const handleSubmit = (message: PromptInputMessage) => {
     if (!message.text) return;
 
     sendMessage({ text: message.text });
     setInput("");
     setHasStartedConversation(true);
-  };
 
-  const handleSubmit = (message: PromptInputMessage) => {
-    handleSendMessage(message);
+    // Update URL for new chats (not existing ones)
+    if (initialMessages.length === 0) {
+      window.history.replaceState({}, "", `/chat/${id}`);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     sendMessage({ text: suggestion });
     setHasStartedConversation(true);
-  };
 
-  const calendarSuggestions = [
-    "Schedule a meeting with the design team next week",
-    "Find available slots for a 30-minute call tomorrow",
-    "Check my calendar for conflicts on Friday afternoon",
-    "Set up a recurring weekly team standup",
-  ];
+    // Update URL for new chats (not existing ones)
+    if (initialMessages.length === 0) {
+      window.history.replaceState({}, "", `/chat/${id}`);
+    }
+  };
 
   return (
     <div className="overscroll-behavior-contain flex h-dvh min-w-0 touch-pan-y flex-col bg-background">

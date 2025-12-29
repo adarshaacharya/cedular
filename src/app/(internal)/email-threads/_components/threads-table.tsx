@@ -29,7 +29,11 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
           <DataTableColumnHeader column={column} label="Subject" />
         ),
         cell: ({ row }) => (
-          <div className="font-medium">
+          <div
+            className="font-medium"
+            onClick={() => router.push(`/email-threads/${row.original.id}`)}
+            className="cursor-pointer hover:underline hover:text-blue-500"
+          >
             {row.getValue("subject") || "No subject"}
           </div>
         ),
@@ -115,7 +119,7 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
         },
       },
     ],
-    []
+    [router]
   );
 
   const { table } = useDataTable({
@@ -127,10 +131,7 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
 
   return (
     <div className="p-10">
-      <DataTable
-        table={table}
-        onRowClick={(row) => router.push(`/email-threads/${row.original.id}`)}
-      >
+      <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>
     </div>

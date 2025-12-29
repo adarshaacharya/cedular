@@ -199,10 +199,7 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   });
 
   return (
-    <DataTable
-      table={table}
-      onRowClick={(row) => router.push(`/meetings/${row.original.id}`)}
-    >
+    <DataTable table={table}>
       <DataTableToolbar table={table} />
     </DataTable>
   );
