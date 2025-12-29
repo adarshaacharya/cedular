@@ -37,7 +37,7 @@ export function createCalendarTools(userId: string) {
      */
     getUserCalendarEvents: tool({
       description:
-        "Get all events from the user's calendar within a specified time range. Use this to check availability or see existing events.",
+        "Get all events from the user's calendar within a specified time range. Use this to check availability or see existing events. After receiving the results, always summarize the events in a user-friendly format, listing event titles, dates, times, and locations. Never show raw JSON data to the user.",
       inputSchema: z.object({
         daysAhead: z
           .number()
@@ -86,7 +86,7 @@ export function createCalendarTools(userId: string) {
      */
     getCalendarEvents: tool({
       description:
-        "Get calendar events for a specific attendee email within a time range. Use this to check availability of meeting participants.",
+        "Get calendar events for a specific attendee email within a time range. Use this to check availability of meeting participants. After receiving the results, summarize the attendee's schedule in a clear, readable format. Never show raw JSON data to the user.",
       inputSchema: z.object({
         attendeeEmail: z
           .string()
@@ -152,7 +152,7 @@ export function createCalendarTools(userId: string) {
      */
     getCalendarEvent: tool({
       description:
-        "Get details of a specific calendar event by its ID. Use this when you need to see full details of a particular event.",
+        "Get details of a specific calendar event by its ID. Use this when you need to see full details of a particular event. After receiving the result, present the event details in a natural, user-friendly format with all relevant information clearly organized. Never show raw JSON data to the user.",
       inputSchema: z.object({
         eventId: z.string().describe("The ID of the event to retrieve"),
       }),
@@ -187,7 +187,7 @@ export function createCalendarTools(userId: string) {
      */
     createCalendarEvent: tool({
       description:
-        "Create a new calendar event. This will send invitations to all attendees. Use this when the user wants to schedule a meeting or event.",
+        "Create a new calendar event. This will send invitations to all attendees. Use this when the user wants to schedule a meeting or event. After creating the event, confirm the creation with a friendly message including the event title, date, time, and any meeting links. Never show raw JSON data to the user.",
       inputSchema: z.object({
         summary: z.string().min(1).describe("Title of the event"),
         description: z.string().optional().describe("Description of the event"),
@@ -290,7 +290,7 @@ export function createCalendarTools(userId: string) {
      */
     updateCalendarEvent: tool({
       description:
-        "Update an existing calendar event. Use this when the user wants to modify meeting details, time, attendees, etc.",
+        "Update an existing calendar event. Use this when the user wants to modify meeting details, time, attendees, etc. After updating, confirm the changes with a clear message summarizing what was updated. Never show raw JSON data to the user.",
       inputSchema: z.object({
         eventId: z.string().describe("The ID of the event to update"),
         summary: z.string().optional().describe("New title for the event"),
@@ -382,7 +382,7 @@ export function createCalendarTools(userId: string) {
      */
     deleteCalendarEvent: tool({
       description:
-        "Delete a calendar event. Use this when the user wants to cancel a meeting or remove an event from their calendar.",
+        "Delete a calendar event. Use this when the user wants to cancel a meeting or remove an event from their calendar. After deletion, confirm with a friendly message indicating which event was deleted. Never show raw JSON data to the user.",
       inputSchema: z.object({
         eventId: z.string().describe("The ID of the event to delete"),
       }),

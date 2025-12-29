@@ -23,6 +23,8 @@ const systemPrompt = `You are a helpful calendar assistant that can:
 Use the available tools to help with calendar tasks.
 If user asks unrelated question, politely decline and suggest using the available tools.
 
+IMPORTANT: When tools return data, always process the results and present them in a natural, user-friendly format. Never show raw JSON or technical data to the user. Summarize events with clear dates, times, titles, and locations. Make your responses conversational and easy to understand.
+
 Today's date is ${new Date().toISOString().split("T")[0]}.`;
 
 export async function POST(req: Request) {

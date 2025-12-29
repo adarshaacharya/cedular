@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useChat, UIMessage } from "@ai-sdk/react";
-import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
+import type { ToolUIPart } from "ai";
+import {
+  CopyIcon,
+  RefreshCcwIcon,
+  Loader2Icon,
+  CheckCircleIcon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateUUID } from "@/lib/utils";
 
@@ -49,6 +56,19 @@ const calendarSuggestions = [
   "Set up a recurring weekly team standup",
 ];
 
+// Get user-friendly tool name
+const getToolDisplayName = (name: string) => {
+  const names: Record<string, string> = {
+    getUserCalendarEvents: "Checking your calendar",
+    getCalendarEvents: "Checking calendar availability",
+    getCalendarEvent: "Fetching event details",
+    createCalendarEvent: "Creating calendar event",
+    updateCalendarEvent: "Updating calendar event",
+    deleteCalendarEvent: "Deleting calendar event",
+  };
+  return names[name] || `Executing ${name}`;
+};
+
 export function Chat({ id, initialMessages }: ChatProps) {
   const [input, setInput] = useState("");
   const [hasStartedConversation, setHasStartedConversation] = useState(
@@ -58,6 +78,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
     id,
     messages: initialMessages,
     generateId: generateUUID,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     onError: (error) => {
       console.error(error);
       toast.error(error.message);
@@ -148,6 +169,101 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             <ReasoningTrigger />
                             <ReasoningContent>{part.text}</ReasoningContent>
                           </Reasoning>
+                        );
+                      case "tool-getUserCalendarEvents":
+                      case "tool-getCalendarEvents":
+                      case "tool-getCalendarEvent":
+                      case "tool-createCalendarEvent":
+                      case "tool-updateCalendarEvent":
+                      case "tool-deleteCalendarEvent":
+                        const toolName = part.type.replace("tool-", "");
+
+                        // Extract user-friendly message from tool output if available
+                        const getToolStatusMessage = () => {
+                          if (
+                            part.state === "output-available" &&
+                            part.output
+                          ) {
+                            const output = part.output as Record<
+                              string,
+                              unknown
+                            >;
+
+                            // If tool returned a message field, use it
+                            if (typeof output?.message === "string") {
+                              return output.message;
+                            }
+                            // For successful operations, show minimal status
+                            if (output?.success === true) {
+                              return "Completed";
+                            }
+                            // Otherwise show minimal status
+                            return "Completed";
+                          }
+                          return null;
+                        };
+
+                        const statusMessage = getToolStatusMessage();
+
+                        return (
+                          <Message
+                            key={`${message.id}-${i}`}
+                            from={message.role}
+                          >
+                            <MessageContent>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                {(() => {
+                                  switch (part.state as ToolUIPart["state"]) {
+                                    case "input-streaming":
+                                      return (
+                                        <>
+                                          <Loader2Icon className="size-3 animate-spin" />
+                                          <span>
+                                            Preparing{" "}
+                                            {getToolDisplayName(
+                                              toolName
+                                            ).toLowerCase()}
+                                            ...
+                                          </span>
+                                        </>
+                                      );
+                                    case "input-available":
+                                      return (
+                                        <>
+                                          <Loader2Icon className="size-3 animate-spin" />
+                                          <span>
+                                            {getToolDisplayName(toolName)}...
+                                          </span>
+                                        </>
+                                      );
+                                    case "output-available":
+                                      return (
+                                        <>
+                                          <CheckCircleIcon className="size-3 text-green-600" />
+                                          <span>
+                                            {statusMessage || "Completed"}
+                                          </span>
+                                        </>
+                                      );
+                                    case "output-error":
+                                      return (
+                                        <>
+                                          <span className="text-red-600">
+                                            ❌
+                                          </span>
+                                          <span>
+                                            {part.errorText ||
+                                              "Tool execution failed"}
+                                          </span>
+                                        </>
+                                      );
+                                    default:
+                                      return null;
+                                  }
+                                })()}
+                              </div>
+                            </MessageContent>
+                          </Message>
                         );
                       default:
                         return null;

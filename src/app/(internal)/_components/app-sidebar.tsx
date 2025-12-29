@@ -27,6 +27,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
+import Image from "next/image";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   chatHistoryTrigger?: React.ReactNode;
@@ -115,12 +116,17 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <Sparkles className="size-4" />
+              <div className=" flex aspect-square size-12 items-center justify-center rounded-lg">
+                <Image
+                  src="/icons/calendar-clock.svg"
+                  alt="Cedular Logo"
+                  width={32}
+                  height={32}
+                  className="w-24 h-24"
+                />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-md leading-tight">
                 <span className="truncate font-medium">Cedular</span>
-                <span className="truncate text-xs">AI Assistant</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
