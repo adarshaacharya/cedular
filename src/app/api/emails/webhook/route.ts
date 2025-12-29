@@ -7,7 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { processEmailFromHistory } from "@/workflows/email-processor";
 import prisma from "@/lib/prisma";
 
 interface GmailPushNotification {

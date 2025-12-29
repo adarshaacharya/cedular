@@ -18,6 +18,9 @@ import type {
   CalendarEventList,
 } from "./types";
 
+// Export types for use in tools
+export type { CreateEventInput, UpdateEventInput };
+
 /**
  * Get calendar events for a specific attendee email within a time range
  */

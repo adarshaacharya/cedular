@@ -163,26 +163,6 @@ export async function processEmail(
       assistantName,
     };
 
-    // if (parsedIntent.intent === EmailThreadIntent.confirm) {
-    //   const result = await handleConfirm(handlerInput);
-    //   return { ...result, duration: Date.now() - startTime };
-    // }
-
-    // if (parsedIntent.intent === EmailThreadIntent.schedule) {
-    //   const result = await handleSchedule(handlerInput);
-    //   return { ...result, duration: Date.now() - startTime };
-    // }
-
-    // if (parsedIntent.intent === EmailThreadIntent.reschedule) {
-    //   const result = await handleReschedule(handlerInput);
-    //   return { ...result, duration: Date.now() - startTime };
-    // }
-
-    // if (parsedIntent.intent === EmailThreadIntent.cancel) {
-    //   const result = await handleCancel(handlerInput);
-    //   return { ...result, duration: Date.now() - startTime };
-    // }
-
     const handlerMapper: Record<
       EmailThreadIntent,
       (input: HandlerInput) => Promise<HandlerOutput>
