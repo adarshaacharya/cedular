@@ -6,6 +6,7 @@ import { createMeetingFromEmailThread } from "@/services/meetings-service";
 import {
   EmailThreadStatus,
   MeetingStatus,
+  MeetingSource,
 } from "@/prisma/generated/prisma/enums";
 
 interface ProposedSlot {
@@ -112,6 +113,7 @@ export async function handleConfirm(
       meetingLink:
         calendarEvent.conferenceData?.entryPoints?.[0]?.uri || undefined,
       status: MeetingStatus.confirmed,
+      source: MeetingSource.email_thread,
     });
 
     console.log(`[ConfirmHandler] Meeting saved: ${meeting.id}`);

@@ -15,6 +15,7 @@ import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThr
 import { Calendar, Clock, Users, Video } from "lucide-react";
 import { UserModel } from "@/prisma/generated/prisma/models/User";
 import Link from "next/link";
+import { MeetingSource } from "@/prisma/generated/prisma/enums";
 
 type MeetingWithThread = MeetingModel & {
   user: Pick<UserModel, "id" | "name" | "email" | "image">;
@@ -24,6 +25,11 @@ type MeetingWithThread = MeetingModel & {
 interface MeetingsTableProps {
   meetingsPromise: Promise<MeetingWithThread[]>;
 }
+
+const MEETING_SOURCE_LABELS = {
+  [MeetingSource.email_thread]: "Email Thread",
+  [MeetingSource.chat_assistant]: "Chat Assistant",
+};
 
 export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   const meetings = React.use(meetingsPromise);
@@ -149,6 +155,19 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
           ],
         },
         enableColumnFilter: true,
+      },
+      {
+        id: "source",
+        accessorKey: "source",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} label="Source" />
+        ),
+        cell: ({ row }) => {
+          const source = row.getValue<MeetingSource>("source");
+          return (
+            <Badge variant="outline">{MEETING_SOURCE_LABELS[source]}</Badge>
+          );
+        },
       },
       {
         id: "calendarSync",

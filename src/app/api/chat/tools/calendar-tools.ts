@@ -18,6 +18,7 @@ import {
   type CreateEventInput,
 } from "@/integrations/calendar";
 import { createMeetingFromCalendarEvent } from "@/services/meetings-service";
+import { MeetingSource } from "@/prisma/generated/prisma/enums";
 
 const attendeeSchema = z.object({
   email: z.string().email(),
@@ -259,6 +260,7 @@ export function createCalendarTools(userId: string) {
             userId,
             meetingLink:
               createdEvent.conferenceData?.entryPoints?.[0]?.uri || undefined,
+            source: MeetingSource.chat_assistant,
           });
 
           console.log(

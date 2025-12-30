@@ -42,6 +42,11 @@ enum MeetingStatus {
     cancelled
 }
 
+enum MeetingSource {
+    email_thread
+    chat_assistant
+}
+
 model Meeting {
     id            String       @id @default(uuid())
     emailThreadId String?
@@ -60,7 +65,8 @@ model Meeting {
     calendarEventId String? // ID of the event in the calendar system
     meetingLink     String? // Video conference link (Google Meet, Zoom, etc.)
     status          MeetingStatus @default(proposed)
-
+    source          MeetingSource @default(email_thread)
+    
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

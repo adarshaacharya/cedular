@@ -5,7 +5,7 @@
  */
 
 import prisma from "@/lib/prisma";
-import { MeetingStatus } from "@/prisma/generated/prisma/enums";
+import { MeetingStatus, MeetingSource } from "@/prisma/generated/prisma/enums";
 import type { CalendarEvent } from "@/integrations/calendar/types";
 import type { Meeting } from "@/prisma/generated/prisma/client";
 
@@ -14,6 +14,7 @@ interface CreateMeetingFromCalendarInput {
   userId: string;
   status?: MeetingStatus;
   meetingLink?: string;
+  source: MeetingSource;
 }
 
 interface CreateMeetingFromEmailThreadInput {
@@ -27,6 +28,7 @@ interface CreateMeetingFromEmailThreadInput {
   calendarEventId?: string;
   meetingLink?: string;
   status?: MeetingStatus;
+  source: MeetingSource;
 }
 
 /**
@@ -40,6 +42,7 @@ export async function createMeetingFromCalendarEvent(
     userId,
     status = MeetingStatus.confirmed,
     meetingLink,
+    source,
   } = input;
 
   // Check for duplicate
@@ -72,6 +75,7 @@ export async function createMeetingFromCalendarEvent(
       calendarEventId: calendarEvent.id,
       meetingLink: finalMeetingLink,
       status,
+      source,
     },
   });
 }
@@ -93,6 +97,7 @@ export async function createMeetingFromEmailThread(
     calendarEventId,
     meetingLink,
     status = MeetingStatus.confirmed,
+    source,
   } = input;
 
   return prisma.meeting.create({
@@ -108,6 +113,7 @@ export async function createMeetingFromEmailThread(
       calendarEventId,
       meetingLink,
       status,
+      source,
     },
   });
 }
