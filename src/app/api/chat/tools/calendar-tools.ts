@@ -213,6 +213,7 @@ export function createCalendarTools(userId: string) {
           .default(false)
           .describe("Whether to add Google Meet conference"),
       }),
+      needsApproval: true,
       execute: async (input: {
         summary: string;
         description?: string;
@@ -315,6 +316,7 @@ export function createCalendarTools(userId: string) {
           .describe("Updated list of attendees"),
         location: z.string().optional().describe("New location for the event"),
       }),
+      needsApproval: true,
       execute: async (input: {
         eventId: string;
         summary?: string;
@@ -388,6 +390,7 @@ export function createCalendarTools(userId: string) {
       inputSchema: z.object({
         eventId: z.string().describe("The ID of the event to delete"),
       }),
+      needsApproval: true,
       execute: async ({ eventId }: { eventId: string }) => {
         try {
           console.log(

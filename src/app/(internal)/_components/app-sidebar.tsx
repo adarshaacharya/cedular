@@ -11,7 +11,7 @@ import {
   LifeBuoy,
   UserSearchIcon,
   Users2Icon,
-  Users
+  Users,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/auth/client";
@@ -97,6 +97,9 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
       title: "Support",
       url: "#",
       icon: LifeBuoy,
+      onClick: () => {
+        window.open("mailto:hello@adarsha.dev", "_blank");
+      },
     },
     {
       title: "Feedback",

@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 import { useChat, UIMessage } from "@ai-sdk/react";
-import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
-import type { ToolUIPart } from "ai";
-import {
-  CopyIcon,
-  RefreshCcwIcon,
-  Loader2Icon,
-  CheckCircleIcon,
-} from "lucide-react";
+import { lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
+import { CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateUUID } from "@/lib/utils";
 
@@ -42,7 +36,22 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { ThinkingMessage } from "@/components/ai-elements/thinking-message";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
 import { toast } from "sonner";
+import {
+  Confirmation,
+  ConfirmationRequest,
+  ConfirmationAccepted,
+  ConfirmationRejected,
+  ConfirmationActions,
+  ConfirmationAction,
+} from "@/components/ai-elements/confirmation";
 
 interface ChatProps {
   id: string;
@@ -56,17 +65,18 @@ const calendarSuggestions = [
   "Set up a recurring weekly team standup",
 ];
 
-// Get user-friendly tool name
-const getToolDisplayName = (name: string) => {
-  const names: Record<string, string> = {
-    getUserCalendarEvents: "Checking your calendar",
-    getCalendarEvents: "Checking calendar availability",
-    getCalendarEvent: "Fetching event details",
-    createCalendarEvent: "Creating calendar event",
-    updateCalendarEvent: "Updating calendar event",
-    deleteCalendarEvent: "Deleting calendar event",
+// Get user-friendly tool title
+const getToolTitle = (type: string) => {
+  const toolName = type.replace("tool-", "");
+  const titles: Record<string, string> = {
+    getUserCalendarEvents: "Get Your Calendar Events",
+    getCalendarEvents: "Check Calendar Availability",
+    getCalendarEvent: "Get Event Details",
+    createCalendarEvent: "Create Calendar Event",
+    updateCalendarEvent: "Update Calendar Event",
+    deleteCalendarEvent: "Delete Calendar Event",
   };
-  return names[name] || `Executing ${name}`;
+  return titles[toolName] || toolName;
 };
 
 export function Chat({ id, initialMessages }: ChatProps) {
@@ -74,11 +84,17 @@ export function Chat({ id, initialMessages }: ChatProps) {
   const [hasStartedConversation, setHasStartedConversation] = useState(
     initialMessages.length > 0
   );
-  const { messages, sendMessage, status, regenerate } = useChat({
+  const {
+    messages,
+    sendMessage,
+    status,
+    regenerate,
+    addToolApprovalResponse,
+  } = useChat({
     id,
     messages: initialMessages,
     generateId: generateUUID,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (error) => {
       console.error(error);
       toast.error(error.message);
@@ -176,94 +192,92 @@ export function Chat({ id, initialMessages }: ChatProps) {
                       case "tool-createCalendarEvent":
                       case "tool-updateCalendarEvent":
                       case "tool-deleteCalendarEvent":
-                        const toolName = part.type.replace("tool-", "");
-
-                        // Extract user-friendly message from tool output if available
-                        const getToolStatusMessage = () => {
-                          if (
-                            part.state === "output-available" &&
-                            part.output
-                          ) {
-                            const output = part.output as Record<
-                              string,
-                              unknown
-                            >;
-
-                            // If tool returned a message field, use it
-                            if (typeof output?.message === "string") {
-                              return output.message;
-                            }
-                            // For successful operations, show minimal status
-                            if (output?.success === true) {
-                              return "Completed";
-                            }
-                            // Otherwise show minimal status
-                            return "Completed";
-                          }
-                          return null;
-                        };
-
-                        const statusMessage = getToolStatusMessage();
-
                         return (
-                          <Message
+                          <Confirmation
                             key={`${message.id}-${i}`}
-                            from={message.role}
+                            approval={part.approval}
+                            state={part.state}
                           >
-                            <MessageContent>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                {(() => {
-                                  switch (part.state as ToolUIPart["state"]) {
-                                    case "input-streaming":
-                                      return (
-                                        <>
-                                          <Loader2Icon className="size-3 animate-spin" />
-                                          <span>
-                                            Preparing{" "}
-                                            {getToolDisplayName(
-                                              toolName
-                                            ).toLowerCase()}
-                                            ...
-                                          </span>
-                                        </>
-                                      );
-                                    case "input-available":
-                                      return (
-                                        <>
-                                          <Loader2Icon className="size-3 animate-spin" />
-                                          <span>
-                                            {getToolDisplayName(toolName)}...
-                                          </span>
-                                        </>
-                                      );
-                                    case "output-available":
-                                      return (
-                                        <>
-                                          <CheckCircleIcon className="size-3 text-green-600" />
-                                          <span>
-                                            {statusMessage || "Completed"}
-                                          </span>
-                                        </>
-                                      );
-                                    case "output-error":
-                                      return (
-                                        <>
-                                          <span className="text-red-600">
-                                            ❌
-                                          </span>
-                                          <span>
-                                            {part.errorText ||
-                                              "Tool execution failed"}
-                                          </span>
-                                        </>
-                                      );
-                                    default:
-                                      return null;
+                            <ConfirmationRequest>
+                              <Tool defaultOpen={true}>
+                                <ToolHeader
+                                  title={getToolTitle(part.type)}
+                                  type={part.type}
+                                  state={part.state}
+                                />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    output={part.output}
+                                    errorText={part.errorText}
+                                  />
+                                </ToolContent>
+                              </Tool>
+                            </ConfirmationRequest>
+
+                            <ConfirmationAccepted>
+                              <Tool defaultOpen={true}>
+                                <ToolHeader
+                                  title={getToolTitle(part.type)}
+                                  type={part.type}
+                                  state={part.state}
+                                />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    output={part.output}
+                                    errorText={part.errorText}
+                                  />
+                                </ToolContent>
+                              </Tool>
+                            </ConfirmationAccepted>
+
+                            <ConfirmationRejected>
+                              <Tool defaultOpen={true}>
+                                <ToolHeader
+                                  title={getToolTitle(part.type)}
+                                  type={part.type}
+                                  state={part.state}
+                                />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    output={part.output}
+                                    errorText={part.errorText}
+                                  />
+                                </ToolContent>
+                              </Tool>
+                            </ConfirmationRejected>
+
+                            <ConfirmationActions>
+                              <ConfirmationAction
+                                variant="outline"
+                                onClick={() => {
+                                  if (part.approval?.id) {
+                                    addToolApprovalResponse({
+                                      id: part.approval.id,
+                                      approved: false,
+                                    });
                                   }
-                                })()}
-                              </div>
-                            </MessageContent>
-                          </Message>
+                                }}
+                              >
+                                Deny
+                              </ConfirmationAction>
+                              <ConfirmationAction
+                                variant="default"
+                                onClick={() => {
+                                  if (part.approval?.id) {
+                                    addToolApprovalResponse({
+                                      id: part.approval.id,
+                                      approved: true,
+                                    });
+                                  }
+                                }}
+                              >
+                                Approve
+                              </ConfirmationAction>
+                            </ConfirmationActions>
+                          </Confirmation>
                         );
                       default:
                         return null;
