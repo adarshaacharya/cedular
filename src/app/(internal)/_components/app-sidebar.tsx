@@ -6,10 +6,12 @@ import {
   Calendar,
   Mail,
   Settings,
-  Sparkles,
   MessageCircle,
   Send,
   LifeBuoy,
+  UserSearchIcon,
+  Users2Icon,
+  Users
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/auth/client";
@@ -73,7 +75,7 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
     {
       title: "Meetings",
       url: "/meetings",
-      icon: Calendar,
+      icon: Users,
       isActive: pathname.startsWith("/meetings"),
     },
     {
