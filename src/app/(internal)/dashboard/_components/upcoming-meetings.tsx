@@ -93,7 +93,7 @@ export async function UpcomingMeetings() {
                 </div>
               );
             })}
-            {meetings.length >= 3 && (
+            {meetings.length >= 2 && (
               <Button
                 variant="outline"
                 size="sm"

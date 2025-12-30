@@ -37,7 +37,7 @@ export default async function DashboardPage() {
           </div>
 
           {/* Right Column - 1/3 width on large screens */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[600px] overflow-y-auto">
             {/* Calendar Widget */}
             <CalendarWidget />
 

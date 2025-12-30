@@ -171,7 +171,7 @@ export async function getUpcomingMeetings() {
     orderBy: {
       startTime: "asc",
     },
-    take: 3,
+    take: 2,
   });
 
   return meetings.map((meeting) => ({
