@@ -84,22 +84,18 @@ export function Chat({ id, initialMessages }: ChatProps) {
   const [hasStartedConversation, setHasStartedConversation] = useState(
     initialMessages.length > 0
   );
-  const {
-    messages,
-    sendMessage,
-    status,
-    regenerate,
-    addToolApprovalResponse,
-  } = useChat({
-    id,
-    messages: initialMessages,
-    generateId: generateUUID,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
-    onError: (error) => {
-      console.error(error);
-      toast.error(error.message);
-    },
-  });
+  const { messages, sendMessage, status, regenerate, addToolApprovalResponse } =
+    useChat({
+      id,
+      messages: initialMessages,
+      generateId: generateUUID,
+      sendAutomaticallyWhen:
+        lastAssistantMessageIsCompleteWithApprovalResponses,
+      onError: (error) => {
+        console.error(error);
+        toast.error(error.message);
+      },
+    });
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (!message.text) return;
@@ -197,6 +193,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             key={`${message.id}-${i}`}
                             approval={part.approval}
                             state={part.state}
+                            className="mb-4"
                           >
                             <ConfirmationRequest>
                               <Tool defaultOpen={true}>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-import { signInAction, type SignInFormState } from "./actions";
+import { useState } from "react";
+import { signIn } from "@/lib/auth/client";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -10,16 +10,28 @@ import { AuthCard } from "../_components/auth-card";
 import { Mail } from "lucide-react";
 import Link from "next/link";
 
-const initialState: SignInFormState = {
-  errors: undefined,
-  success: false,
-};
-
 export default function SignInPage() {
-  const [state, formAction, isPending] = useActionState<
-    SignInFormState,
-    FormData
-  >(signInAction, initialState);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+
+    const { error } = await signIn.email({
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      callbackURL: "/dashboard",
+    });
+
+    if (error) {
+      setError(error.message || "Invalid email or password");
+      setIsLoading(false);
+    }
+  };
 
   return (
     <AuthCard
@@ -37,7 +49,7 @@ export default function SignInPage() {
         </div>
       }
     >
-      <form action={formAction} className="space-y-5">
+      <form onSubmit={handleSignIn} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <div className="relative">
@@ -48,24 +60,10 @@ export default function SignInPage() {
               type="email"
               placeholder="user@example.com"
               className="pl-10"
-              disabled={isPending}
+              disabled={isLoading}
               required
-              defaultValue={state?.inputs?.email}
-              aria-invalid={state?.errors?.email ? "true" : "false"}
-              aria-describedby={
-                state?.errors?.email ? "email-error" : undefined
-              }
             />
           </div>
-          {state?.errors?.email && (
-            <p
-              id="email-error"
-              className="text-sm text-destructive"
-              role="alert"
-            >
-              {state.errors.email[0]}
-            </p>
-          )}
         </div>
 
         <div className="space-y-2">
@@ -74,37 +72,24 @@ export default function SignInPage() {
             id="password"
             name="password"
             placeholder=""
-            disabled={isPending}
+            disabled={isLoading}
             required
-            aria-invalid={state?.errors?.password ? "true" : "false"}
-            aria-describedby={
-              state?.errors?.password ? "password-error" : undefined
-            }
           />
-          {state?.errors?.password && (
-            <p
-              id="password-error"
-              className="text-sm text-destructive"
-              role="alert"
-            >
-              {state.errors.password[0]}
-            </p>
-          )}
         </div>
 
-        {state?.errors?._form && (
+        {error && (
           <div
             className="rounded-md bg-destructive/10 border border-destructive/20 p-3"
             role="alert"
           >
-            <p className="text-sm text-destructive">{state.errors._form[0]}</p>
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         )}
 
         <LoadingButton
           type="submit"
           className="w-full font-medium h-11 transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
-          loading={isPending}
+          loading={isLoading}
           loadingText="Signing in..."
         >
           Sign In

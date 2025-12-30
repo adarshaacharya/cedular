@@ -43,7 +43,7 @@ export async function signInAction(
       message: validationResult.error.message,
       inputs: {
         email: (rawData.email as string | null) ?? undefined,
-        password: rawData.password as string | null ?? undefined,
+        password: (rawData.password as string | null) ?? undefined,
       },
     };
   }
@@ -61,7 +61,11 @@ export async function signInAction(
     });
 
     // Redirect to dashboard on success
-    redirect("/dashboard");
+    // TODO:  UNCOMMENT LATER
+    // redirect("/dashboard");
+    return {
+      success: true,
+    };
   } catch (error) {
     return {
       errors: {

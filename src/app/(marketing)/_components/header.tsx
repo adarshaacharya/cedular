@@ -44,9 +44,9 @@ export function Header() {
           ) : session?.user ? (
             <UserMenu />
           ) : (
-            <Link href="/signup">
+            <Link href="/sign-in">
               <button className="px-6 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition">
-                Get Started
+                Sign In
               </button>
             </Link>
           )}
