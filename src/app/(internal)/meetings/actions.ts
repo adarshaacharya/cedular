@@ -50,6 +50,14 @@ export async function getMeetings() {
       userId: session.user.id,
     },
     include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
       emailThread: {
         select: {
           id: true,
@@ -58,11 +66,12 @@ export async function getMeetings() {
         },
       },
     },
-    orderBy: {
-      startTime: "desc",
-    },
+    orderBy: [
+      {
+        startTime: "asc",
+      },
+    ],
   });
-
 
   return meetings;
 }

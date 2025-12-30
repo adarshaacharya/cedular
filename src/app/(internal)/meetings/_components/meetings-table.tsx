@@ -19,7 +19,7 @@ import { MeetingSource } from "@/prisma/generated/prisma/enums";
 
 type MeetingWithThread = MeetingModel & {
   user: Pick<UserModel, "id" | "name" | "email" | "image">;
-  emailThread: Pick<EmailThreadModel, "id" | "subject" | "threadId">;
+  emailThread: Pick<EmailThreadModel, "id" | "subject" | "threadId"> | null;
 };
 
 interface MeetingsTableProps {

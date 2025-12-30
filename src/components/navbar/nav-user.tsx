@@ -60,6 +60,30 @@ export function NavUser({
     });
   };
 
+  const USER_MENU_ITEMS = [
+    {
+      label: "Account",
+      icon: BadgeCheck,
+      href: "/account",
+    },
+    {
+      label: "Billing",
+      icon: CreditCard,
+      href: "/billing",
+    },
+    {
+      label: "Notifications",
+      icon: Bell,
+      href: "/notifications",
+    },
+    {
+      label: "Log out",
+      icon: LogOut,
+      href: "/logout",
+      onClick: handleSignOut,
+    },
+  ];
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -111,24 +135,13 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              {USER_MENU_ITEMS.map((item) => (
+                <DropdownMenuItem key={item.label} onClick={item.onClick}>
+                  <item.icon />
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

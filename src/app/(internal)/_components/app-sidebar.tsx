@@ -65,6 +65,12 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
   // Workspace section - Core business tools
   const navWorkspace = [
     {
+      title: "Calendar",
+      url: "/calendar",
+      icon: Calendar,
+      isActive: pathname.startsWith("/calendar"),
+    },
+    {
       title: "Meetings",
       url: "/meetings",
       icon: Calendar,
