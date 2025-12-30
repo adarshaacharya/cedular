@@ -6,7 +6,7 @@ import { NextMeeting } from "./_components/next-meeting";
 import { DashboardStats } from "./_components/stats";
 import { RecentActivity } from "./_components/recent-activity";
 import { UpcomingMeetings } from "./_components/upcoming-meetings";
-import { QuickActions } from "./_components/quick-actions";
+import { CalendarWidget } from "./_components/calendar-widget";
 
 export default async function DashboardPage() {
   return (
@@ -38,8 +38,8 @@ export default async function DashboardPage() {
 
           {/* Right Column - 1/3 width on large screens */}
           <div className="space-y-6">
-            {/* Quick Actions */}
-            <QuickActions />
+            {/* Calendar Widget */}
+            <CalendarWidget />
 
             {/* Upcoming Meetings */}
             <Suspense fallback={<Skeleton className="h-64" />}>

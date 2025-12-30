@@ -231,3 +231,94 @@ export async function getNextMeeting() {
     meetingLink: meeting.meetingLink,
   };
 }
+
+/**
+ * Get meeting dates for a specific month to highlight in calendar
+ */
+export async function getMeetingDatesForMonth(year: number, month: number) {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return [];
+  }
+
+  const startOfMonth = new Date(year, month, 1);
+  const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+  const meetings = await prisma.meeting.findMany({
+    where: {
+      userId: session.user.id,
+      status: {
+        in: ["confirmed", "proposed"],
+      },
+      startTime: {
+        gte: startOfMonth,
+        lte: endOfMonth,
+      },
+    },
+    select: {
+      startTime: true,
+    },
+  });
+
+  // Return unique dates (YYYY-MM-DD format)
+  const uniqueDates = [
+    ...new Set(
+      meetings.map((meeting) => {
+        const date = new Date(meeting.startTime);
+        return date.toISOString().split("T")[0];
+      })
+    ),
+  ];
+
+  return uniqueDates;
+}
+
+/**
+ * Get meetings for a specific date
+ */
+export async function getMeetingsForDate(date: Date) {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return [];
+  }
+
+  const dayStart = startOfDay(date);
+  const dayEnd = endOfDay(date);
+
+  const meetings = await prisma.meeting.findMany({
+    where: {
+      userId: session.user.id,
+      status: {
+        in: ["confirmed", "proposed"],
+      },
+      startTime: {
+        gte: dayStart,
+        lte: dayEnd,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      startTime: true,
+      endTime: true,
+      participants: true,
+      meetingLink: true,
+      status: true,
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+
+  return meetings.map((meeting) => ({
+    id: meeting.id,
+    title: meeting.title,
+    startTime: meeting.startTime,
+    endTime: meeting.endTime,
+    participants: meeting.participants.length,
+    meetingLink: meeting.meetingLink,
+    status: meeting.status,
+  }));
+}
