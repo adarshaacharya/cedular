@@ -17,19 +17,19 @@ export function Header() {
         </div>
         <nav className="hidden md:flex items-center gap-8">
           <a
-            href="#"
+            href="#how-it-works"
+            className="text-sm text-muted-foreground hover:text-foreground transition"
+          >
+            How It Works
+          </a>
+          <a
+            href="#features"
             className="text-sm text-muted-foreground hover:text-foreground transition"
           >
             Features
           </a>
           <a
-            href="#"
-            className="text-sm text-muted-foreground hover:text-foreground transition"
-          >
-            Demo
-          </a>
-          <a
-            href="#"
+            href="#pricing"
             className="text-sm text-muted-foreground hover:text-foreground transition"
           >
             Pricing
