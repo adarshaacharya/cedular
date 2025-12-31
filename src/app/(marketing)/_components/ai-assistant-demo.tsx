@@ -227,8 +227,9 @@ export function AIAssistantDemo() {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            Beyond email scheduling, chat with our AI assistant for instant
-            calendar help, meeting coordination, and productivity insights.
+            Your personal AI scheduling assistant goes beyond email
+            coordination. Chat directly for instant calendar help, meeting
+            management, and productivity insights tailored to your schedule.
           </p>
         </div>
 

@@ -20,7 +20,7 @@ export function HeroSection() {
       label: "Input",
       color: "text-blue-500",
       bgColor: "bg-blue-500/5",
-      description: "CC cedular@ai-scheduling.com or chat with AI",
+      description: "Connect your email and get your AI assistant",
       delay: 0.5,
     },
     {
@@ -115,12 +115,13 @@ export function HeroSection() {
           </h1>
 
           <p className="text-lg text-muted-foreground text-balance mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-            CC{" "}
+            Connect your email and get your own AI scheduling assistant. CC{" "}
             <span className="font-medium text-foreground">
               cedular@ai-scheduling.com
             </span>{" "}
-            on emails or chat with our AI assistant. Zero-friction coordination
-            that just works.
+            on meeting requests or chat directly with your AI assistant -
+            zero-friction coordination that works through your email and
+            conversations.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">

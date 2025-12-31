@@ -9,18 +9,18 @@ export function HowItWorks() {
   const steps = [
     {
       id: 1,
-      title: "Send an email",
+      title: "Connect your email",
       description:
-        "Include cedular@ai-scheduling.com in any scheduling request",
+        "Link your Gmail account to get your personal AI scheduling assistant",
       icon: Mail,
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
       email: {
-        from: "sarah@company.com",
-        to: ["team@company.com", "cedular@ai-scheduling.com"],
-        subject: "Team sync this week?",
+        from: "cedular@ai-scheduling.com",
+        to: ["your.email@gmail.com"],
+        subject: "Welcome! Your AI scheduling assistant is ready",
         content:
-          "Hey team,\n\nCan we schedule a 30min sync this week? I'm free Tuesday after 2pm EST, or Wednesday morning. Let me know what works for everyone!\n\nThanks,\nSarah",
+          "Hi there!\n\nYour AI scheduling assistant is now connected to your.email@gmail.com and ready to help.\n\nJust CC cedular@ai-scheduling.com on any scheduling request and I'll handle the coordination.\n\nTry it now - send me a meeting request!",
         timestamp: "2:15 PM",
       },
       processing: false,
@@ -28,17 +28,17 @@ export function HowItWorks() {
     },
     {
       id: 2,
-      title: "AI analyzes calendars",
-      description: "Multi-agent AI checks availability across all timezones",
+      title: "Send an email",
+      description: "CC cedular@ai-scheduling.com on any scheduling request",
       icon: Clock,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
       email: {
-        from: "cedular@ai-scheduling.com",
-        to: ["sarah@company.com"],
-        subject: "Re: Team sync this week?",
+        from: "sarah@company.com",
+        to: ["team@company.com", "cedular@ai-scheduling.com"],
+        subject: "Team sync this week?",
         content:
-          "I'll find the best time for everyone. Checking calendars...\n\n⏳ Analyzing Sarah's calendar (EST)\n⏳ Checking Mike's availability (PST)\n⏳ Reviewing Alex's schedule (GMT)\n⏳ Finding optimal time slot",
+          "Hey team,\n\nCan we schedule a 30min sync this week? I'm free Tuesday after 2pm EST, or Wednesday morning. Let me know what works for everyone!\n\nThanks,\nSarah",
         timestamp: "2:16 PM",
       },
       processing: true,
@@ -46,13 +46,14 @@ export function HowItWorks() {
     },
     {
       id: 3,
-      title: "Optimal time found",
-      description: "AI finds the perfect slot that works for everyone",
+      title: "AI coordinates everything",
+      description:
+        "Your AI assistant analyzes calendars and finds optimal times",
       icon: CheckCircle,
       color: "text-green-500",
       bgColor: "bg-green-500/10",
       email: {
-        from: "cedular@ai-scheduling.com",
+        from: "your.email@gmail.com",
         to: ["sarah@company.com", "team@company.com"],
         subject: "Re: Team sync this week?",
         content:
@@ -82,8 +83,13 @@ export function HowItWorks() {
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-            Email-based scheduling with AI intelligence. No new interfaces, no
-            manual calendar invites. Just CC and let AI do the rest.
+            Personal AI scheduling through email and chat. Connect your inbox,
+            CC{" "}
+            <span className="font-medium text-foreground">
+              cedular@ai-scheduling.com
+            </span>{" "}
+            on meeting requests or chat directly with your AI assistant -
+            coordination that works through your email and conversations.
           </p>
         </div>
 
