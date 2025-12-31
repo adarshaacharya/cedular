@@ -1,4 +1,3 @@
-
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -20,7 +19,7 @@ export async function SettingsContent() {
   });
 
   if (!session?.user?.id) {
-    redirect("/sign-in");
+    redirect("/login");
   }
 
   const userPreferences = await getUserPreferences(session.user.id);
