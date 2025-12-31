@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import { SignupForm } from "./signup-form";
-import Image from "next/image";
+import { AuthIllustration } from "../_components/auth-illustration";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -21,13 +21,8 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
-      <div className="bg-muted relative hidden lg:block">
-        <Image
-          src="/placeholder.svg"
-          alt="Image"
-          fill
-          className="object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+      <div className="relative hidden lg:block">
+        <AuthIllustration />
       </div>
     </div>
   );
