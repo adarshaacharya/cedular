@@ -78,23 +78,13 @@ export function HowItWorks() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl font-bold mb-4 text-balance"
-          >
+          <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-balance">
             How It Works
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance"
-          >
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
             Email-based scheduling with AI intelligence. No new interfaces, no
             manual calendar invites. Just CC and let AI do the rest.
-          </motion.p>
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -105,11 +95,8 @@ export function HowItWorks() {
               const isActive = index === currentStep;
 
               return (
-                <motion.div
+                <div
                   key={step.id}
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
                   className={`relative p-6 rounded-xl border transition-all duration-300 ${
                     isActive
                       ? "bg-card border-primary shadow-lg shadow-primary/20"
@@ -150,19 +137,14 @@ export function HowItWorks() {
                   {index < steps.length - 1 && (
                     <div className="absolute left-6 top-20 w-0.5 h-16 bg-linear-to-b from-border to-transparent" />
                   )}
-                </motion.div>
+                </div>
               );
             })}
           </div>
 
           {/* Email Preview */}
           <div className="lg:sticky lg:top-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="bg-background border border-border rounded-xl overflow-hidden shadow-xl"
-            >
+            <div className="bg-background border border-border rounded-xl overflow-hidden shadow-xl">
               {/* Email Header */}
               <div className="bg-muted/50 px-6 py-4 border-b border-border">
                 <div className="flex items-center gap-3">
@@ -179,7 +161,7 @@ export function HowItWorks() {
               </div>
 
               {/* Email Content */}
-              <div className="p-6">
+              <div className="p-6 h-[465px]">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
@@ -255,17 +237,12 @@ export function HowItWorks() {
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
 
         {/* Key Metrics */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-20 grid md:grid-cols-4 gap-6 text-center"
-        >
+        <div className="mt-20 grid md:grid-cols-4 gap-6 text-center">
           <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-6 h-6 text-primary" />
@@ -305,7 +282,7 @@ export function HowItWorks() {
               Meetings Scheduled
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

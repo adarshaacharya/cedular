@@ -220,26 +220,16 @@ export function AIAssistantDemo() {
     <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl font-bold mb-4 text-balance"
-          >
+          <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-balance">
             Meet Your{" "}
             <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
               AI Assistant
             </span>
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance"
-          >
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
             Beyond email scheduling, chat with our AI assistant for instant
             calendar help, meeting coordination, and productivity insights.
-          </motion.p>
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -277,7 +267,7 @@ export function AIAssistantDemo() {
               </div>
 
               {/* Chat Messages */}
-              <div className="p-6 space-y-4 min-h-[400px] max-h-[400px] overflow-hidden">
+              <div className="p-6 space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto">
                 <AnimatePresence mode="wait">
                   {scenarios[currentScenario].messages
                     .slice(0, currentMessage + 1)
@@ -300,7 +290,7 @@ export function AIAssistantDemo() {
                         )}
 
                         <div
-                          className={`max-w-[85%] p-3 rounded-lg ${
+                          className={`max-w-[90%] p-3 rounded-lg ${
                             message.type === "user"
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted text-foreground"
@@ -409,11 +399,7 @@ export function AIAssistantDemo() {
                 {/* Typing indicator for last message */}
                 {currentMessage ===
                   scenarios[currentScenario].messages.length - 1 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex gap-3 justify-start"
-                  >
+                  <div className="flex gap-3 justify-start">
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shrink-0">
                       <Bot className="w-4 h-4 text-primary-foreground" />
                     </div>
@@ -435,7 +421,7 @@ export function AIAssistantDemo() {
                         </span>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
               </div>
 
@@ -461,12 +447,7 @@ export function AIAssistantDemo() {
 
           {/* Features List */}
           <div className="order-1 lg:order-2 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               <div className="flex gap-3">
                 <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shrink-0">
                   <Globe className="w-5 h-5 text-white" />
@@ -524,15 +505,10 @@ export function AIAssistantDemo() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Interactive Demo Hint */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-linear-to-br from-card/80 to-card/60 border border-border rounded-xl p-6 backdrop-blur-sm"
-            >
+            <div className="bg-linear-to-br from-card/80 to-card/60 border border-border rounded-xl p-6 backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 bg-linear-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
                   <Zap className="w-4 h-4 text-primary-foreground" />
@@ -564,7 +540,7 @@ export function AIAssistantDemo() {
                   Scenario {currentScenario + 1} of {scenarios.length}
                 </span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

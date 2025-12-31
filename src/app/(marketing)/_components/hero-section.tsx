@@ -100,50 +100,30 @@ export function HeroSection() {
         {/* Elegant header with more breathing room */}
         <div className="text-center mb-24">
           {/* Time saved indicator - subtle but impactful */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-8"
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
             Save 2+ hours weekly on scheduling
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-light text-balance mb-8 leading-tight"
-          >
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-balance mb-8 leading-tight">
             <span className="block text-muted-foreground font-normal text-lg sm:text-xl lg:text-2xl mb-4 tracking-wide">
               INTELLIGENT SCHEDULING
             </span>
             <span className="bg-linear-to-r from-foreground via-primary to-accent bg-clip-text text-transparent font-semibold">
               Meetings on Autopilot
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg text-muted-foreground text-balance mb-12 max-w-2xl mx-auto leading-relaxed font-light"
-          >
+          <p className="text-lg text-muted-foreground text-balance mb-12 max-w-2xl mx-auto leading-relaxed font-light">
             CC{" "}
             <span className="font-medium text-foreground">
               cedular@ai-scheduling.com
             </span>{" "}
             on emails or chat with our AI assistant. Zero-friction coordination
             that just works.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
-          >
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300"
@@ -160,7 +140,7 @@ export function HeroSection() {
             >
               <Play className="w-4 h-4 mr-2" /> Watch Demo
             </Button>
-          </motion.div>
+          </div>
         </div>
 
         {/* Sophisticated workflow visualization - flowing timeline */}
@@ -185,28 +165,9 @@ export function HeroSection() {
             {workflowPhases.map((phase, index) => {
               const Icon = phase.icon;
               return (
-                <motion.div
-                  key={phase.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: phase.delay,
-                    ease: "easeOut",
-                  }}
-                  className="relative group text-center"
-                >
+                <div key={phase.id} className="relative group text-center">
                   {/* Subtle phase indicator */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{
-                      delay: phase.delay + 0.3,
-                      type: "spring",
-                      stiffness: 200,
-                    }}
-                    className="w-16 h-16 mx-auto mb-6 relative"
-                  >
+                  <div className="w-16 h-16 mx-auto mb-6 relative">
                     <div
                       className={`absolute inset-0 ${phase.bgColor} rounded-2xl backdrop-blur-sm border border-border/20`}
                     />
@@ -214,7 +175,7 @@ export function HeroSection() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Icon className={`w-7 h-7 ${phase.color}`} />
                     </div>
-                  </motion.div>
+                  </div>
 
                   {/* Clean typography */}
                   <div className="space-y-3">
@@ -228,14 +189,9 @@ export function HeroSection() {
 
                   {/* Minimal connection dots for mobile */}
                   {index < workflowPhases.length - 1 && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: phase.delay + 0.5 }}
-                      className="lg:hidden absolute -bottom-6 left-1/2 -translate-x-1/2 w-1 h-1 bg-border rounded-full"
-                    />
+                    <div className="lg:hidden absolute -bottom-6 left-1/2 -translate-x-1/2 w-1 h-1 bg-border rounded-full" />
                   )}
-                </motion.div>
+                </div>
               );
             })}
           </div>

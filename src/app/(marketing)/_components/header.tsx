@@ -4,12 +4,45 @@ import { ThemeToggle } from "@/app/(marketing)/_components/theme-toggle";
 import { UserMenu } from "@/app/(marketing)/_components/user-menu";
 import Link from "next/link";
 import { useSession } from "@/lib/auth/client";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export function Header() {
   const { data: session, isPending } = useSession();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 20); // Lower threshold for smoother transition
+    };
+
+    // Use passive listener for better performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-background/50 backdrop-blur-md border-b border-border">
+    <motion.header
+      className={`w-full z-50 ${
+        isScrolled
+          ? "fixed top-0 bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
+          : "relative bg-transparent"
+      }`}
+      animate={{
+        y: isScrolled ? 0 : 0,
+        backgroundColor: isScrolled
+          ? "rgba(var(--background), 0.95)"
+          : "transparent",
+        backdropFilter: isScrolled ? "blur(8px)" : "none",
+        borderBottom: isScrolled ? "1px solid hsl(var(--border))" : "none",
+        boxShadow: isScrolled ? "0 1px 3px 0 rgb(0 0 0 / 0.1)" : "none",
+      }}
+      transition={{
+        duration: 0.3,
+        ease: [0.25, 0.46, 0.45, 0.94], // Custom cubic-bezier for smooth animation
+      }}
+    >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg" />
@@ -18,19 +51,19 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-8">
           <a
             href="#how-it-works"
-            className="text-sm text-muted-foreground hover:text-foreground transition"
+            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
           >
             How It Works
           </a>
           <a
             href="#features"
-            className="text-sm text-muted-foreground hover:text-foreground transition"
+            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
           >
             Features
           </a>
           <a
             href="#pricing"
-            className="text-sm text-muted-foreground hover:text-foreground transition"
+            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
           >
             Pricing
           </a>
@@ -52,6 +85,6 @@ export function Header() {
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
