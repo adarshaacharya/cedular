@@ -29,11 +29,35 @@ model EmailThread {
     createdAt     DateTime           @default(now())
     updatedAt     DateTime           @updatedAt
     meetings      Meeting[]
+    messages      EmailMessage[] // All messages in this thread
 
     @@index([userId])
     @@index([status])
     @@index([threadId])
     @@map("email_threads")
+}
+
+model EmailMessage {
+    id            String      @id @default(uuid())
+    emailThreadId String
+    emailThread   EmailThread @relation(fields: [emailThreadId], references: [id], onDelete: Cascade)
+
+    gmailMessageId String   @unique // Gmail message ID
+    from           String // Sender email address
+    to             String[] // Recipient email addresses
+    cc             String[] // CC email addresses
+    subject        String?
+    body           String // Full email body (HTML/text)
+    snippet        String? // Gmail snippet
+    sentAt         DateTime // When the email was sent
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([emailThreadId])
+    @@index([gmailMessageId])
+    @@index([sentAt])
+    @@map("email_messages")
 }
 
 enum MeetingStatus {
@@ -66,7 +90,7 @@ model Meeting {
     meetingLink     String? // Video conference link (Google Meet, Zoom, etc.)
     status          MeetingStatus @default(proposed)
     source          MeetingSource @default(email_thread)
-    
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 

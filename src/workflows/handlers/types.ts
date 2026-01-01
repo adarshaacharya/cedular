@@ -10,7 +10,16 @@ export interface HandlerInput {
     to?: string;
     cc?: string;
     participants?: string[];
-    messages: Array<{ id: string }>;
+    messages: Array<{
+      id: string;
+      snippet: string | null;
+      from: string;
+      to: string;
+      cc: string;
+      subject: string;
+      sentAt: Date;
+      body: string;
+    }>;
   };
   parsedIntent: EmailParseResult;
   userId: string;

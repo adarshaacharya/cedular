@@ -20,10 +20,20 @@ interface CreateEmailThreadInput {
   proposedSlots?: Array<{ start: string; end: string; score?: number }>;
 }
 
-export async function createEmailThread(
-  input: CreateEmailThreadInput
-): Promise<void> {
-  await prisma.emailThread.upsert({
+interface CreateEmailMessageInput {
+  emailThreadId: string;
+  gmailMessageId: string;
+  from: string;
+  to: string[];
+  cc?: string[];
+  subject?: string;
+  body: string;
+  snippet?: string;
+  sentAt: Date;
+}
+
+export async function createEmailThread(input: CreateEmailThreadInput) {
+  return await prisma.emailThread.upsert({
     where: { threadId: input.threadId },
     update: {
       subject: input.subject,
@@ -68,6 +78,76 @@ export async function updateEmailThreadStatus(
     },
     data: {
       status,
+    },
+  });
+}
+
+export async function saveEmailMessage(
+  input: CreateEmailMessageInput
+): Promise<void> {
+  await prisma.emailMessage.upsert({
+    where: { gmailMessageId: input.gmailMessageId },
+    update: {
+      from: input.from,
+      to: input.to,
+      cc: input.cc,
+      subject: input.subject,
+      body: input.body,
+      snippet: input.snippet,
+      sentAt: input.sentAt,
+    },
+    create: {
+      emailThreadId: input.emailThreadId,
+      gmailMessageId: input.gmailMessageId,
+      from: input.from,
+      to: input.to,
+      cc: input.cc,
+      subject: input.subject,
+      body: input.body,
+      snippet: input.snippet,
+      sentAt: input.sentAt,
+    },
+  });
+}
+
+export async function saveEmailMessages(
+  emailThreadId: string,
+  messages: Array<{
+    gmailMessageId: string;
+    from: string;
+    to: string[];
+    cc?: string[];
+    subject?: string;
+    body: string;
+    snippet?: string;
+    sentAt: Date;
+  }>
+): Promise<void> {
+  const messagePromises = messages.map((message) =>
+    saveEmailMessage({
+      emailThreadId,
+      ...message,
+    })
+  );
+
+  await Promise.all(messagePromises);
+}
+
+export async function getEmailThreadWithMessages(
+  threadId: string,
+  userId: string
+) {
+  return await prisma.emailThread.findFirst({
+    where: {
+      threadId,
+      userId,
+    },
+    include: {
+      messages: {
+        orderBy: {
+          sentAt: "asc",
+        },
+      },
     },
   });
 }

@@ -2,7 +2,11 @@ import { HandlerInput, HandlerOutput } from "./types";
 import { runCalendarAgent } from "@/agents/calendar-agent";
 import { generateResponse } from "@/agents/response-generator";
 import { sendEmail } from "@/integrations/gmail";
-import { createEmailThread } from "@/services/email-thread-service";
+import { extractEmailAddresses } from "@/integrations/gmail/utils";
+import {
+  createEmailThread,
+  saveEmailMessages,
+} from "@/services/email-thread-service";
 import {
   EmailThreadIntent,
   EmailThreadStatus,
@@ -112,7 +116,7 @@ export async function handleSchedule(
       );
 
       // 6. Save email thread with proposedSlots
-      await createEmailThread({
+      const savedThread = await createEmailThread({
         userId,
         threadId: emailThread.threadId,
         subject: emailThread.subject,
@@ -127,6 +131,30 @@ export async function handleSchedule(
       });
 
       console.log(`[ScheduleHandler] Email thread saved with proposed slots`);
+
+      // 7. Save email message history
+      try {
+        const messagesToSave = emailThread.messages.map((msg) => ({
+          gmailMessageId: msg.id,
+          from: msg.from,
+          to: extractEmailAddresses(msg.to),
+          cc: extractEmailAddresses(msg.cc),
+          subject: msg.subject,
+          body: msg.body,
+          snippet: msg.snippet || undefined,
+          sentAt: msg.sentAt,
+        }));
+
+        await saveEmailMessages(savedThread.id, messagesToSave);
+        console.log(
+          `[ScheduleHandler] Saved ${messagesToSave.length} email messages`
+        );
+      } catch (error) {
+        console.error(
+          `[ScheduleHandler] Error saving email messages: ${error}`
+        );
+        // Don't fail the workflow for message saving errors
+      }
 
       // 7. Return result
       return {

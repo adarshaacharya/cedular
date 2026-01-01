@@ -21,6 +21,11 @@ export async function getEmailThreadById(id: string) {
           createdAt: "desc",
         },
       },
+      messages: {
+        orderBy: {
+          sentAt: "asc",
+        },
+      },
     },
   });
 

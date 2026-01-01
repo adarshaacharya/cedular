@@ -52,6 +52,54 @@ function extractParticipants(
 }
 
 /**
+ * Parse individual email message details from Gmail message
+ */
+export function parseEmailMessage(message: {
+  id?: string | null;
+  snippet?: string | null;
+  payload?: {
+    headers?: Array<{ name?: string | null; value?: string | null }>;
+    body?: { data?: string | null };
+    parts?: Array<{
+      mimeType?: string | null;
+      body?: { data?: string | null };
+    }>;
+  };
+}): {
+  id: string;
+  snippet: string | null;
+  from: string;
+  to: string;
+  cc: string;
+  subject: string;
+  sentAt: Date;
+  body: string;
+} {
+  const headers = message.payload?.headers || [];
+
+  const from = getHeaderValue(headers, EMAIL_HEADERS.FROM);
+  const to = getHeaderValue(headers, EMAIL_HEADERS.TO);
+  const cc = getHeaderValue(headers, EMAIL_HEADERS.CC);
+  const subject = getHeaderValue(headers, EMAIL_HEADERS.SUBJECT);
+  const dateStr = getHeaderValue(headers, EMAIL_HEADERS.DATE);
+  const body = extractEmailBody(message.payload || {});
+
+  // Parse the date string to Date object
+  const sentAt = dateStr ? new Date(dateStr) : new Date();
+
+  return {
+    id: message.id || "",
+    snippet: message.snippet || null,
+    from: from || "",
+    to: to || "",
+    cc: cc || "",
+    subject: subject || "",
+    sentAt,
+    body,
+  };
+}
+
+/**
  * Parse email thread from Gmail API response
  */
 export function parseEmailThread(thread: {
@@ -95,10 +143,6 @@ export function parseEmailThread(thread: {
     body,
     participants: Array.from(participants),
     messageCount: messages.length,
-    messages: messages.map((msg) => ({
-      id: msg.id,
-      snippet: msg.snippet,
-      body: extractEmailBody(msg.payload || {}),
-    })),
+    messages: messages.map((msg) => parseEmailMessage(msg)),
   };
 }

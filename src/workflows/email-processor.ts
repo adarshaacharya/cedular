@@ -118,6 +118,9 @@ export async function processEmail(
       where: { threadId: emailThread.threadId || threadId },
     });
 
+    // Note: Email message history is saved when the email thread is created in the handlers
+    // (e.g., schedule.handler.ts creates thread + saves messages)
+
     // Step 2: Parse email with Email Parser Agent
     console.log(`[Workflow] Parsing email intent`);
     const parsedIntent = await parseEmail({
@@ -154,7 +157,7 @@ export async function processEmail(
         body: emailBody,
         from: senderEmail,
         participants: emailThread.participants || [senderEmail],
-        messages: emailThread.messages.map((m) => ({ id: m.id || "" })),
+        messages: emailThread.messages,
       },
       parsedIntent,
       userId,

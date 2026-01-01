@@ -7,6 +7,7 @@ import {
 } from "../actions";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Card } from "@/components/ui/card";
 
 function getTimeBasedGreeting() {
   const hour = new Date().getHours();
@@ -78,7 +79,7 @@ export async function WelcomeBanner() {
 
   // Normal welcome banner when setup is complete
   return (
-    <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6 mb-8">
+    <Card className="  border   rounded-xl p-6 mb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -98,6 +99,6 @@ export async function WelcomeBanner() {
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

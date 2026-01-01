@@ -10,12 +10,8 @@ import {
   Send,
   LifeBuoy,
   Users,
-  Sun,
-  Moon,
-  Monitor,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useSession } from "@/lib/auth/client";
 
 import { NavMain } from "@/components/navbar/nav-main";
@@ -31,7 +27,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
-import { Button } from "@/components/ui/button";
+import { SidebarThemeToggler } from "./sidebar-theme-toggler";
 import Image from "next/image";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -41,13 +37,6 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { theme, setTheme } = useTheme();
-
-  const cycleTheme = () => {
-    if (theme === "light") setTheme("dark");
-    else if (theme === "dark") setTheme("system");
-    else setTheme("light");
-  };
 
   // Assistant section - AI-focused features
   const navAssistant = [
@@ -151,21 +140,7 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
                   <span className="truncate font-medium">Cedular</span>
                 </div>
               </SidebarMenuButton>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={cycleTheme}
-                className="h-8 w-8 p-0 ml-2"
-              >
-                {theme === "light" ? (
-                  <Sun className="h-4 w-4" />
-                ) : theme === "dark" ? (
-                  <Moon className="h-4 w-4" />
-                ) : (
-                  <Monitor className="h-4 w-4" />
-                )}
-                <span className="sr-only">Toggle theme</span>
-              </Button>
+              <SidebarThemeToggler />
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

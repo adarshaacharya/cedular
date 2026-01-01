@@ -13,9 +13,11 @@ import {
 } from "lucide-react";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
 import type { MeetingModel } from "@/prisma/generated/prisma/models/Meeting";
+import type { EmailMessageModel } from "@/prisma/generated/prisma/models/EmailMessage";
 
 type EmailThreadWithMeetings = EmailThreadModel & {
   meetings: MeetingModel[];
+  messages: EmailMessageModel[];
 };
 
 interface EmailThreadDetailProps {
@@ -183,6 +185,116 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                   </p>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Email Messages Card */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                Email Messages ({thread.messages.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {thread.messages.length > 0 ? (
+                <div className="space-y-4">
+                  {thread.messages
+                    .sort(
+                      (a, b) =>
+                        new Date(a.sentAt).getTime() -
+                        new Date(b.sentAt).getTime()
+                    )
+                    .map((message, idx) => (
+                      <div
+                        key={message.id}
+                        className="p-4 rounded-lg border bg-card"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-sm font-medium text-primary">
+                                {message.from.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">
+                                {message.from}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(
+                                  new Date(message.sentAt),
+                                  "MMM d, yyyy 'at' h:mm a"
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            Message {idx + 1}
+                          </Badge>
+                        </div>
+
+                        {message.subject && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium">
+                              Subject:{" "}
+                            </span>
+                            <span className="text-sm">{message.subject}</span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                          {message.to.length > 0 && (
+                            <div>
+                              <span className="font-medium">To:</span>{" "}
+                              {message.to.join(", ")}
+                            </div>
+                          )}
+                          {message.cc && message.cc.length > 0 && (
+                            <div>
+                              <span className="font-medium">CC:</span>{" "}
+                              {message.cc.join(", ")}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="text-sm text-muted-foreground">
+                          <div
+                            className="prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html:
+                                message.body.length > 500
+                                  ? `${message.body.substring(0, 500)}...`
+                                  : message.body,
+                            }}
+                          />
+                        </div>
+
+                        {message.snippet && (
+                          <div className="mt-2 text-xs text-muted-foreground italic">
+                            {message.snippet}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No email messages stored for this thread yet
+                </p>
+              )}
             </CardContent>
           </Card>
 

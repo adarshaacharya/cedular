@@ -20,8 +20,13 @@ export interface ParsedEmailThread {
   participants: string[];
   messageCount: number;
   messages: Array<{
-    id: string | null | undefined;
-    snippet: string | null | undefined;
+    id: string;
+    snippet: string | null;
+    from: string;
+    to: string;
+    cc: string;
+    subject: string;
+    sentAt: Date;
     body: string;
   }>;
 }
