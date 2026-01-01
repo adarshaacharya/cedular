@@ -103,10 +103,11 @@ export function HowItWorks() {
               return (
                 <div
                   key={step.id}
-                  className={`relative p-6 rounded-xl border transition-all duration-300 ${
+                  onClick={() => setCurrentStep(index)}
+                  className={`relative p-6 rounded-xl border transition-all duration-300 cursor-pointer ${
                     isActive
                       ? "bg-card border-primary shadow-lg shadow-primary/20"
-                      : "bg-background/50 border-border hover:border-primary/30"
+                      : "bg-background/50 border-border hover:border-primary/30 hover:shadow-md"
                   }`}
                 >
                   {/* Step Number */}

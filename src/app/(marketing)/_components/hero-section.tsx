@@ -52,10 +52,67 @@ export function HeroSection() {
     },
   ];
 
+  // Predefined meteor properties to avoid Math.random() during render
+  const meteorProps = [
+    { height: "35px", left: "15%", duration: 4.2, delay: 0.5 },
+    { height: "28px", left: "45%", duration: 3.8, delay: 1.2 },
+    { height: "42px", left: "72%", duration: 4.5, delay: 2.1 },
+    { height: "31px", left: "28%", duration: 3.6, delay: 3.4 },
+    { height: "39px", left: "58%", duration: 4.1, delay: 0.8 },
+    { height: "25px", left: "85%", duration: 3.9, delay: 2.8 },
+    { height: "36px", left: "32%", duration: 4.3, delay: 1.7 },
+    { height: "33px", left: "68%", duration: 3.7, delay: 4.1 },
+  ];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Sophisticated background - subtle grid and gradients */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Centered subtle grid pattern */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 opacity-[0.03] dark:opacity-[0.05]">
+          <svg className="h-full w-full">
+            <defs>
+              <pattern
+                id="hero-grid"
+                width="16"
+                height="16"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 16 0 L 0 0 0 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.5"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hero-grid)" />
+          </svg>
+        </div>
+
+        {/* Falling meteor shower animation */}
+        {meteorProps.map((meteor, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-px bg-linear-to-b from-transparent via-primary/30 to-transparent"
+            style={{
+              height: meteor.height,
+              left: meteor.left,
+              top: `-20px`,
+            }}
+            animate={{
+              y: ["0vh", "120vh"],
+              opacity: [0, 1, 1, 0],
+            }}
+            transition={{
+              duration: meteor.duration,
+              repeat: Infinity,
+              delay: meteor.delay,
+              ease: "linear",
+            }}
+          />
+        ))}
+
         {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02]"
