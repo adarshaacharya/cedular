@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { env } from "@/env";
 
 export const auth = betterAuth({
+  baseURL: env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -13,4 +14,12 @@ export const auth = betterAuth({
   },
   trustedOrigins: [env.NEXT_PUBLIC_APP_URL],
   plugins: [nextCookies()], // Required for Next.js server actions - must be last plugin
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      redirectUri: env.GOOGLE_REDIRECT_URI,
+    },
+  },
 });

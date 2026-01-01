@@ -21,15 +21,23 @@ import { format } from "date-fns";
 import { getMeetingDatesForMonth, getMeetingsForDate } from "../actions";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
+import { AlertCircle } from "lucide-react";
+import { type SetupStep } from "../constants";
 
-export function CalendarWidget() {
+interface CalendarWidgetProps {
+  setupStatus?: {
+    completionPercentage: number;
+    missingSteps: SetupStep[];
+  };
+}
+
+export function CalendarWidget({ setupStatus }: CalendarWidgetProps = {}) {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
-  // SWR for meeting dates in current month
   const { data: meetingDates = [] } = useSWR(
     `meeting-dates-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`,
     () =>
@@ -39,7 +47,6 @@ export function CalendarWidget() {
       )
   );
 
-  // SWR for meetings on selected date (only fetch when date is selected)
   const {
     data: meetingsForDate = [],
     error: meetingsError,
@@ -52,26 +59,21 @@ export function CalendarWidget() {
       selectedDate ? getMeetingsForDate(selectedDate) : Promise.resolve([])
   );
 
-  // Handle date selection
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
     if (!date) {
       setIsPopoverOpen(false);
       return;
     }
-    // Popover will open automatically when meetings data is available
     setIsPopoverOpen(true);
   };
 
-  // Handle month change
   const handleMonthChange = (month: Date) => {
     setCurrentMonth(month);
   };
 
-  // Create modifiers for highlighting dates with meetings
   const modifiers = React.useMemo(() => {
     const datesWithMeetings = meetingDates.map((dateStr: string) => {
-      // Parse YYYY-MM-DD and create date at local midnight to match calendar's internal dates
       const [year, month, day] = dateStr.split("-").map(Number);
       return new Date(year, month - 1, day);
     });
@@ -97,6 +99,23 @@ export function CalendarWidget() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Setup Warning */}
+        {setupStatus && setupStatus.completionPercentage < 100 && (
+          <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">
+                  Complete setup to see your meetings
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                  Connect Google and set preferences to sync your calendar.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Popover
           open={isPopoverOpen && meetingsForDate.length > 0}
           onOpenChange={setIsPopoverOpen}

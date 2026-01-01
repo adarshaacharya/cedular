@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
 import { startOfWeek, endOfWeek, startOfDay, endOfDay } from "date-fns";
+import { SETUP_STEPS, type SetupStep, type UserSetupStatus } from "./constants";
 
 /**
  * Check if user has Google (Gmail/Calendar) connected
@@ -33,6 +34,65 @@ export async function getGoogleConnectionStatus() {
       preferences?.gmailAccessToken && preferences?.gmailRefreshToken
     ),
     email: preferences?.assistantEmail,
+  };
+}
+
+/**
+ * Get user's onboarding/setup completion status
+ */
+export async function getUserSetupStatus(): Promise<UserSetupStatus> {
+  const session = await getServerSession();
+
+  if (!session?.user) {
+    return {
+      googleConnected: false,
+      preferencesSet: false,
+      completionPercentage: 0,
+      missingSteps: [SETUP_STEPS.CONNECT_GOOGLE, SETUP_STEPS.SET_PREFERENCES],
+    };
+  }
+
+  // Check Google connection
+  const preferences = await prisma.userPreferences.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      gmailAccessToken: true,
+      gmailRefreshToken: true,
+    },
+  });
+
+  const googleConnected = Boolean(
+    preferences?.gmailAccessToken && preferences?.gmailRefreshToken
+  );
+
+  // Check if user has set scheduling preferences
+  const scheduleProfile = await prisma.userScheduleProfile.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  const preferencesSet = Boolean(scheduleProfile);
+
+  // Calculate completion
+  let completionPercentage = 0;
+  const missingSteps: SetupStep[] = [];
+
+  if (googleConnected) {
+    completionPercentage += 50;
+  } else {
+    missingSteps.push(SETUP_STEPS.CONNECT_GOOGLE);
+  }
+
+  if (preferencesSet) {
+    completionPercentage += 50;
+  } else {
+    missingSteps.push(SETUP_STEPS.SET_PREFERENCES);
+  }
+
+  return {
+    googleConnected,
+    preferencesSet,
+    completionPercentage,
+    missingSteps,
   };
 }
 

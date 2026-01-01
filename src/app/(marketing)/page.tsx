@@ -6,8 +6,19 @@ import { CTAModule } from "@/app/(marketing)/_components/cta-modules";
 import { Footer } from "@/app/(marketing)/_components/footer";
 import { Suspense } from "react";
 import { AuthRedirector } from "@/components/auth-redirector";
+import { auth } from "@/lib/auth/server";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session?.user) {
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <Suspense fallback={null}>

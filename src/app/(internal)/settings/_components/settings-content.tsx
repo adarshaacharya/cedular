@@ -1,17 +1,8 @@
 import { auth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PreferencesForm } from "./preferences-form";
-import { GoogleServicesSection } from "./google-services-section";
 import { getUserPreferences, getUserScheduleProfile } from "../actions";
+import { SettingsTabs } from "./settings-tabs";
 
 export async function SettingsContent() {
   const session = await auth.api.getSession({
@@ -34,56 +25,11 @@ export async function SettingsContent() {
         </p>
       </div>
 
-      <Tabs defaultValue="preferences" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
-          <TabsTrigger value="integrations">Integrations</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="preferences" className="space-y-6">
-          {/* User Preferences */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Scheduling Preferences</CardTitle>
-              <CardDescription>
-                Configure your working hours, timezone, and scheduling
-                preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PreferencesForm
-                userId={session.user.id}
-                preferences={userPreferences}
-                scheduleProfile={scheduleProfile}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="integrations" className="space-y-6">
-          {/* Google Services Connection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Google Services Integration</CardTitle>
-              <CardDescription>
-                Connect your Google account to enable Gmail processing and
-                Calendar scheduling
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GoogleServicesSection
-                userId={session.user.id}
-                isConnected={
-                  !!userPreferences?.gmailAccessToken &&
-                  !!userPreferences?.calendarAccessToken
-                }
-                assistantEmail={userPreferences?.assistantEmail}
-                calendarId={userPreferences?.calendarId}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <SettingsTabs
+        userId={session.user.id}
+        userPreferences={userPreferences}
+        scheduleProfile={scheduleProfile}
+      />
     </div>
   );
 }

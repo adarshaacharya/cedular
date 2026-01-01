@@ -3,6 +3,7 @@ import {
   getMeetingsThisWeekCount,
   getPendingRequestsCount,
   getGoogleConnectionStatus,
+  getUserSetupStatus,
 } from "../actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,16 +16,35 @@ import {
 } from "lucide-react";
 
 export async function DashboardStats() {
-  const [todayMeetings, meetingsThisWeek, pendingRequests, googleStatus] =
+  const [todayMeetings, meetingsThisWeek, pendingRequests, googleStatus, setupStatus] =
     await Promise.all([
       getTodayMeetingsCount(),
       getMeetingsThisWeekCount(),
       getPendingRequestsCount(),
       getGoogleConnectionStatus(),
+      getUserSetupStatus(),
     ]);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div>
+      {/* Setup Warning */}
+      {setupStatus.completionPercentage < 100 && (
+        <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
+                Complete your setup to see meeting statistics
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                Connect your Google account and set your scheduling preferences to start tracking your meetings.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
       {/* Today's Meetings - Blue */}
       <Card className="hover:shadow-lg transition-shadow border-blue-500/20">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -155,6 +175,7 @@ export async function DashboardStats() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

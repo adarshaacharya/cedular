@@ -23,7 +23,6 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get("state");
     const error = searchParams.get("error");
 
-    // Handle OAuth errors from Google
     if (error) {
       logger.error({ error }, "Google OAuth error");
       return NextResponse.redirect(
@@ -31,14 +30,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate required parameters
     if (!code || !state) {
       return NextResponse.redirect(
         new URL("/dashboard?error=missing_params", request.url)
       );
     }
 
-    // Verify user session
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -49,7 +46,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify state matches user ID (security check)
     if (state !== session.user.id) {
       logger.error(
         { state, userId: session.user.id },
@@ -60,7 +56,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Create OAuth2 client
     const oauth2Client = new google.auth.OAuth2(
       env.GOOGLE_CLIENT_ID,
       env.GOOGLE_CLIENT_SECRET,
@@ -82,7 +77,6 @@ export async function GET(request: NextRequest) {
     const profile = await gmail.users.getProfile({ userId: "me" });
     const userEmail = profile.data.emailAddress;
 
-    // Calculate token expiry date
     const expiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : null;
 
     // Store tokens in user_preferences
@@ -112,24 +106,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // create user schedule profile with default values
-    await prisma.userScheduleProfile.upsert({
-      where: {
-        userId: session.user.id,
-      },
-      create: {
-        userId: session.user.id,
-        timezone: "UTC", // Default, user can update later
-        workingHoursStart: "09:00",
-        workingHoursEnd: "17:00",
-        bufferMinutes: 15,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      update: {
-        updatedAt: new Date(),
-      },
-    });
+    // Note: UserScheduleProfile is intentionally NOT created here
+    // Users must explicitly set their scheduling preferences in settings
+    // This ensures they don't have false defaults (UTC timezone, 9-5 hours)
 
     // Success! Redirect to dashboard
     return NextResponse.redirect(

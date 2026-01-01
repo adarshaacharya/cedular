@@ -22,12 +22,13 @@ export async function getUserScheduleProfile(userId: string) {
 }
 
 export async function updateUserPreferences(formData: FormData) {
+  const bufferMinutesValue = formData.get("bufferMinutes") as string;
   const rawData = {
     userId: formData.get("userId") as string,
     timezone: formData.get("timezone") as string,
     workingHoursStart: formData.get("workingHoursStart") as string,
     workingHoursEnd: formData.get("workingHoursEnd") as string,
-    bufferMinutes: parseInt(formData.get("bufferMinutes") as string),
+    bufferMinutes: bufferMinutesValue ? parseInt(bufferMinutesValue) : 15, // Default to 15 if empty
     calendarId: formData.get("calendarId") as string,
     assistantEmail: formData.get("assistantEmail") as string,
   };
