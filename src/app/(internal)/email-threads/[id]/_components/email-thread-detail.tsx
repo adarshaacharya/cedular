@@ -1,6 +1,7 @@
+"use client";
 import Link from "next/link";
-import { format, formatDistanceToNow } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,12 +79,182 @@ interface ProposedSlot {
   reason?: string;
 }
 
+interface EmailMessageProps {
+  message: EmailMessageModel;
+  index: number;
+  isLast: boolean;
+  threadSubject?: string;
+}
+
+function EmailMessage({
+  message,
+  index,
+  isLast,
+  threadSubject,
+}: EmailMessageProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Extract meeting links from email body
+  const extractMeetingLinks = (body: string) => {
+    const meetingLinkRegex =
+      /(https?:\/\/[^\s]+(?:meet\.google\.com|zoom\.us|teams\.microsoft\.com|meet\.zoom\.us)[^\s]*)/gi;
+    return body.match(meetingLinkRegex) || [];
+  };
+
+  // Extract time slot proposals from email body
+  const extractTimeSlots = (body: string) => {
+    // Simple regex to find time patterns - this could be enhanced
+    const timeRegex =
+      /(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)|\d{1,2}\s*(?:AM|PM|am|pm))/gi;
+    return body.match(timeRegex) || [];
+  };
+
+  const meetingLinks = extractMeetingLinks(message.body);
+  const timeSlots = extractTimeSlots(message.body);
+
+  return (
+    <div className="relative">
+      {/* Timeline connector */}
+      {!isLast && (
+        <div className="absolute left-6 top-12 bottom-0 w-px bg-border" />
+      )}
+
+      <div className="flex gap-4 pb-6">
+        {/* Avatar */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border-2 border-background">
+            <span className="text-sm font-medium text-primary">
+              {message.from.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        </div>
+
+        {/* Email content */}
+        <div className="flex-1 min-w-0">
+          {/* Email header */}
+          <div className="flex items-start justify-between mb-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="font-medium text-foreground truncate">
+                  {message.from}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {format(new Date(message.sentAt), "MMM d 'at' h:mm a")}
+                </span>
+              </div>
+
+              {/* Recipients */}
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+                {message.to.length > 0 && (
+                  <span>
+                    <span className="font-medium">To:</span>{" "}
+                    {message.to.join(", ")}
+                  </span>
+                )}
+                {message.cc && message.cc.length > 0 && (
+                  <span>
+                    <span className="font-medium">CC:</span>{" "}
+                    {message.cc.join(", ")}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <Badge variant="outline" className="text-xs shrink-0 ml-2">
+              #{index + 1}
+            </Badge>
+          </div>
+
+          {/* Email body */}
+          <div className="bg-muted/30 rounded-lg p-4 border">
+            {message.subject && message.subject !== threadSubject && (
+              <div className="mb-3 pb-2 border-b border-border/50">
+                <span className="text-sm font-medium text-muted-foreground">
+                  Subject: {message.subject}
+                </span>
+              </div>
+            )}
+
+            {/* Meeting links - prominently displayed */}
+            {meetingLinks.length > 0 && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    Meeting Links
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  {meetingLinks.map((link, idx) => (
+                    <a
+                      key={idx}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 hover:underline"
+                    >
+                      {link}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Time slots - prominently displayed */}
+            {timeSlots.length > 0 && (
+              <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-md border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-900 dark:text-green-100">
+                    Time Slots Mentioned
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {timeSlots.map((slot, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {slot}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Email content */}
+            <div className="text-sm text-foreground">
+              <div
+                className="prose prose-sm max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    message.body.length > 300 && !isExpanded
+                      ? `${message.body.substring(0, 300)}...`
+                      : message.body,
+                }}
+              />
+            </div>
+
+            {/* Show more/less button */}
+            {message.body.length > 300 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-2 text-xs text-primary hover:underline"
+              >
+                {isExpanded ? "Show less" : "Show more"}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
   const proposedSlots = thread.proposedSlots as ProposedSlot[] | null;
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="max-w-4xl mx-auto w-full">
+    <div className="flex flex-1 flex-col gap-6 p-6">
+      <div className="w-full">
         {/* Header */}
         <div className="mb-6">
           <Link href="/email-threads">
@@ -111,65 +282,124 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Status & Intent Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+        {/* Main Content Layout */}
+        <div className="flex gap-8">
+          {/* Email Thread - Left Side */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-6 pb-4 border-b">
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <h2 className="text-xl font-semibold">
+                Email Conversation ({thread.messages.length} messages)
+              </h2>
+            </div>
+
+            {thread.messages.length > 0 ? (
+              <div className="space-y-0">
+                {thread.messages
+                  .sort(
+                    (a, b) =>
+                      new Date(a.sentAt).getTime() -
+                      new Date(b.sentAt).getTime()
+                  )
+                  .map((message, idx) => (
+                    <EmailMessage
+                      key={message.id}
+                      message={message}
+                      index={idx}
+                      isLast={idx === thread.messages.length - 1}
+                      threadSubject={thread.subject || undefined}
+                    />
+                  ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <svg
+                  className="h-12 w-12 mx-auto mb-4 opacity-50"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                <p className="text-lg font-medium">No email messages yet</p>
+                <p className="text-sm">
+                  Messages will appear here once they&apos;re processed
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar - Right Side */}
+          <div className="w-80 shrink-0 space-y-6">
+            {/* Thread Status */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Target className="h-5 w-5" />
-                Status & Intent
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-6">
+                Thread Status
+              </h3>
+              <div className="space-y-3">
                 <div>
-                  <div className="text-sm text-muted-foreground">Status</div>
+                  <div className="text-sm text-muted-foreground mb-1">
+                    Status
+                  </div>
                   <Badge
                     variant={getStatusVariant(thread.status)}
-                    className="mt-1"
+                    className="text-sm"
                   >
                     {thread.status.replace("_", " ")}
                   </Badge>
                 </div>
                 <div>
-                  <div className="text-sm text-muted-foreground">Intent</div>
+                  <div className="text-sm text-muted-foreground mb-1">
+                    Intent
+                  </div>
                   {thread.intent ? (
-                    <Badge variant="outline" className="mt-1">
-                      {thread.intent}
-                    </Badge>
+                    <Badge variant="outline">{thread.intent}</Badge>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
                 </div>
-              </div>
-
-              {thread.workflowRunId && (
-                <div>
-                  <div className="text-sm text-muted-foreground">
-                    Workflow Run ID
+                {thread.workflowRunId && (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">
+                      Workflow Run ID
+                    </div>
+                    <code className="text-xs bg-muted px-2 py-1 rounded block">
+                      {thread.workflowRunId}
+                    </code>
                   </div>
-                  <code className="text-xs bg-muted px-2 py-1 rounded">
-                    {thread.workflowRunId}
-                  </code>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </div>
+            </div>
 
-          {/* Participants Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+            {/* Participants */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 Participants ({thread.participants.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
               <div className="space-y-2">
                 {thread.participants.map((email, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 p-2 rounded-md bg-muted/50"
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
                   >
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="text-sm font-medium text-primary">
@@ -185,161 +415,43 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                   </p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Email Messages Card */}
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                Email Messages ({thread.messages.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {thread.messages.length > 0 ? (
-                <div className="space-y-4">
-                  {thread.messages
-                    .sort(
-                      (a, b) =>
-                        new Date(a.sentAt).getTime() -
-                        new Date(b.sentAt).getTime()
-                    )
-                    .map((message, idx) => (
-                      <div
-                        key={message.id}
-                        className="p-4 rounded-lg border bg-card"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-sm font-medium text-primary">
-                                {message.from.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">
-                                {message.from}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {format(
-                                  new Date(message.sentAt),
-                                  "MMM d, yyyy 'at' h:mm a"
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            Message {idx + 1}
-                          </Badge>
-                        </div>
-
-                        {message.subject && (
-                          <div className="mb-2">
-                            <span className="text-sm font-medium">
-                              Subject:{" "}
-                            </span>
-                            <span className="text-sm">{message.subject}</span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                          {message.to.length > 0 && (
-                            <div>
-                              <span className="font-medium">To:</span>{" "}
-                              {message.to.join(", ")}
-                            </div>
-                          )}
-                          {message.cc && message.cc.length > 0 && (
-                            <div>
-                              <span className="font-medium">CC:</span>{" "}
-                              {message.cc.join(", ")}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="text-sm text-muted-foreground">
-                          <div
-                            className="prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{
-                              __html:
-                                message.body.length > 500
-                                  ? `${message.body.substring(0, 500)}...`
-                                  : message.body,
-                            }}
-                          />
-                        </div>
-
-                        {message.snippet && (
-                          <div className="mt-2 text-xs text-muted-foreground italic">
-                            {message.snippet}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No email messages stored for this thread yet
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Proposed Slots Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+            {/* Proposed Time Slots */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 Proposed Time Slots
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
               {proposedSlots && proposedSlots.length > 0 ? (
                 <div className="space-y-3">
                   {proposedSlots.map((slot, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-md border bg-muted/30"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">
+                    <div key={idx} className="p-3 rounded-lg border bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-sm">
                           Option {idx + 1}
-                          {slot.score && (
-                            <Badge variant="outline" className="ml-2 text-xs">
-                              Score: {slot.score}
-                            </Badge>
-                          )}
                         </div>
-                      </div>
-                      <div className="text-sm mt-1">
-                        <span className="text-muted-foreground">Start:</span>{" "}
-                        {format(
-                          new Date(slot.start),
-                          "MMM d, yyyy 'at' h:mm a"
+                        {slot.score && (
+                          <Badge variant="outline" className="text-xs">
+                            {slot.score}%
+                          </Badge>
                         )}
                       </div>
-                      <div className="text-sm">
-                        <span className="text-muted-foreground">End:</span>{" "}
-                        {format(new Date(slot.end), "MMM d, yyyy 'at' h:mm a")}
+                      <div className="space-y-1 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Start:</span>{" "}
+                          {format(new Date(slot.start), "MMM d, h:mm a")}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">End:</span>{" "}
+                          {format(new Date(slot.end), "MMM d, h:mm a")}
+                        </div>
+                        {slot.reason && (
+                          <p className="text-muted-foreground mt-2 text-xs">
+                            {slot.reason}
+                          </p>
+                        )}
                       </div>
-                      {slot.reason && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {slot.reason}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -348,43 +460,58 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                   No proposed time slots yet
                 </p>
               )}
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Related Meetings Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
+            {/* Related Meetings */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
                 Related Meetings ({thread.meetings.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
               {thread.meetings.length > 0 ? (
                 <div className="space-y-3">
                   {thread.meetings.map((meeting) => (
                     <div
                       key={meeting.id}
-                      className="p-3 rounded-md border bg-muted/30"
+                      className="p-3 rounded-lg border bg-card"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{meeting.title}</span>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm">
+                          {meeting.title}
+                        </span>
                         <Badge
                           variant={getMeetingStatusVariant(meeting.status)}
+                          className="text-xs"
                         >
                           {meeting.status}
                         </Badge>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-xs text-muted-foreground mb-3">
                         {format(
                           new Date(meeting.startTime),
                           "MMM d, yyyy 'at' h:mm a"
                         )}
                       </div>
+                      {meeting.meetingLink && (
+                        <div className="mb-3">
+                          <a
+                            href={meeting.meetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            Join Meeting
+                          </a>
+                        </div>
+                      )}
                       <Link href={`/meetings/${meeting.id}`}>
-                        <Button variant="outline" size="sm" className="mt-2">
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          View Meeting
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-xs"
+                        >
+                          View Details
                         </Button>
                       </Link>
                     </div>
@@ -392,36 +519,12 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No meetings created from this thread yet
+                  No meetings created yet
                 </p>
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Metadata */}
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-              <div>
-                <span className="font-medium">Created:</span>{" "}
-                {format(new Date(thread.createdAt), "MMM d, yyyy 'at' h:mm a")}
-              </div>
-              <div>
-                <span className="font-medium">Updated:</span>{" "}
-                {format(new Date(thread.updatedAt), "MMM d, yyyy 'at' h:mm a")}{" "}
-                (
-                {formatDistanceToNow(new Date(thread.updatedAt), {
-                  addSuffix: true,
-                })}
-                )
-              </div>
-              <div>
-                <span className="font-medium">ID:</span> {thread.id}
-              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

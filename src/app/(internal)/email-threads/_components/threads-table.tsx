@@ -8,9 +8,12 @@ import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { useDataTable } from "@/components/data-table/_hooks/use-data-table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
+import { Eye } from "lucide-react";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
 import React from "react";
+import Link from "next/link";
 
 interface ThreadsTableProps {
   threadsPromise: Promise<EmailThreadModel[]>;
@@ -29,12 +32,12 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
           <DataTableColumnHeader column={column} label="Subject" />
         ),
         cell: ({ row }) => (
-          <div
-            className="font-medium hover:underline hover:text-blue-500"
-            onClick={() => router.push(`/email-threads/${row.original.id}`)}
+          <Link
+            className="font-medium hover:underline hover:text-blue-500 cursor-pointer"
+            href={`/email-threads/${row.original.id}`}
           >
             {row.getValue("subject") || "No subject"}
-          </div>
+          </Link>
         ),
         meta: {
           label: "Subject",
@@ -117,6 +120,23 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
           );
         },
       },
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/email-threads/${row.original.id}`)}
+            className="h-8 w-8 p-0"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="sr-only">View thread details</span>
+          </Button>
+        ),
+        enableSorting: false,
+        enableColumnFilter: false,
+      },
     ],
     [router]
   );
@@ -129,7 +149,7 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
   });
 
   return (
-    <div className="p-10">
+    <div>
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>

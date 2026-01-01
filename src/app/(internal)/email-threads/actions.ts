@@ -46,7 +46,7 @@ export async function getEmailThreads() {
     orderBy: {
       createdAt: "desc",
     },
-    take: 20, // Limit to recent 20 threads
+    take: 10, // Limit to recent 10 threads
   });
 
   return threads;
