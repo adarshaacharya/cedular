@@ -57,7 +57,7 @@ export async function DashboardStats() {
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline gap-2">
-            <div className="text-3xl font-bold">{todayMeetings}</div>
+            <div className="text-3xl font-mono font-bold">{todayMeetings}</div>
             <span className="text-xs text-green-500 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1" />
               +0%
@@ -84,7 +84,7 @@ export async function DashboardStats() {
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline gap-2">
-            <div className="text-3xl font-bold">{pendingRequests}</div>
+            <div className="text-3xl font-mono font-bold">{pendingRequests}</div>
             {pendingRequests > 0 && (
               <Badge
                 variant="secondary"
@@ -118,7 +118,7 @@ export async function DashboardStats() {
         </CardHeader>
         <CardContent>
           <div className="flex items-baseline gap-2">
-            <div className="text-3xl font-bold">{meetingsThisWeek}</div>
+            <div className="text-3xl font-bold font-mono">{meetingsThisWeek}</div>
             <span className="text-xs text-green-500 flex items-center">
               <TrendingUp className="h-3 w-3 mr-1" />
               +0%

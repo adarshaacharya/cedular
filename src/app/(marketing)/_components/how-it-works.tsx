@@ -16,7 +16,7 @@ export function HowItWorks() {
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
       email: {
-        from: "cedular@ai-scheduling.com",
+        from: "cedular@ai-scheduling.com" as const,
         to: ["your.email@gmail.com"],
         subject: "Welcome! Your AI scheduling assistant is ready",
         content:
@@ -79,13 +79,13 @@ export function HowItWorks() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-balance">
+          <h2 className="text-4xl sm:text-5xl font-display font-semibold mb-4 text-balance">
             How It Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
             Personal AI scheduling through email and chat. Connect your inbox,
             CC{" "}
-            <span className="font-medium text-foreground">
+            <span className="font-mono text-foreground">
               cedular@ai-scheduling.com
             </span>{" "}
             on meeting requests or chat directly with your AI assistant -
@@ -181,13 +181,13 @@ export function HowItWorks() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">From:</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground font-mono">
                           {steps[currentStep].email.from}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">To:</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground font-mono">
                           {steps[currentStep].email.to.join(", ")}
                         </span>
                       </div>

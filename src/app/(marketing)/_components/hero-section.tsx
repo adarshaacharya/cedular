@@ -105,23 +105,21 @@ export function HeroSection() {
             Save 2+ hours weekly on scheduling
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-balance mb-8 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-normal text-balance mb-8 leading-tight">
             <span className="block text-muted-foreground font-normal text-lg sm:text-xl lg:text-2xl mb-4 tracking-wide">
               INTELLIGENT SCHEDULING
             </span>
-            <span className="bg-linear-to-r from-foreground via-primary to-accent bg-clip-text text-transparent font-semibold">
+            <span className="bg-linear-to-r from-foreground via-primary to-accent bg-clip-text text-transparent font-display">
               Meetings on Autopilot
             </span>
           </h1>
 
           <p className="text-lg text-muted-foreground text-balance mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-            Connect your email and get your own AI scheduling assistant. CC{" "}
-            <span className="font-medium text-foreground">
+            Connect your email and get AI-powered scheduling. CC{" "}
+            <span className="font-mono text-foreground">
               cedular@ai-scheduling.com
             </span>{" "}
-            on meeting requests or chat directly with your AI assistant -
-            zero-friction coordination that works through your email and
-            conversations.
+            on meeting requests or chat directly with your AI assistant.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">

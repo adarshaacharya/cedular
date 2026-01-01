@@ -22,8 +22,8 @@ export function CTAModule() {
 
           <div className="relative z-10">
             <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
-                Ready to <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">reclaim your time?</span>
+              <h2 className="text-4xl md:text-5xl font-display font-semibold mb-6 text-balance">
+                Ready to <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-display">reclaim your time?</span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
                 Join thousands of professionals who&apos;ve eliminated scheduling chaos with AI-powered coordination

@@ -4,12 +4,23 @@ import { Analytics } from "@vercel/analytics/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Nunito_Sans } from "next/font/google";
+import { Nunito_Sans, Playfair_Display, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
 const fontSans = Nunito_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
+});
+
+const fontDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
+});
+
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`antialiased ${fontSans.variable}`}>
+      <body
+        className={`antialiased ${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable}`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

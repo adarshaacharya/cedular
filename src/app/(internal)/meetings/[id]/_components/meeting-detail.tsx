@@ -510,7 +510,7 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
 
                 <div className="border-t border-gray-100 pt-4">
                   <div className="text-sm text-gray-500 mb-1">Meeting ID</div>
-                  <div className="font-mono text-xs bg-gray-50 px-3 py-2 rounded-lg border">
+                  <div className="font-mono text-xs bg-gray-50 dark:bg-gray-800 px-3 py-2 rounded-lg border">
                     {meeting.id}
                   </div>
                 </div>

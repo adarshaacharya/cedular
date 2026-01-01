@@ -381,7 +381,7 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                     <div className="text-sm text-muted-foreground mb-1">
                       Workflow Run ID
                     </div>
-                    <code className="text-xs bg-muted px-2 py-1 rounded block">
+                    <code className="font-mono text-xs bg-muted px-2 py-1 rounded block">
                       {thread.workflowRunId}
                     </code>
                   </div>
