@@ -25,9 +25,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={fontSans.variable}>
-      <body className={`antialiased`}>
-        <ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`antialiased ${fontSans.variable}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <NuqsAdapter>{children}</NuqsAdapter>
           <Analytics />
           <Toaster />

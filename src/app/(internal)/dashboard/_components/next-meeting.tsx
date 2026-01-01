@@ -5,21 +5,28 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Users, MapPin, Calendar, ExternalLink } from "lucide-react";
 import { formatDistanceToNow, format, differenceInMinutes } from "date-fns";
 import Link from "next/link";
+import Image from "next/image";
 
 export async function NextMeeting() {
   const meeting = await getNextMeeting();
 
   if (!meeting) {
     return (
-      <Card className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 mb-8">
+      <Card className="mb-8 shadow-sm">
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <Calendar className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <Image
+              src="/icons/calendar.svg"
+              alt="No Upcoming Meetings"
+              width={64}
+              height={64}
+              className="mx-auto mb-4"
+            />
             <h2 className="text-2xl font-bold mb-2">No Upcoming Meetings</h2>
             <p className="text-muted-foreground mb-4">
               Your schedule is clear. Time to focus on your work!
             </p>
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link href="/email-threads">Check Scheduling Requests</Link>
             </Button>
           </div>
@@ -33,7 +40,7 @@ export async function NextMeeting() {
   const duration = differenceInMinutes(meeting.endTime, meeting.startTime);
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-8 shadow-sm">
+    <Card className="mb-8 shadow-sm">
       <CardContent className="pt-6">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div className="flex-1">
@@ -98,11 +105,7 @@ export async function NextMeeting() {
           </div>
 
           {meeting.meetingLink && (
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-            >
+            <Button asChild size="lg" variant="outline">
               <Link
                 href={meeting.meetingLink}
                 target="_blank"

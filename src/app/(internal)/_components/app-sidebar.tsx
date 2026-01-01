@@ -9,11 +9,13 @@ import {
   MessageCircle,
   Send,
   LifeBuoy,
-  UserSearchIcon,
-  Users2Icon,
   Users,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useSession } from "@/lib/auth/client";
 
 import { NavMain } from "@/components/navbar/nav-main";
@@ -29,6 +31,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -38,6 +41,13 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { theme, setTheme } = useTheme();
+
+  const cycleTheme = () => {
+    if (theme === "light") setTheme("dark");
+    else if (theme === "dark") setTheme("system");
+    else setTheme("light");
+  };
 
   // Assistant section - AI-focused features
   const navAssistant = [
@@ -126,20 +136,37 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <div className=" flex aspect-square size-12 items-center justify-center rounded-lg">
-                <Image
-                  src="/icons/calendar-clock.svg"
-                  alt="Cedular Logo"
-                  width={32}
-                  height={32}
-                  className="w-24 h-24"
-                />
-              </div>
-              <div className="grid flex-1 text-left text-md leading-tight">
-                <span className="truncate font-medium">Cedular</span>
-              </div>
-            </SidebarMenuButton>
+            <div className="flex items-center justify-between w-full">
+              <SidebarMenuButton size="lg" className="flex-1">
+                <div className=" flex aspect-square size-12 items-center justify-center rounded-lg">
+                  <Image
+                    src="/icons/calendar-clock.svg"
+                    alt="Cedular Logo"
+                    width={32}
+                    height={32}
+                    className="w-24 h-24"
+                  />
+                </div>
+                <div className="grid flex-1 text-left text-md leading-tight">
+                  <span className="truncate font-medium">Cedular</span>
+                </div>
+              </SidebarMenuButton>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={cycleTheme}
+                className="h-8 w-8 p-0 ml-2"
+              >
+                {theme === "light" ? (
+                  <Sun className="h-4 w-4" />
+                ) : theme === "dark" ? (
+                  <Moon className="h-4 w-4" />
+                ) : (
+                  <Monitor className="h-4 w-4" />
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
