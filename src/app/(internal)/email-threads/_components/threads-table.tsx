@@ -30,9 +30,8 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
         ),
         cell: ({ row }) => (
           <div
-            className="font-medium"
+            className="font-medium hover:underline hover:text-blue-500"
             onClick={() => router.push(`/email-threads/${row.original.id}`)}
-            className="cursor-pointer hover:underline hover:text-blue-500"
           >
             {row.getValue("subject") || "No subject"}
           </div>

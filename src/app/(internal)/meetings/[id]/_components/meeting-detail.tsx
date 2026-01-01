@@ -25,7 +25,7 @@ type MeetingWithThread = MeetingModel & {
     | "intent"
     | "participants"
     | "createdAt"
-  >;
+  > | null;
 };
 
 interface MeetingDetailProps {
@@ -192,50 +192,54 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
           </Card>
 
           {/* Source Email Thread Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Mail className="h-5 w-5" />
-                Source Email Thread
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm text-muted-foreground">Subject</div>
-                  <div className="font-medium">
-                    {meeting.emailThread.subject || "No subject"}
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
+          {meeting.emailThread && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Mail className="h-5 w-5" />
+                  Source Email Thread
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
                   <div>
-                    <div className="text-sm text-muted-foreground">Status</div>
-                    <Badge variant="outline">
-                      {meeting.emailThread.status}
-                    </Badge>
+                    <div className="text-sm text-muted-foreground">Subject</div>
+                    <div className="font-medium">
+                      {meeting.emailThread.subject || "No subject"}
+                    </div>
                   </div>
-                  {meeting.emailThread.intent && (
+
+                  <div className="flex gap-4">
                     <div>
                       <div className="text-sm text-muted-foreground">
-                        Intent
+                        Status
                       </div>
                       <Badge variant="outline">
-                        {meeting.emailThread.intent}
+                        {meeting.emailThread.status}
                       </Badge>
                     </div>
-                  )}
-                </div>
+                    {meeting.emailThread.intent && (
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          Intent
+                        </div>
+                        <Badge variant="outline">
+                          {meeting.emailThread.intent}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
 
-                <Link href={`/email-threads/${meeting.emailThread.id}`}>
-                  <Button variant="outline" size="sm" className="mt-2">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    View Email Thread
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                  <Link href={`/email-threads/${meeting.emailThread.id}`}>
+                    <Button variant="outline" size="sm" className="mt-2">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View Email Thread
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Metadata */}

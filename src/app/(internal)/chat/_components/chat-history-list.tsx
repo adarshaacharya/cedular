@@ -4,8 +4,14 @@ import Link from "next/link";
 import { MessageCircle, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+import { auth } from "@/lib/auth/server";
+import { headers } from "next/headers";
+
 export async function ChatHistoryList() {
-  const chats = await getUserChats();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const chats = await getUserChats(session?.user?.id);
 
   if (chats.length === 0) {
     return (

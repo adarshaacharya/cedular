@@ -104,7 +104,11 @@ export async function saveChat(
  * @param userId - The user ID
  * @returns List of user's chats
  */
-export async function getUserChats(userId: string) {
+export async function getUserChats(userId?: string) {
+  if (!userId) {
+    return [];
+  }
+
   return await prisma.chat.findMany({
     where: { userId },
     take: 20,
