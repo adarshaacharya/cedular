@@ -15,6 +15,13 @@ export const env = createEnv({
     GOOGLE_CLOUD_PROJECT_ID: z.string().optional(),
     GMAIL_PUBSUB_TOPIC: z.string().optional(),
     CRON_SECRET: z.string().optional(),
+    LANGFUSE_SECRET_KEY: z.string().optional(),
+    LANGFUSE_PUBLIC_KEY: z.string().optional(),
+    LANGFUSE_BASEURL: z
+      .string()
+      .url()
+      .optional()
+      .default("https://cloud.langfuse.com"),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -33,6 +40,9 @@ export const env = createEnv({
     GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
     GMAIL_PUBSUB_TOPIC: process.env.GMAIL_PUBSUB_TOPIC,
     CRON_SECRET: process.env.CRON_SECRET,
+    LANGFUSE_SECRET_KEY: process.env.LANGFUSE_SECRET_KEY,
+    LANGFUSE_PUBLIC_KEY: process.env.LANGFUSE_PUBLIC_KEY,
+    LANGFUSE_BASEURL: process.env.LANGFUSE_BASEURL,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

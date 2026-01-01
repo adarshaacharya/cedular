@@ -78,6 +78,7 @@ Generate a personalized email response addressing the sender by name and signing
       model: openai("gpt-4o-mini"),
       system: systemPrompt,
       prompt: userPrompt,
+      experimental_telemetry: { isEnabled: true },
     });
 
     const duration = Date.now() - startTime;

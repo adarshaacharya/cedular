@@ -76,6 +76,7 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(messages),
     system: systemPrompt,
     tools,
+    experimental_telemetry: { isEnabled: true },
   });
 
   result.consumeStream();

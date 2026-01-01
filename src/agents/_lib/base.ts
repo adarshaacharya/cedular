@@ -38,6 +38,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
 
     const result = await agent.generate({
       prompt,
+      experimental_telemetry: { isEnabled: true },
     });
 
     const endTime = Date.now();
@@ -114,7 +115,10 @@ export async function runToolLoopAgent({
     });
 
     // Generate with the agent
-    const result = await agent.generate({ prompt });
+    const result = await agent.generate({
+      prompt,
+      experimental_telemetry: { isEnabled: true },
+    });
 
     const endTime = Date.now();
     const latencyMs = endTime - startTime;
