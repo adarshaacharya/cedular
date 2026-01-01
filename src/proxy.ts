@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const authPages = ["/login", "/signup"];
+const publicPages = ["/"];
 /**
  * Better Auth Proxy for Next.js
  *
@@ -21,7 +22,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Protect dashboard routes
-  if (!sessionCookie && pathname.startsWith("/dashboard")) {
+  if (!sessionCookie && !authPages.includes(pathname) && !publicPages.includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

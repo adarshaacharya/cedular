@@ -121,7 +121,7 @@ export async function RecentActivity() {
             {threads.length >= 5 && (
               <Button
                 variant="outline"
-                className="w-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="w-full hover:text-primary-foreground transition-colors"
                 asChild
               >
                 <Link href="/email-threads">View All Requests</Link>

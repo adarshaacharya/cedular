@@ -43,14 +43,12 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
           <DataTableColumnHeader column={column} label="Meeting" />
         ),
         cell: ({ row }) => (
-          <div className="flex flex-col gap-1">
-            <span className="font-medium">{row.getValue("title")}</span>
-            {row.original.description && (
-              <span className="text-xs text-muted-foreground line-clamp-1">
-                {row.original.description}
-              </span>
-            )}
-          </div>
+          <Link
+            href={`/meetings/${row.original.id}`}
+            className="font-medium text-primary hover:underline"
+          >
+            {row.getValue("title")}
+          </Link>
         ),
         meta: {
           label: "Meeting",
@@ -166,21 +164,6 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
           const source = row.getValue<MeetingSource>("source");
           return (
             <Badge variant="outline">{MEETING_SOURCE_LABELS[source]}</Badge>
-          );
-        },
-      },
-      {
-        id: "calendarSync",
-        accessorKey: "calendarEventId",
-        header: "Calendar",
-        cell: ({ row }) => {
-          const calendarEventId = row.getValue<string | null>("calendarSync");
-          return calendarEventId ? (
-            <Badge variant="outline" className="text-green-600">
-              Synced
-            </Badge>
-          ) : (
-            <span className="text-xs text-muted-foreground">Not synced</span>
           );
         },
       },
