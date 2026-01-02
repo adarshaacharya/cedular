@@ -182,9 +182,32 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             <ReasoningContent>{part.text}</ReasoningContent>
                           </Reasoning>
                         );
+                      // Read-only calendar tools - display results directly
                       case "tool-getUserCalendarEvents":
                       case "tool-getCalendarEvents":
                       case "tool-getCalendarEvent":
+                        return (
+                          <Tool
+                            key={`${message.id}-${i}`}
+                            defaultOpen={true}
+                            className="mb-4"
+                          >
+                            <ToolHeader
+                              title={getToolTitle(part.type)}
+                              type={part.type}
+                              state={part.state}
+                            />
+                            <ToolContent>
+                              <ToolInput input={part.input} />
+                              <ToolOutput
+                                output={part.output}
+                                errorText={part.errorText}
+                              />
+                            </ToolContent>
+                          </Tool>
+                        );
+
+                      // Approval-required calendar tools - use confirmation workflow
                       case "tool-createCalendarEvent":
                       case "tool-updateCalendarEvent":
                       case "tool-deleteCalendarEvent":
