@@ -9,7 +9,7 @@
  * 5. Redirects to dashboard
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { connection, NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { env } from "@/env";
 import { auth } from "@/lib/auth/server";
@@ -17,6 +17,8 @@ import prisma from "@/lib/prisma";
 import logger from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get("code");

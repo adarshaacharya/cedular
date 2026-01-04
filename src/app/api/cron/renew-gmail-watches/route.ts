@@ -7,10 +7,12 @@
  * - External cron service (cron-job.org, EasyCron)
  */
 
-import { NextRequest, NextResponse } from "next/server";
+import { connection, NextRequest, NextResponse } from "next/server";
 import { renewExpiringWatches } from "@/lib/gmail-watch-renewal";
 
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     // Optional: Add authentication
     const authHeader = request.headers.get("authorization");
