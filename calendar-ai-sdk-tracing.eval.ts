@@ -22,7 +22,7 @@ evalite("Calendar AI SDK Tracing Demo", {
 
   task: async (input) => {
     const result = await streamText({
-      model: traceAISDKModel(openai("gpt-4o-mini")),
+      model: openai("gpt-4o-mini"),
       system: `
 You are Cedular, an intelligent calendar assistant. You help users manage their time effectively.
 

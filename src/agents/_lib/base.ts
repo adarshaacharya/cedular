@@ -34,11 +34,11 @@ export async function runStructuredAgent<T extends z.ZodType>({
       output: Output.object({
         schema,
       }),
+      experimental_telemetry: { isEnabled: true },
     });
 
     const result = await agent.generate({
       prompt,
-      experimental_telemetry: { isEnabled: true },
     });
 
     const endTime = Date.now();
@@ -111,13 +111,13 @@ export async function runToolLoopAgent({
       instructions,
       tools,
       output,
+      experimental_telemetry: { isEnabled: true },
       // Automatically loops up to 20 steps by default
     });
 
     // Generate with the agent
     const result = await agent.generate({
       prompt,
-      experimental_telemetry: { isEnabled: true },
     });
 
     const endTime = Date.now();

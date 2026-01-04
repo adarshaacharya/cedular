@@ -1,5 +1,4 @@
 import { defineConfig } from "evalite/config";
-import viteConfig from "./vite.config";
 
 export default defineConfig({
   // Run evals locally on port 3006
@@ -15,7 +14,4 @@ export default defineConfig({
 
   // Minimum score threshold (fail if below this)
   scoreThreshold: 70,
-
-
-  viteConfig: viteConfig,
 });
