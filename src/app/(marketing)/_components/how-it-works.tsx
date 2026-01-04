@@ -88,8 +88,7 @@ export function HowItWorks() {
             <span className="font-mono text-foreground">
               cedular@ai-scheduling.com
             </span>{" "}
-            on meeting requests or chat directly with your AI assistant -
-            coordination that works through your email and conversations.
+            on meeting requests, or chat directly with your AI assistant.
           </p>
         </div>
 
@@ -284,7 +283,7 @@ export function HowItWorks() {
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
               <Users className="w-6 h-6 text-primary" />
             </div>
-            <div className="text-3xl font-bold text-primary mb-2">10k+</div>
+            <div className="text-3xl font-bold text-primary mb-2">100+</div>
             <div className="text-sm text-muted-foreground">
               Meetings Scheduled
             </div>

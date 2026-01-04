@@ -1,11 +1,8 @@
 import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
-import {
-  getGoogleConnectionStatus,
-  getPendingRequestsCount,
-  getUserSetupStatus,
-} from "../actions";
+import { getPendingRequestsCount, getUserSetupStatus } from "../actions";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 
@@ -22,8 +19,7 @@ export async function WelcomeBanner() {
     headers: await headers(),
   });
 
-  const [googleStatus, pendingRequests, setupStatus] = await Promise.all([
-    getGoogleConnectionStatus(),
+  const [pendingRequests, setupStatus] = await Promise.all([
     getPendingRequestsCount(),
     getUserSetupStatus(),
   ]);
@@ -32,48 +28,57 @@ export async function WelcomeBanner() {
     session?.user?.name || session?.user?.email?.split("@")[0] || "there";
   const greeting = getTimeBasedGreeting();
 
-  // Show setup banner if incomplete
+  // Show setup progress if incomplete
   if (setupStatus.completionPercentage < 100) {
     return (
-      <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-xl p-6 mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-amber-900 dark:text-amber-100 mb-2">
-              Welcome, {userName}! Let&apos;s get you set up
+      <Card className="border-2 border-dashed border-muted-foreground/20 bg-muted/30 rounded-xl p-6 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="flex-1">
+            <h1 className="text-2xl font-semibold mb-2">
+              Welcome, {userName}! Let&apos;s get you started
             </h1>
-            <p className="text-amber-700 dark:text-amber-300 mb-2">
+            <p className="text-muted-foreground mb-4">
               Complete your setup to start scheduling meetings automatically
             </p>
-            <div className="flex items-center gap-4 text-sm text-amber-600 dark:text-amber-400">
-              <span>Setup progress: {setupStatus.completionPercentage}%</span>
-              <div className="flex gap-1">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium">Setup Progress</span>
+                <span className="text-muted-foreground">
+                  {setupStatus.completionPercentage}%
+                </span>
+              </div>
+              <Progress
+                value={setupStatus.completionPercentage}
+                className="h-2"
+              />
+              <div className="flex flex-wrap gap-2">
                 {!setupStatus.googleConnected && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">
-                    Google Account
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-muted text-muted-foreground border">
+                    Connect Google Account
                   </span>
                 )}
                 {!setupStatus.preferencesSet && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">
-                    Preferences
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-muted text-muted-foreground border">
+                    Set Scheduling Preferences
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 shrink-0">
             {!setupStatus.googleConnected && (
-              <Button variant="outline" asChild size="lg">
+              <Button variant="outline" asChild>
                 <Link href="/settings">Connect Google</Link>
               </Button>
             )}
             {!setupStatus.preferencesSet && (
-              <Button asChild size="lg">
+              <Button asChild>
                 <Link href="/settings">Set Preferences</Link>
               </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
     );
   }
 
