@@ -97,6 +97,8 @@ export function Chat({ id, initialMessages }: ChatProps) {
       },
     });
 
+  console.log({ status });
+
   const handleSubmit = (message: PromptInputMessage) => {
     if (!message.text) return;
 
@@ -306,7 +308,10 @@ export function Chat({ id, initialMessages }: ChatProps) {
                 </div>
               ))}
 
-              {status === "submitted" && <ThinkingMessage />}
+              {status === "submitted" &&
+                !messages.some((msg) =>
+                  msg.parts?.some((part) => "approval" in part && part.approval)
+                ) && <ThinkingMessage />}
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>

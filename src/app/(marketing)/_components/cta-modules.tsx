@@ -5,10 +5,26 @@ import { ArrowRight, CheckCircle, Clock, Users, Zap } from "lucide-react";
 
 export function CTAModule() {
   const benefits = [
-    { icon: Clock, text: "Save 4+ hours per week on scheduling", color: "text-blue-500" },
-    { icon: CheckCircle, text: "95% scheduling success rate", color: "text-green-500" },
-    { icon: Users, text: "Join 10,000+ professionals", color: "text-purple-500" },
-    { icon: Zap, text: "Get started in under 2 minutes", color: "text-orange-500" },
+    {
+      icon: Clock,
+      text: "Save 4+ hours per week on scheduling",
+      color: "text-blue-500",
+    },
+    {
+      icon: CheckCircle,
+      text: "95% scheduling success rate",
+      color: "text-green-500",
+    },
+    {
+      icon: Users,
+      text: "Join 10,000+ professionals",
+      color: "text-purple-500",
+    },
+    {
+      icon: Zap,
+      text: "Get started in under 2 minutes",
+      color: "text-orange-500",
+    },
   ];
 
   return (
@@ -23,10 +39,14 @@ export function CTAModule() {
           <div className="relative z-10">
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-display font-semibold mb-6 text-balance">
-                Ready to <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-display">reclaim your time?</span>
+                Ready to{" "}
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-display">
+                  reclaim your time?
+                </span>
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join thousands of professionals who&apos;ve eliminated scheduling chaos with AI-powered coordination
+                Join thousands of professionals who&apos;ve eliminated
+                scheduling chaos with AI-powered coordination
               </p>
             </div>
 
@@ -39,10 +59,17 @@ export function CTAModule() {
                     key={index}
                     className="flex items-center gap-3 p-4 bg-background/50 rounded-xl border border-border/50 hover:border-primary/30 transition-colors"
                   >
-                    <div className={`w-8 h-8 ${benefit.color.replace('text-', 'bg-')}/10 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                    <div
+                      className={`w-8 h-8 ${benefit.color.replace(
+                        "text-",
+                        "bg-"
+                      )}/10 rounded-lg flex items-center justify-center flex-shrink-0`}
+                    >
                       <Icon className={`w-4 h-4 ${benefit.color}`} />
                     </div>
-                    <span className="text-sm font-medium text-foreground">{benefit.text}</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {benefit.text}
+                    </span>
                   </div>
                 );
               })}
@@ -63,23 +90,9 @@ export function CTAModule() {
 
             {/* Trust Indicators */}
             <div className="text-center">
-              <p className="text-muted-foreground text-sm mb-4">
-                14-day free trial • No credit card required • Cancel anytime
+              <p className="text-muted-foreground text-sm">
+                Free to try • No credit card required
               </p>
-              <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  SOC 2 Certified
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  Enterprise Security
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                  99.9% Uptime
-                </div>
-              </div>
             </div>
           </div>
         </div>

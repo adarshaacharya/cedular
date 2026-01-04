@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     experimental_telemetry: { isEnabled: true },
   });
 
-  result.consumeStream();
+  // result.consumeStream();
 
   return result.toUIMessageStreamResponse({
     sendReasoning: true,
