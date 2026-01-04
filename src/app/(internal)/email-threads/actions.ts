@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
 
 export async function getEmailThreadById(id: string) {
+  "use cache";
   const session = await getServerSession();
 
   if (!session?.user) {

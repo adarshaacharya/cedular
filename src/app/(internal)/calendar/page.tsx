@@ -1,4 +1,6 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { FullCalendarView } from "./_components/full-calendar-view";
+import { Suspense } from "react";
 
 export default function CalendarPage() {
   return (
@@ -12,7 +14,9 @@ export default function CalendarPage() {
         </div>
 
         <div className="bg-card rounded-lg border p-6">
-          <FullCalendarView />
+          <Suspense fallback={<Skeleton className="h-full w-full" />}>
+            <FullCalendarView />
+          </Suspense>
         </div>
       </div>
     </div>

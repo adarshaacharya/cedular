@@ -91,7 +91,8 @@ function MeetingDetailSkeleton() {
   );
 }
 
-async function MeetingContent({ id }: { id: string }) {
+async function MeetingContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const meeting = await getMeetingById(id);
 
   if (!meeting) {
@@ -102,11 +103,10 @@ async function MeetingContent({ id }: { id: string }) {
 }
 
 export default async function MeetingPage({ params }: MeetingPageProps) {
-  const { id } = await params;
 
   return (
     <Suspense fallback={<MeetingDetailSkeleton />}>
-      <MeetingContent id={id} />
+      <MeetingContent params={params} />
     </Suspense>
   );
 }

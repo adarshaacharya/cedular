@@ -23,7 +23,8 @@ function EmailThreadDetailSkeleton() {
   );
 }
 
-async function EmailThreadContent({ id }: { id: string }) {
+async function EmailThreadContent({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const thread = await getEmailThreadById(id);
 
   if (!thread) {
@@ -36,11 +37,10 @@ async function EmailThreadContent({ id }: { id: string }) {
 export default async function EmailThreadPage({
   params,
 }: EmailThreadPageProps) {
-  const { id } = await params;
 
   return (
     <Suspense fallback={<EmailThreadDetailSkeleton />}>
-      <EmailThreadContent id={id} />
+      <EmailThreadContent params={params} />
     </Suspense>
   );
 }

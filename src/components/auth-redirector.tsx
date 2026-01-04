@@ -7,9 +7,9 @@ export async function AuthRedirector() {
     headers: await headers(),
   });
 
-  //   if (session?.user) {
-  //     redirect("/dashboard");
-  //   }
+  if (session?.user) {
+    redirect("/dashboard");
+  }
 
   return null;
 }

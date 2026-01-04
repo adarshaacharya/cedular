@@ -9,42 +9,34 @@ import { UpcomingMeetings } from "./_components/upcoming-meetings";
 import { CalendarWidget } from "./_components/calendar-widget";
 import { getUserSetupStatus } from "./actions";
 
-export default async function DashboardPage() {
+async function DashboardContent() {
   const setupStatus = await getUserSetupStatus();
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div className="max-w-7xl mx-auto w-full">
-        {/* Welcome Banner - Full Width */}
         <Suspense fallback={<Skeleton className="h-32 mb-8 rounded-xl" />}>
           <WelcomeBanner />
         </Suspense>
 
-        {/* Next Meeting Hero Card - Full Width */}
         <Suspense fallback={<Skeleton className="h-48 mb-8 rounded-xl" />}>
           <NextMeeting />
         </Suspense>
 
-        {/* Stats Cards Grid - Full Width */}
         <Suspense fallback={<Skeleton className="h-32 mb-8" />}>
           <DashboardStats />
         </Suspense>
 
-        {/* Two Column Layout - Recent Activity (Left) & Sidebar (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - 2/3 width on large screens */}
           <div className="lg:col-span-2 space-y-6">
             <Suspense fallback={<Skeleton className="h-96" />}>
               <RecentActivity />
             </Suspense>
           </div>
 
-          {/* Right Column - 1/3 width on large screens */}
           <div className="space-y-6 max-h-[600px] overflow-y-auto">
-            {/* Calendar Widget */}
             <CalendarWidget setupStatus={setupStatus} />
 
-            {/* Upcoming Meetings */}
             <Suspense fallback={<Skeleton className="h-64" />}>
               <UpcomingMeetings />
             </Suspense>
@@ -52,5 +44,32 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 flex-col gap-6 p-6">
+          <div className="max-w-7xl mx-auto w-full">
+            <Skeleton className="h-32 mb-8 rounded-xl" />
+            <Skeleton className="h-48 mb-8 rounded-xl" />
+            <Skeleton className="h-32 mb-8" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <Skeleton className="h-96" />
+              </div>
+              <div className="space-y-6">
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }

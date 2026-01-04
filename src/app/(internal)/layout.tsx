@@ -11,14 +11,14 @@ export default async function InternalLayout({
 }) {
   return (
     <SidebarProvider>
-      <Suspense fallback={<></>}>
-        <AuthRedirector />
+  
+      <Suspense fallback={<div />}>
+        <AppSidebar
+          chatHistoryTrigger={
+            <ChatHistoryTrigger className="w-full justify-start" />
+          }
+        />
       </Suspense>
-      <AppSidebar
-        chatHistoryTrigger={
-          <ChatHistoryTrigger className="w-full justify-start" />
-        }
-      />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );
