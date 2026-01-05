@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { useChat, UIMessage } from "@ai-sdk/react";
-import { lastAssistantMessageIsCompleteWithApprovalResponses, tool } from "ai";
+import {
+  lastAssistantMessageIsCompleteWithToolCalls,
+  DefaultChatTransport,
+} from "ai";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateUUID } from "@/lib/utils";
@@ -69,7 +72,7 @@ interface ChatProps {
 const calendarSuggestions = [
   "Schedule a meeting with the design team next week",
   "Find available slots for a 30-minute call tomorrow",
-  "Check my calendar for conflicts on Friday afternoon",
+  "Do I have any meetings scheduled for tomorrow?",
   "Set up a recurring weekly team standup",
 ];
 
@@ -98,7 +101,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
       messages: initialMessages,
       generateId: generateUUID,
       sendAutomaticallyWhen:
-        lastAssistantMessageIsCompleteWithApprovalResponses,
+        lastAssistantMessageIsCompleteWithToolCalls,
       onError: (error) => {
         console.error(error);
         toast.error(error.message);
@@ -204,7 +207,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
                         return (
                           <Tool
                             key={`${message.id}-${i}`}
-                            defaultOpen={true}
+                            defaultOpen={false}
                             className="mb-4"
                           >
                             <ToolHeader
@@ -231,7 +234,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             key={`${message.id}-${i}`}
                             approval={part.approval}
                             state={part.state}
-                            className=" border-gray-600 mb-4 shadow-lg -lg"
+                            className="mb-4 shadow-md"
                           >
                             <ConfirmationRequest>
                               <div className="space-y-4">
