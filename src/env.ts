@@ -11,7 +11,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string().min(1).optional(),
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
-    GOOGLE_REDIRECT_URI: z.string().url(),
+    GOOGLE_SERVICES_REDIRECT_URI: z.string().url(),
     BETTER_AUTH_GOOGLE_REDIRECT_URI: z.string().url(),
     GOOGLE_CLOUD_PROJECT_ID: z.string().optional(),
     GMAIL_PUBSUB_TOPIC: z.string().optional(),
@@ -37,7 +37,7 @@ export const env = createEnv({
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+    GOOGLE_SERVICES_REDIRECT_URI: process.env.GOOGLE_SERVICES_REDIRECT_URI,
     BETTER_AUTH_GOOGLE_REDIRECT_URI:
       process.env.BETTER_AUTH_GOOGLE_REDIRECT_URI,
     GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,

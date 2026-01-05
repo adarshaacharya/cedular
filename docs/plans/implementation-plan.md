@@ -15,7 +15,7 @@
      - `OPENAI_API_KEY` (optional)
      - `GOOGLE_CLIENT_ID` (optional)
      - `GOOGLE_CLIENT_SECRET` (optional)
-     - `GOOGLE_REDIRECT_URI` (optional)
+     - `GOOGLE_SERVICES_REDIRECT_URI` (optional)
 
 3. **Base Agent Infrastructure**
 

@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     const oauth2Client = new google.auth.OAuth2(
       env.GOOGLE_CLIENT_ID,
       env.GOOGLE_CLIENT_SECRET,
-      env.GOOGLE_REDIRECT_URI
+      env.GOOGLE_SERVICES_REDIRECT_URI
     );
 
     // Generate authorization URL
