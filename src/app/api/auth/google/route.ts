@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: "offline", // Required to get refresh token
       scope: SCOPES,
-      prompt: "consent", // Force consent screen to get refresh token
+      prompt: "consent select_account", // Force consent screen to get refresh token
       state: session.user.id, // Pass user ID in state for security
     });
 

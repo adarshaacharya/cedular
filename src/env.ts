@@ -12,6 +12,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_REDIRECT_URI: z.string().url(),
+    BETTER_AUTH_GOOGLE_REDIRECT_URI: z.string().url(),
     GOOGLE_CLOUD_PROJECT_ID: z.string().optional(),
     GMAIL_PUBSUB_TOPIC: z.string().optional(),
     CRON_SECRET: z.string().optional(),
@@ -37,6 +38,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+    BETTER_AUTH_GOOGLE_REDIRECT_URI:
+      process.env.BETTER_AUTH_GOOGLE_REDIRECT_URI,
     GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
     GMAIL_PUBSUB_TOPIC: process.env.GMAIL_PUBSUB_TOPIC,
     CRON_SECRET: process.env.CRON_SECRET,

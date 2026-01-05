@@ -68,12 +68,12 @@ export async function WelcomeBanner() {
           <div className="flex gap-3 shrink-0">
             {!setupStatus.googleConnected && (
               <Button variant="outline" asChild>
-                <Link href="/settings">Connect Google</Link>
+                <Link href="/settings?tab=integrations">Connect Google </Link>
               </Button>
             )}
             {!setupStatus.preferencesSet && (
               <Button asChild>
-                <Link href="/settings">Set Preferences</Link>
+                <Link href="/settings?tab=preferences">Set Preferences</Link>
               </Button>
             )}
           </div>

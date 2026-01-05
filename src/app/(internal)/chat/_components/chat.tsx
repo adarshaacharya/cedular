@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useChat, UIMessage } from "@ai-sdk/react";
-import { lastAssistantMessageIsCompleteWithApprovalResponses } from "ai";
+import { lastAssistantMessageIsCompleteWithApprovalResponses, tool } from "ai";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateUUID } from "@/lib/utils";
@@ -52,6 +52,14 @@ import {
   ConfirmationActions,
   ConfirmationAction,
 } from "@/components/ai-elements/confirmation";
+import {
+  CreateCalendarEventConfirmation,
+  UpdateCalendarEventConfirmation,
+  DeleteCalendarEventConfirmation,
+  UpdateCalendarEventToolInput,
+  DeleteCalendarEventToolInput,
+  CreateCalendarEventToolInput,
+} from "./tools/calendar-tools";
 
 interface ChatProps {
   id: string;
@@ -95,9 +103,13 @@ export function Chat({ id, initialMessages }: ChatProps) {
         console.error(error);
         toast.error(error.message);
       },
+      onToolCall: ({ toolCall }) => {
+        // Check if it's a dynamic tool first for proper type narrowing
+        if (toolCall.dynamic) {
+          return;
+        }
+      },
     });
-
-  console.log({ status });
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (!message.text) return;
@@ -184,6 +196,7 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             <ReasoningContent>{part.text}</ReasoningContent>
                           </Reasoning>
                         );
+
                       // Read-only calendar tools - display results directly
                       case "tool-getUserCalendarEvents":
                       case "tool-getCalendarEvents":
@@ -218,57 +231,94 @@ export function Chat({ id, initialMessages }: ChatProps) {
                             key={`${message.id}-${i}`}
                             approval={part.approval}
                             state={part.state}
-                            className="mb-4"
+                            className=" border-gray-600 mb-4 shadow-lg -lg"
                           >
                             <ConfirmationRequest>
-                              <Tool defaultOpen={true}>
-                                <ToolHeader
-                                  title={getToolTitle(part.type)}
-                                  type={part.type}
-                                  state={part.state}
-                                />
-                                <ToolContent>
-                                  <ToolInput input={part.input} />
-                                  <ToolOutput
-                                    output={part.output}
-                                    errorText={part.errorText}
+                              <div className="space-y-4">
+                                <div className="font-medium text-xl">
+                                  {getToolTitle(part.type)}
+                                </div>
+                                {part.type === "tool-createCalendarEvent" && (
+                                  <CreateCalendarEventConfirmation
+                                    input={
+                                      part.input as CreateCalendarEventToolInput
+                                    }
                                   />
-                                </ToolContent>
-                              </Tool>
+                                )}
+                                {part.type === "tool-updateCalendarEvent" && (
+                                  <UpdateCalendarEventConfirmation
+                                    input={
+                                      part.input as UpdateCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                                {part.type === "tool-deleteCalendarEvent" && (
+                                  <DeleteCalendarEventConfirmation
+                                    input={
+                                      part.input as DeleteCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                              </div>
                             </ConfirmationRequest>
 
                             <ConfirmationAccepted>
-                              <Tool defaultOpen={true}>
-                                <ToolHeader
-                                  title={getToolTitle(part.type)}
-                                  type={part.type}
-                                  state={part.state}
-                                />
-                                <ToolContent>
-                                  <ToolInput input={part.input} />
-                                  <ToolOutput
-                                    output={part.output}
-                                    errorText={part.errorText}
+                              <div className="space-y-2">
+                                <div className="text-green-600 text-sm">
+                                  ✓ {getToolTitle(part.type)} completed
+                                  successfully
+                                </div>
+                                {part.type === "tool-createCalendarEvent" && (
+                                  <CreateCalendarEventConfirmation
+                                    input={
+                                      part.input as CreateCalendarEventToolInput
+                                    }
                                   />
-                                </ToolContent>
-                              </Tool>
+                                )}
+                                {part.type === "tool-updateCalendarEvent" && (
+                                  <UpdateCalendarEventConfirmation
+                                    input={
+                                      part.input as UpdateCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                                {part.type === "tool-deleteCalendarEvent" && (
+                                  <DeleteCalendarEventConfirmation
+                                    input={
+                                      part.input as DeleteCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                              </div>
                             </ConfirmationAccepted>
 
                             <ConfirmationRejected>
-                              <Tool defaultOpen={true}>
-                                <ToolHeader
-                                  title={getToolTitle(part.type)}
-                                  type={part.type}
-                                  state={part.state}
-                                />
-                                <ToolContent>
-                                  <ToolInput input={part.input} />
-                                  <ToolOutput
-                                    output={part.output}
-                                    errorText={part.errorText}
+                              <div className="space-y-2">
+                                <div className="text-red-600 text-sm">
+                                  ✗ {getToolTitle(part.type)} was cancelled
+                                </div>
+                                {part.type === "tool-createCalendarEvent" && (
+                                  <CreateCalendarEventConfirmation
+                                    input={
+                                      part.input as CreateCalendarEventToolInput
+                                    }
                                   />
-                                </ToolContent>
-                              </Tool>
+                                )}
+                                {part.type === "tool-updateCalendarEvent" && (
+                                  <UpdateCalendarEventConfirmation
+                                    input={
+                                      part.input as UpdateCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                                {part.type === "tool-deleteCalendarEvent" && (
+                                  <DeleteCalendarEventConfirmation
+                                    input={
+                                      part.input as DeleteCalendarEventToolInput
+                                    }
+                                  />
+                                )}
+                              </div>
                             </ConfirmationRejected>
 
                             <ConfirmationActions>
