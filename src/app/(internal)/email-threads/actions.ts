@@ -4,17 +4,22 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
 
 export async function getEmailThreadById(id: string) {
-  "use cache";
   const session = await getServerSession();
 
   if (!session?.user) {
     return null;
   }
 
+  return await fetchEmailThreadById(id, session.user.id);
+}
+
+async function fetchEmailThreadById(id: string, userId: string) {
+  "use cache";
+
   const thread = await prisma.emailThread.findFirst({
     where: {
       id,
-      userId: session.user.id,
+      userId,
     },
     include: {
       meetings: {
