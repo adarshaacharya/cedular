@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withWorkflow } from "workflow/next";
 
 // Import env here to validate during build
 import "./src/env";
@@ -16,4 +17,9 @@ const config: NextConfig = {
   serverExternalPackages: ["pino", "pino-pretty", "thread-stream"],
 };
 
-export default config;
+export default withWorkflow(config, {
+  workflows: {
+   // @ts-expect-error Workflow types are not compatible with Next.js 16
+    dirs: ["src/workflows"],
+  },
+});

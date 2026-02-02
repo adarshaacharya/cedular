@@ -181,6 +181,9 @@ Full Google setup in one linear flow—each section links to the Console or app 
 
 11. **Troubleshooting**
 
+    - **Calendar API access issue**: If you are encountering `AI_NoObjectGeneratedError` from the calendar agent, ensure the Google Calendar API is enabled for your project.
+      - Go to [Google Cloud Console](https://console.cloud.google.com/) > Select your project > "APIs & Services" > "Enabled APIs & services".
+      - Search for "Google Calendar API". If not listed, click "+ Enable APIs and Services" and enable it.
     - `GMAIL_PUBSUB_TOPIC not configured` → set the env var to `projects/<PROJECT_ID>/topics/gmail-notifications`.
     - No notifications → check the subscription endpoint, ngrok URL, and that `gmail-api-push@system.gserviceaccount.com` has publisher rights.
     - Watch expired → rerun `/api/gmail/setup` or wait for the cron renewal.

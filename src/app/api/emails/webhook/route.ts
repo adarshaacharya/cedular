@@ -8,6 +8,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { start } from "workflow/api";
+import { handleGmailHistory } from "@/workflows/gmail-history";
 
 interface GmailPushNotification {
   message: {
@@ -80,27 +82,19 @@ export async function POST(request: NextRequest) {
 
     // Reliable approach: Use History API to process all new emails
     // This ensures we don't miss emails and prevents duplicates
-    const { processEmailFromHistory } = await import(
-      "@/workflows/email-processor"
-    );
-
-    processEmailFromHistory({
-      userId,
-      historyId: currentHistoryId,
-      notificationMessageId: body.message.messageId,
-    })
-      .then((result) => {
-        console.log("[Webhook] History processing completed:", result);
-      })
-      .catch((error) => {
-        console.error("[Webhook] History processing failed:", error);
-      });
+    await start(handleGmailHistory, [
+      {
+        userId,
+        historyId: currentHistoryId,
+        notificationMessageId: body.message.messageId,
+      },
+    ]);
 
     // Return 200 immediately so Gmail doesn't retry
     return NextResponse.json(
       {
         success: true,
-        message: "Notification received and processing started",
+        message: "Notification received and workflow started",
       },
       { status: 200 }
     );
