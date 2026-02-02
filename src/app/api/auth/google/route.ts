@@ -14,6 +14,9 @@ import logger from "@/lib/logger";
 
 // Required scopes for Gmail and Calendar access
 const SCOPES = [
+  "openid", // Required for OpenID Connect
+  "https://www.googleapis.com/auth/userinfo.email", // See user's email address
+  "https://www.googleapis.com/auth/userinfo.profile", // See user's profile info
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://www.googleapis.com/auth/gmail.send", // Send emails on behalf of user
   "https://www.googleapis.com/auth/calendar",

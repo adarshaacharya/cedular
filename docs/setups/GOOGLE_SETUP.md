@@ -31,6 +31,7 @@ Full Google setup in one linear flow—each section links to the Console or app 
 - For "Principals with access (optional)", you can leave this blank for now.
 
 3. **OAuth Consent Screen**
+
    - Go to https://console.cloud.google.com/apis/credentials/consent
    - **Important**: Configure this BEFORE creating OAuth credentials. This screen is what users see when granting access.
    - When prompted for "User Type", select **External**.
@@ -42,9 +43,12 @@ Full Google setup in one linear flow—each section links to the Console or app 
      - **Terms of service URL**: Required - create `/terms` page or use a service
      - **Authorized domains**: Add `cedular.vercel.app` and `vercel.app`
    - Add scopes:
-     - `https://www.googleapis.com/auth/gmail.readonly`
-     - `https://www.googleapis.com/auth/gmail.send`
-     - `https://www.googleapis.com/auth/calendar`
+     - `openid` (Required for OpenID Connect)
+     - `https://www.googleapis.com/auth/userinfo.email` (See user's email address - non-sensitive)
+     - `https://www.googleapis.com/auth/userinfo.profile` (See user's profile info - non-sensitive)
+     - `https://www.googleapis.com/auth/gmail.readonly` (Sensitive scope - requires verification)
+     - `https://www.googleapis.com/auth/gmail.send` (Sensitive scope - requires verification)
+     - `https://www.googleapis.com/auth/calendar` (Sensitive scope - requires verification)
    - **Publishing status** (scroll to bottom of OAuth consent screen):
      - **Testing mode** (default): Only approved test users can access. Add test users in "Test users" section.
      - **Production mode**:
@@ -54,6 +58,48 @@ Full Google setup in one linear flow—each section links to the Console or app 
        - This allows all users to sign in (not just test users)
        - Note: With sensitive scopes (Gmail/Calendar), Google may show a warning until verification is complete, but the app will work for all users
        - Direct link: https://console.cloud.google.com/apis/credentials/consent?project=cedular-486119
+
+   #### Verification Status Updates (as of Monday Feb 2, 2026)
+
+   - **Branding verification status**: Your branding has been verified and is being shown to users.
+   - **Publishing status**: In production
+   - **User type**: External
+   - **OAuth user cap**: The user cap limits the number of users that can grant permission to your app when requesting unapproved sensitive or restricted scopes. The user cap applies over the entire lifetime of the project, and it cannot be reset or changed. Verified apps will still display the user cap on this page, but the user cap does not apply if you are requesting only approved sensitive or restricted scopes. If your users are seeing the "unverified app" screen, it is because your OAuth request includes additional scopes that haven't been approved.
+   - **Data access status**: Verification is not required since your app is not requesting any sensitive or restricted scopes.
+     - **NOTE ON CONTRADICTION**: The app is configured to request sensitive Gmail and Calendar scopes (e.g., `https://www.googleapis.com/auth/gmail.send`, `https://www.googleapis.com/auth/calendar`). If the "unverified app" screen is still being displayed to users who are _not_ developers or test users, it indicates that these sensitive scopes still require verification, despite the "Data access status" message. The OAuth user cap explanation also suggests that unapproved scopes are the cause of the "unverified app" screen. You likely still need to proceed with sensitive scope verification if the warning persists for non-developer users.
+
+   #### Sensitive Scope Verification (Required for Production)
+
+   To remove the "unverified app" warning for all users, you must complete Google's sensitive scope verification process:
+
+   1. **Fill out "What features will you use?" form** (for `gmail.readonly`):
+
+      - Select **"Email productivity"** - This best matches Cedular's use case as a productivity tool that enhances email workflow
+      - This is found in the OAuth Consent Screen under "Scopes" → "Gmail scopes" → "What features will you use?"
+
+   2. **Fill out justification forms** for each sensitive scope:
+
+      - **For `gmail.readonly`**: Explain that Cedular reads emails to detect scheduling intent when users CC Cedular, analyzes email content using AI to understand scheduling requests, and only processes emails CC'd to Cedular (not scanning entire inbox)
+      - **For `gmail.send`**: Explain that Cedular sends email responses automatically when proposing meeting times, confirming meetings, rescheduling, or canceling - essential for fully automated scheduling without manual intervention
+      - **For `calendar`**: Explain that Cedular reads calendar availability to find optimal meeting times, creates calendar events when meetings are confirmed, updates events when rescheduled, and deletes events when canceled - core value proposition of automated calendar management
+
+   3. **Create and upload demo video**:
+
+      - Create a YouTube video demonstrating:
+        - How users connect their Google account
+        - How they CC Cedular on a scheduling email
+        - How Cedular reads the email, analyzes it, and responds automatically
+        - How Cedular creates calendar events
+        - The full workflow from email to calendar event
+      - The video must show all OAuth clients assigned to your project
+      - Upload the YouTube link in the verification form
+
+   4. **Submit for verification**:
+      - After completing all forms and uploading the video, submit for Google's review
+      - This process can take several days to weeks
+      - Google may request additional information or clarification
+
+   **Why this is required**: Without completing this verification, the "unverified app" warning will continue to show for non-developer users, you'll be limited by the OAuth user cap (typically 100 users), and users may be hesitant to grant permissions.
 
 3.1. **OAuth credentials**
 
