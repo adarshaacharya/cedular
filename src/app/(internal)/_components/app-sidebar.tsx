@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/sidebar";
 import { NavSecondary } from "@/components/navbar/nav-secondary";
 import { SidebarThemeToggler } from "./sidebar-theme-toggler";
-import Image from "next/image";
+import { CedularLogo } from "@/components/brand/cedular-logo";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   chatHistoryTrigger?: React.ReactNode;
@@ -127,14 +127,8 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <div className="flex items-center justify-between w-full">
               <SidebarMenuButton size="lg" className="flex-1">
-                <div className=" flex aspect-square size-12 items-center justify-center rounded-lg">
-                  <Image
-                    src="/icons/calendar-clock.svg"
-                    alt="Cedular Logo"
-                    width={32}
-                    height={32}
-                    className="w-24 h-24"
-                  />
+                <div className="flex aspect-square size-12 items-center justify-center rounded-lg">
+                  <CedularLogo className="h-9 w-9" />
                 </div>
                 <div className="grid flex-1 text-left text-md leading-tight">
                   <span className="truncate font-medium">Cedular</span>

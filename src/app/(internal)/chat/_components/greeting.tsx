@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Image from "next/image";
+import { CedularLogo } from "@/components/brand/cedular-logo";
 
 export const Greeting = () => {
   return (
@@ -14,13 +14,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.3 }}
       >
-        <Image
-          src="/icons/calendar-clock.svg"
-          alt="Google Calendar"
-          width={32}
-          height={32}
-          className="w-24 h-24"
-        />
+        <CedularLogo className="h-24 w-24" />
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}

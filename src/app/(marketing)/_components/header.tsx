@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "@/lib/auth/client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { CedularLogo } from "@/components/brand/cedular-logo";
 
 export function Header() {
   const { data: session, isPending } = useSession();
@@ -45,7 +46,7 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg" />
+          <CedularLogo className="h-8 w-8" />
           <span className="text-xl font-bold text-foreground">Cedular</span>
         </div>
         <nav className="hidden md:flex items-center gap-8">

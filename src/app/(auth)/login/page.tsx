@@ -1,7 +1,7 @@
-import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "./_components/login-form";
 import { AuthIllustration } from "../_components/auth-illustration";
 import Link from "next/link";
+import { CedularLogo } from "@/components/brand/cedular-logo";
 
 export default function SignInPage() {
   return (
@@ -9,9 +9,7 @@ export default function SignInPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" className="flex items-center gap-2 font-medium">
-            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-4" />
-            </div>
+            <CedularLogo className="h-7 w-7" />
             Cedular
           </Link>
         </div>
