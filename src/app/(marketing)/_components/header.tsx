@@ -57,16 +57,16 @@ export function Header() {
             How It Works
           </a>
           <a
-            href="#features"
+            href="#demo"
             className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
           >
-            Features
+            Demo
           </a>
           <a
-            href="#pricing"
+            href="#get-started"
             className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
           >
-            Pricing
+            Get Started
           </a>
         </nav>
         <div className="flex items-center gap-4">

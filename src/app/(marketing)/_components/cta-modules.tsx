@@ -28,7 +28,7 @@ export function CTAModule() {
   ];
 
   return (
-    <section className="py-24 px-6 bg-card/50">
+    <section id="get-started" className="py-24 px-6 bg-card/50">
       <div className="max-w-6xl mx-auto">
         <div className="relative rounded-3xl border border-border bg-card/90 p-8 md:p-16 overflow-hidden backdrop-blur-sm shadow-2xl">
           {/* Background Effects */}

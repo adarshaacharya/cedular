@@ -65,7 +65,10 @@ export function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section
+      id="overview"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+    >
       {/* Sophisticated background - subtle grid and gradients */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         {/* Centered subtle grid pattern */}

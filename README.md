@@ -1,6 +1,6 @@
 # Cedular
 
-![Cedular Dashboard](https://raw.githubusercontent.com/adarshaacharya/cedular/refs/heads/main/docs/images/dashboard.png?token=GHSAT0AAAAAADGYAKYZXSOPQL57WRAUOKVE2MA2Q2A)
+![Cedular Dashboard](https://raw.githubusercontent.com/adarshaacharya/cedular/refs/heads/main/docs/images/dashboard.png)
 
 CC your scheduling emails to Cedular, and watch it handle everything automatically schedule, confirm, reschedule, and cancel meetings — all without leaving your email inbox.
 
@@ -211,11 +211,7 @@ Cedular requires Google Cloud setup for Gmail integration. Follow these steps:
 
 ## Production Deployment
 
-### Database Migrations
 
-If you're using **Prisma Accelerate** with PostgreSQL (connection string starts with `prisma+postgres://accelerate.prisma-data.net/`), migrations work directly with the Accelerate connection string.
-
-**Good news**: According to [Prisma Accelerate documentation](https://www.prisma.io/docs/accelerate/getting-started), PostgreSQL users don't need a separate direct connection string—Prisma Migrate and Introspection work directly with `prisma+postgres://` URLs.
 
 #### Steps to migrate production database:
 
