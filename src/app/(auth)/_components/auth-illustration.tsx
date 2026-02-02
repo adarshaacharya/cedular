@@ -146,7 +146,7 @@ export function AuthIllustration() {
                   <div className="flex items-center gap-2 pt-3">
                     <div className="rounded-full bg-muted px-3 py-1">
                       <span className="text-[10px] font-medium text-muted-foreground">
-                        cc: cedular@...
+                        cc: your assistant email
                       </span>
                     </div>
                   </div>

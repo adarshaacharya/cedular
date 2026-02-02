@@ -6,16 +6,15 @@ CC your scheduling emails to Cedular, and watch it handle everything automatical
 
 ## Features
 
-- 📧 **CC-to-Schedule**: Simply CC your connected Cedular email address on any scheduling conversation—everything happens in your email inbox
-- 📅 **Schedule Meetings**: Automatically finds optimal time slots and proposes them via email
-- ✅ **Confirm Meetings**: When someone confirms a time, Cedular creates the calendar event automatically
-- 🔄 **Reschedule Meetings**: Handles reschedule requests by finding new available slots
-- ❌ **Cancel Meetings**: Cancels meetings and updates calendar events when requested
-- 💬 **AI Chat Assistant**: Chat with Cedular directly to check availability, schedule meetings, and manage your calendar—all from the dashboard
-- 🤖 **AI-Powered**: Intelligently interprets email content to understand scheduling intent (schedule, confirm, reschedule, cancel)
+-  **CC-to-Schedule**: Simply CC your connected Cedular email address on any scheduling conversation—everything happens in your email inbox
+-  **Schedule Meetings**: Automatically finds optimal time slots and proposes them via email
+-  **Confirm Meetings**: When someone confirms a time, Cedular creates the calendar event automatically
+-  **Reschedule Meetings**: Handles reschedule requests by finding new available slots
+-  **Cancel Meetings**: Cancels meetings and updates calendar events when requested
+-  **AI Chat Assistant**: Chat with Cedular directly to check availability, schedule meetings, and manage your calendar—all from the dashboard
+-  **AI-Powered**: Intelligently interprets email content to understand scheduling intent (schedule, confirm, reschedule, cancel)
 - ⚡ **Zero Manual Work**: Fully automated—no need to check emails or manually manage calendar events
-- 📊 **Dashboard & Tracking**: Monitor email threads and meeting status in real-time
-- 🔐 **Secure**: Secure Google OAuth integration with your Gmail account
+-  **Dashboard & Tracking**: Monitor email threads and meeting status in real-time
 
 ## Tech Stack
 

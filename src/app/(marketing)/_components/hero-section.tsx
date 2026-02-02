@@ -174,9 +174,10 @@ export function HeroSection() {
           <p className="text-lg text-muted-foreground text-balance mb-12 max-w-2xl mx-auto leading-relaxed font-light">
             Connect your email and get AI-powered scheduling. CC{" "}
             <span className="font-mono text-foreground">
-              cedular@ai-scheduling.com
+              your-assistant@cedular.ai
             </span>{" "}
-            on meeting requests or chat directly with your AI assistant.
+            (your personal assistant email) on meeting requests or chat directly
+            with your AI assistant.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">

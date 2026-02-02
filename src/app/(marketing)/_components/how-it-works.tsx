@@ -16,11 +16,11 @@ export function HowItWorks() {
       color: "text-blue-500",
       bgColor: "bg-blue-500/10",
       email: {
-        from: "cedular@ai-scheduling.com" as const,
+        from: "your-assistant@cedular.ai" as const,
         to: ["your.email@gmail.com"],
         subject: "Welcome! Your AI scheduling assistant is ready",
         content:
-          "Hi there!\n\nYour AI scheduling assistant is now connected to your.email@gmail.com and ready to help.\n\nJust CC cedular@ai-scheduling.com on any scheduling request and I'll handle the coordination.\n\nTry it now - send me a meeting request!",
+          "Hi there!\n\nYour AI scheduling assistant is now connected to your.email@gmail.com and ready to help.\n\nJust CC your-assistant@cedular.ai on any scheduling request and I'll handle the coordination.\n\nTry it now - send me a meeting request!",
         timestamp: "2:15 PM",
       },
       processing: false,
@@ -29,13 +29,13 @@ export function HowItWorks() {
     {
       id: 2,
       title: "Send an email",
-      description: "CC cedular@ai-scheduling.com on any scheduling request",
+      description: "CC your assistant email on any scheduling request",
       icon: Clock,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
       email: {
         from: "sarah@company.com",
-        to: ["team@company.com", "cedular@ai-scheduling.com"],
+        to: ["team@company.com", "your-assistant@cedular.ai"],
         subject: "Team sync this week?",
         content:
           "Hey team,\n\nCan we schedule a 30min sync this week? I'm free Tuesday after 2pm EST, or Wednesday morning. Let me know what works for everyone!\n\nThanks,\nSarah",
@@ -84,11 +84,8 @@ export function HowItWorks() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
             Personal AI scheduling through email and chat. Connect your inbox,
-            CC{" "}
-            <span className="font-mono text-foreground">
-              cedular@ai-scheduling.com
-            </span>{" "}
-            on meeting requests, or chat directly with your AI assistant.
+            CC your assistant email (shown after connecting) on meeting
+            requests, or chat directly with your AI assistant.
           </p>
         </div>
 
