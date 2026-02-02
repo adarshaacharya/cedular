@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CedularLogo } from "@/components/brand/cedular-logo";
 
 export async function Footer() {
   const links = {
@@ -13,7 +14,7 @@ export async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg" />
+              <CedularLogo className="h-6 w-6" />
               <h3 className="text-lg font-bold text-foreground">Cedular</h3>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
