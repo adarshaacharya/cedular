@@ -1,4 +1,3 @@
-adarshaacharya: dont write code  
 
 https://ai-sdk-tools.dev/
 

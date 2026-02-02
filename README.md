@@ -1,218 +1,178 @@
-"AI that finds the moment"
+# Cedular
+
+AI-assisted scheduling that keeps Gmail, meetings, and calendars in sync so you can spend less time chasing availability.
+
+## Features
+
+- 🔄 **Real-time Gmail Sync**: Automatically monitors your Gmail inbox for scheduling-related emails
+- 🤖 **AI-Powered Analysis**: Intelligently interprets email content to understand scheduling intent
+- 📅 **Calendar Integration**: Keeps your meetings and calendars synchronized
+- 📊 **Dashboard & Tracking**: Real-time dashboard with email thread status and progress statistics
+- 🔔 **Instant Notifications**: Immediate alerts when relevant scheduling emails arrive
+- 🔐 **Secure Authentication**: Secure Google OAuth integration
+
+## Tech Stack
+
+- **Framework**: Next.js 16
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: Better Auth
+- **AI**: OpenAI SDK
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Package Manager**: pnpm
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v20 or higher)
+- **pnpm** (v10 or higher)
+- **Docker** and **Docker Compose** (for local PostgreSQL database)
+- **Google Cloud Account** (for Gmail integration)
+
+## How Cedular Works
+
+Here's how Cedular automatically manages your scheduling emails:
+
+**The Flow:**
+
+When you connect your Google account, Cedular establishes a continuous connection with your Gmail inbox. As new emails arrive, Gmail instantly notifies Cedular through push notifications. Cedular then intelligently analyzes each email to detect scheduling-related content—whether it's a meeting request, availability inquiry, or calendar coordination.
+
+Once identified, Cedular categorizes the email thread (pending, processing, or scheduled) and updates your dashboard in real-time. You can track the progress of each conversation, see statistics, and monitor how emails move through your scheduling workflow—all without manual intervention.
+
+```mermaid
+flowchart TD
+    A[Connect Google Account] --> B[Gmail Watch Established]
+    B --> C[New Email Arrives]
+    C --> D[Gmail Push Notification]
+    D --> E{Cedular Receives Notification}
+    E --> F[Analyze Email Content]
+    F --> G{Scheduling Related?}
+    G -->|Yes| H[Categorize Email Thread]
+    G -->|No| I[Ignore]
+    H --> J[Update Dashboard]
+    J --> K[Track Progress & Statistics]
+    K --> L[Real-time Status Updates]
+    L --> M[User Views Dashboard]
+
+    style A fill:#e1f5ff
+    style B fill:#e1f5ff
+    style C fill:#fff4e1
+    style D fill:#fff4e1
+    style E fill:#fff4e1
+    style F fill:#e8f5e9
+    style G fill:#e8f5e9
+    style H fill:#e8f5e9
+    style J fill:#f3e5f5
+    style K fill:#f3e5f5
+    style L fill:#f3e5f5
+    style M fill:#e1f5ff
+```
 
 ## Getting Started
 
-First, run the development server:
+### Installation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Clone the repository** (if applicable) or navigate to the project directory
 
-## Database Commands
+2. **Install dependencies**:
 
-### Start/Stop Database
+   ```bash
+   pnpm install
+   ```
 
-```bash
-# Start PostgreSQL database (Docker)
-pnpm db:start
+   This automatically runs `prisma generate` postinstall.
 
-# Stop PostgreSQL database
-pnpm db:stop
+3. **Set up environment variables**:
 
-# Reset database (removes volumes and recreates)
-pnpm db:reset
-```
+   ```bash
+   cp .env.example .env.local
+   ```
 
-### Prisma Commands
+   Fill in the required values:
 
-```bash
-# Generate Prisma Client (after schema changes)
-pnpm db:generate
+   - `DATABASE_URL` - PostgreSQL connection string
+   - `NEXT_PUBLIC_APP_URL` - Your app URL (e.g., `http://localhost:3000`)
+   - Google OAuth credentials (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
+   - Google OAuth redirect URIs
+   - `GOOGLE_CLOUD_PROJECT_ID` (optional, for Gmail push notifications)
+   - `GMAIL_PUBSUB_TOPIC` (optional, for Gmail push notifications)
+   - `CRON_SECRET` (optional, for cron jobs)
+   - Other optional integrations (OpenAI, Langfuse, etc.)
 
-# Create and apply a new migration
-pnpm db:migrate
-
-# Open Prisma Studio (database GUI)
-pnpm db:studio
-
-# Reset database and apply all migrations (⚠️ destroys all data)
-pnpm prisma migrate reset --force
-```
-
-## First Time Setup
-
-1. Start the database:
+4. **Start the database**:
 
    ```bash
    pnpm db:start
    ```
 
-2. Apply migrations:
+   This starts a PostgreSQL instance using Docker Compose.
+
+5. **Run database migrations**:
 
    ```bash
    pnpm db:migrate
    ```
 
-   or with name
-   ```bash
-   npx prisma migrate dev --name add_user_id_to_meetings
-   ```
+   This applies all Prisma migrations and generates the Prisma client.
 
-3. Generate Prisma Client:
-
-   ```bash
-   pnpm db:generate
-   ```
-
-4. Start the dev server:
+6. **Start the development server**:
    ```bash
    pnpm dev
    ```
+   The app will be available at `http://localhost:3000`.
 
-## Gmail Webhook Setup (Local Development)
+> **Note**: Restart the dev server after any `.env.local` changes.
 
-To receive Gmail webhook notifications locally:
+## Gmail / Google Setup
 
-- Install ngrok: `brew install ngrok` (or download from ngrok.com)
-- Start ngrok: `ngrok http 3000` → gives you a public URL (e.g., `https://abc123.ngrok.io`)
-- Update Pub/Sub push endpoint in Google Cloud Console to: `https://abc123.ngrok.io/api/emails/webhook`
-- Send an email to your assistant → webhook will arrive at `POST /api/emails/webhook`
-- Watch logs in terminal to see webhook processing
+Cedular requires Google Cloud setup for Gmail integration. Follow these steps:
 
-**Note:** Webhook endpoint is `/api/emails/webhook` — it receives Gmail push notifications and triggers email processing.
+1. **Complete the Google Cloud setup**:
+   - Follow the full checklist in [`docs/setups/GOOGLE_SETUP.md`](docs/setups/GOOGLE_SETUP.md)
+   - It covers:
+     - Creating a Google Cloud project
+     - Setting up OAuth credentials
+     - Creating Pub/Sub topic and subscription
+     - Configuring ngrok for local webhook testing
+     - Understanding the Gmail watch/cron lifecycle
+2. **Register Gmail watch**:
+   - After signing in with Gmail, call `GET http://localhost:3000/api/gmail/setup` (or visit it in your browser)
+   - This registers the Gmail watch for your account
+   - **Important**: Gmail watches expire after ~7 days. You can either:
+     - Manually call the setup endpoint again when it expires
+     - Rely on the cron endpoint (`/api/cron/renew-gmail-watches`) protected by `CRON_SECRET`
 
+- For local Pub/Sub pushes use ngrok (`ngrok http 3000`) and update the subscription’s push endpoint to `https://<forwarding-url>/api/emails/webhook`.
+- Production deployments should point `NEXT_PUBLIC_APP_URL` and all Google redirect/webhook URLs to the live domain, secure secrets with your platform’s vault, and enable Pub/Sub authentication.
 
+## Development scripts
 
+- `pnpm dev` – Next.js dev server.
+- `pnpm build` / `pnpm start` – production build and server.
+- `pnpm lint` / `pnpm typecheck` – code quality checks.
+- `pnpm db:*` – manage the PostgreSQL instance (`start`, `stop`, `reset`, `studio`, `migrate`, `generate`).
+- `pnpm eval:*` – run Evalite commands for automated experiments (see `evalite.config.ts`).
 
-### Dangerous but useful
+## Troubleshooting
 
-Reset the Postgres volume so it re-initializes and creates the DB:
-```sh 
-docker compose down -v
-docker compose up -d
-npx prisma db push
-```
+### Common Issues
 
+- **Gmail watch expired**: Gmail watches expire after ~7 days. Call `/api/gmail/setup` again or set up the cron job for automatic renewal.
+- **Webhook not receiving events**: Ensure ngrok is running and the Pub/Sub subscription push endpoint matches your ngrok URL.
+- **Database connection errors**: Make sure Docker is running and the database container is up (`pnpm db:start`).
 
+### Developer Notes
 
+For developers working on the codebase:
 
-After that, run the setup endpoint to reinitialize Gmail watch:
+- Email stats and cards share a grid/column layout (cards stretch in large layouts, tables span available width) and use shared skeleton states under `src/app/(internal)/meeting` and `.../email-threads`.
+- The webhook handler (`src/app/api/emails/webhook/route.ts`) decodes Pub/Sub payloads, matches the assistant email, and kicks off `processEmailFromHistory`.
+- Use `/api/cron/renew-gmail-watches` with the `Authorization: Bearer ${CRON_SECRET}` header for scheduled renewals; logs appear with `[Cron]` and `[Webhook]` prefixes.
 
-```
-http://localhost:3000/api/gmail/setup
-```
+## Additional references
 
-## Test user
-- Email: testuser@example.com
-- Password: Test@1234
-
-
-Looking at your README and the current state of the app, here are some valuable additions I'd suggest:
-
-## High-Value Features to Add:
-
-### 1. **Email Reply Templates & Customization**
-- Let users customize the tone/style of AI responses (formal, casual, friendly)
-- Save common response templates
-- Preview email before sending
-- Edit AI-generated responses before they go out
-
-### 2. **Meeting Preferences & Rules**
-- Meeting duration defaults by type (1-on-1s = 30min, team meetings = 60min)
-- Blackout dates (vacation, holidays, no-meeting days)
-- Per-contact preferences (e.g., "Always schedule with John on Tuesdays")
-- Maximum meetings per day/week limits
-- Minimum notice required for bookings (e.g., "at least 24 hours ahead")
-
-### 3. **Calendar Integration Improvements**
-- List and select from multiple calendars (not just "primary")
-- Cross-calendar availability checking (work + personal)
-- Auto-decline conflicts
-- Sync meeting acceptance status back to calendar
-
-### 4. **Smart Scheduling Features**
-- Learn from past meeting patterns (user tends to schedule calls at 10am/2pm)
-- Detect urgency in emails ("urgent", "ASAP") → suggest sooner slots
-- Group similar meetings together ("batching")
-- Suggest optimal times based on recipient timezone
-- Handle recurring meetings
-
-### 5. **Analytics & Insights Dashboard**
-- How many meetings scheduled this week/month
-- Response time metrics
-- Most common meeting types/participants
-- Busiest days/times
-- Email processing success rate
-
-### 6. **Multi-participant Scheduling**
-- Handle group meetings (find time for 3+ people)
-- Send calendar invites to all participants
-- Poll-style "which time works best for everyone?"
-
-### 7. **Conflict Resolution & Rescheduling**
-- Detect double-bookings and suggest alternatives
-- When user manually changes calendar → notify participants via email
-- Handle "can we reschedule?" requests automatically
-- Propose new times when original slot becomes unavailable
-
-### 8. **Email Thread Intelligence**
-- Show confidence score on intent parsing
-- Flag ambiguous/unclear requests for manual review
-- Mark threads as "needs human review"
-- Show conversation history in dashboard
-
-### 9. **Onboarding & Setup Wizard**
-- Guided setup flow for new users
-- Test email to verify everything works
-- Calendar permission checker
-- Sample scheduling scenario walkthrough
-
-### 10. **Notifications & Alerts**
-- Browser/email notifications when meetings are scheduled
-- Daily digest: "3 meetings scheduled today"
-- Alerts for failed email processing
-- Remind user to review pending scheduling requests
-
-### 11. **Mobile Responsiveness**
-- The settings/dashboard should work well on mobile
-- Quick approve/decline actions on phone
-
-### 12. **Integration Webhooks**
-- Slack notifications when meetings are scheduled
-- Add to other calendar services (Outlook, Apple Calendar)
-- Export meeting data
-
-### 13. **Security & Privacy**
-- Option to auto-delete old emails/tokens
-- Audit log of all actions taken by AI
-- User consent for AI actions before they happen
-- GDPR compliance features
-
-### 14. **Edge Cases & Error Handling**
-- What if Gmail/Calendar API is down?
-- What if user's calendar is full (no slots available)?
-- Handle timezone changes (DST transitions)
-- Retry failed email sends
-- Graceful degradation when AI fails to parse
-
-### 15. **Calendar View**
-- Show user's calendar visually in dashboard
-- Click to see meeting details
-- Drag-and-drop to reschedule
-
-## Which ones are most valuable for your MVP?
-
-I'd prioritize:
-1. **Meeting preferences & rules** (blackout dates, max meetings/day)
-2. **Email reply preview/editing** (before sending)
-3. **Analytics dashboard** (see what the AI is actually doing)
-4. **Better onboarding** (so users can get started faster)
-5. **Notifications** (so users know when things happen)
-
-What do you think? Which areas sound most important for your use case?
+- `.env.example` – all required environment variables for dev/local and optional integrations.
+- `docs/setups/GOOGLE_SETUP.md` – canonical Google Cloud + Gmail flow (OAuth, Pub/Sub, ngrok, watches).
+- `src/app/api/gmail/setup/route.ts`, `src/lib/gmail-watch-renewal.ts`, `src/app/api/emails/webhook/route.ts` – core server routes for Gmail integration.
