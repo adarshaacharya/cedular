@@ -1,15 +1,19 @@
 # Cedular
 
-AI-assisted scheduling that keeps Gmail, meetings, and calendars in sync so you can spend less time chasing availability.
+CC your scheduling emails to Cedular, and watch it handle everything automatically—schedule, confirm, reschedule, and cancel meetings—all without leaving your email inbox.
 
 ## Features
 
-- 🔄 **Real-time Gmail Sync**: Automatically monitors your Gmail inbox for scheduling-related emails
-- 🤖 **AI-Powered Analysis**: Intelligently interprets email content to understand scheduling intent
-- 📅 **Calendar Integration**: Keeps your meetings and calendars synchronized
-- 📊 **Dashboard & Tracking**: Real-time dashboard with email thread status and progress statistics
-- 🔔 **Instant Notifications**: Immediate alerts when relevant scheduling emails arrive
-- 🔐 **Secure Authentication**: Secure Google OAuth integration
+- 📧 **CC-to-Schedule**: Simply CC your connected Cedular email address on any scheduling conversation—everything happens in your email inbox
+- 📅 **Schedule Meetings**: Automatically finds optimal time slots and proposes them via email
+- ✅ **Confirm Meetings**: When someone confirms a time, Cedular creates the calendar event automatically
+- 🔄 **Reschedule Meetings**: Handles reschedule requests by finding new available slots
+- ❌ **Cancel Meetings**: Cancels meetings and updates calendar events when requested
+- 💬 **AI Chat Assistant**: Chat with Cedular directly to check availability, schedule meetings, and manage your calendar—all from the dashboard
+- 🤖 **AI-Powered**: Intelligently interprets email content to understand scheduling intent (schedule, confirm, reschedule, cancel)
+- ⚡ **Zero Manual Work**: Fully automated—no need to check emails or manually manage calendar events
+- 📊 **Dashboard & Tracking**: Monitor email threads and meeting status in real-time
+- 🔐 **Secure**: Secure Google OAuth integration with your Gmail account
 
 ## Tech Stack
 
@@ -33,42 +37,91 @@ Before you begin, ensure you have the following installed:
 
 ## How Cedular Works
 
-Here's how Cedular automatically manages your scheduling emails:
+Here's how Cedular works—it's as simple as CC'ing an email:
 
 **The Flow:**
 
-When you connect your Google account, Cedular establishes a continuous connection with your Gmail inbox. As new emails arrive, Gmail instantly notifies Cedular through push notifications. Cedular then intelligently analyzes each email to detect scheduling-related content—whether it's a meeting request, availability inquiry, or calendar coordination.
+Connect your Google account to get your dedicated Cedular email address. When you need to handle scheduling, just **CC your Cedular email** on any scheduling conversation. As soon as the email arrives, Gmail instantly notifies Cedular through push notifications.
 
-Once identified, Cedular categorizes the email thread (pending, processing, or scheduled) and updates your dashboard in real-time. You can track the progress of each conversation, see statistics, and monitor how emails move through your scheduling workflow—all without manual intervention.
+Cedular intelligently analyzes the email content to understand what action is needed:
+
+- **Schedule**: Finds optimal time slots based on your calendar and preferences, proposes them via email, and waits for confirmation
+- **Confirm**: When someone confirms a proposed time, automatically creates the calendar event and syncs it to Google Calendar
+- **Reschedule**: Finds new available slots and proposes alternative times
+- **Cancel**: Cancels the meeting and updates your calendar automatically
+
+All of this happens automatically **without leaving your email inbox**—Cedular handles the entire email conversation, manages your calendar, and keeps your dashboard updated. You can track progress and see statistics, but you never have to lift a finger. The entire scheduling workflow happens through email replies, so you can stay in your inbox where you already work.
 
 ```mermaid
 flowchart TD
     A[Connect Google Account] --> B[Gmail Watch Established]
-    B --> C[New Email Arrives]
-    C --> D[Gmail Push Notification]
-    D --> E{Cedular Receives Notification}
-    E --> F[Analyze Email Content]
-    F --> G{Scheduling Related?}
-    G -->|Yes| H[Categorize Email Thread]
-    G -->|No| I[Ignore]
-    H --> J[Update Dashboard]
-    J --> K[Track Progress & Statistics]
-    K --> L[Real-time Status Updates]
-    L --> M[User Views Dashboard]
+    B --> C[CC Cedular Email]
+    C --> D[New Email Arrives]
+    D --> E[Gmail Push Notification]
+    E --> F[Cedular Receives Notification]
+    F --> G[Analyze Email Content]
+    G --> H{Detect Intent}
 
-    style A fill:#e1f5ff
-    style B fill:#e1f5ff
-    style C fill:#fff4e1
-    style D fill:#fff4e1
-    style E fill:#fff4e1
-    style F fill:#e8f5e9
-    style G fill:#e8f5e9
-    style H fill:#e8f5e9
-    style J fill:#f3e5f5
-    style K fill:#f3e5f5
-    style L fill:#f3e5f5
-    style M fill:#e1f5ff
+    H -->|Schedule| I[Find Optimal Time Slots]
+    H -->|Confirm| J[Create Calendar Event]
+    H -->|Reschedule| K[Find New Time Slots]
+    H -->|Cancel| L[Cancel Meeting]
+    H -->|Not Scheduling| M[Ignore]
+
+    I --> N[Propose Times via Email]
+    N --> O[Wait for Confirmation]
+    O --> P{User Confirms?}
+    P -->|Yes| J
+    P -->|No| Q[Keep Waiting]
+
+    J --> R[Sync to Google Calendar]
+    K --> S[Propose New Times]
+    S --> O
+    L --> T[Update Calendar]
+
+    R --> U[Update Dashboard]
+    T --> U
+    Q --> U
+    M --> U
+    U --> V[Track Progress & Statistics]
+    V --> W[Real-time Status Updates]
+
+    style A fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style B fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style C fill:#3b82f6,stroke:#1e40af,stroke-width:2px,color:#fff
+    style D fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style E fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style F fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style G fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style H fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style I fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style J fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style K fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style L fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style M fill:#6b7280,stroke:#4b5563,stroke-width:2px,color:#fff
+    style N fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style O fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style P fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style Q fill:#6b7280,stroke:#4b5563,stroke-width:2px,color:#fff
+    style R fill:#10b981,stroke:#059669,stroke-width:2px,color:#fff
+    style S fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+    style T fill:#ef4444,stroke:#dc2626,stroke-width:2px,color:#fff
+    style U fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style V fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+    style W fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
 ```
+
+## AI Chat Assistant
+
+Beyond email-based scheduling, Cedular also includes an **AI chat assistant** built into the dashboard. Chat directly with Cedular to:
+
+- **Check your calendar availability** - Ask "What's on my calendar this week?"
+- **Schedule meetings** - Say "Schedule a meeting with john@example.com next Tuesday at 2pm"
+- **Find optimal times** - Request "Find a good time for a 1-hour meeting with the team"
+- **Manage events** - Update or cancel meetings through conversation
+- **Get calendar insights** - Ask questions about your schedule
+
+The chat assistant uses the same calendar tools and AI capabilities as the email workflow, giving you a conversational interface for managing your calendar when you prefer typing over email.
 
 ## Getting Started
 
@@ -154,6 +207,49 @@ Cedular requires Google Cloud setup for Gmail integration. Follow these steps:
 - `pnpm lint` / `pnpm typecheck` – code quality checks.
 - `pnpm db:*` – manage the PostgreSQL instance (`start`, `stop`, `reset`, `studio`, `migrate`, `generate`).
 - `pnpm eval:*` – run Evalite commands for automated experiments (see `evalite.config.ts`).
+
+## Production Deployment
+
+### Database Migrations
+
+If you're using **Prisma Accelerate** with PostgreSQL (connection string starts with `prisma+postgres://accelerate.prisma-data.net/`), migrations work directly with the Accelerate connection string.
+
+**Good news**: According to [Prisma Accelerate documentation](https://www.prisma.io/docs/accelerate/getting-started), PostgreSQL users don't need a separate direct connection string—Prisma Migrate and Introspection work directly with `prisma+postgres://` URLs.
+
+#### Steps to migrate production database:
+
+1. **Ensure your `DATABASE_URL` is set** in your production environment:
+
+   ```
+   DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=..."
+   ```
+
+2. **Run production migrations**:
+
+   ```bash
+   pnpm db:migrate:deploy
+   ```
+
+3. **Verify migrations**:
+   ```bash
+   pnpm db:migrate:status
+   ```
+
+**Note**:
+
+- Use `prisma migrate deploy` (not `migrate dev`) for production - it applies pending migrations without creating new ones
+- For PostgreSQL, the `prisma+postgres://` connection string works for both queries and migrations
+- If you're using other databases (MySQL, MongoDB, etc.) with `prisma://` URLs, you may need a `DIRECT_DATABASE_URL` for migrations
+
+### Environment Variables
+
+Make sure all production environment variables are set in your hosting platform (Vercel, etc.):
+
+- `DATABASE_URL` - Prisma Accelerate connection string (for app queries)
+- `DIRECT_DATABASE_URL` - Direct PostgreSQL connection string (for migrations only)
+- All Google OAuth credentials
+- `NEXT_PUBLIC_APP_URL` - Your production domain
+- Other required variables from `.env.example`
 
 ## Troubleshooting
 

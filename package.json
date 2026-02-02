@@ -13,6 +13,8 @@
     "db:reset": "docker-compose down -v && docker-compose up -d",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status",
     "db:generate": "prisma generate",
     "eval": "evalite",
     "eval:dev": "evalite dev",

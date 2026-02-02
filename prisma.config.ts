@@ -8,6 +8,8 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
+    // For PostgreSQL with Prisma Accelerate, migrations work directly with prisma+postgres://
+    // No need for DIRECT_DATABASE_URL - Prisma Migrate supports prisma+postgres:// URLs
     url: env("DATABASE_URL"),
   },
 });
