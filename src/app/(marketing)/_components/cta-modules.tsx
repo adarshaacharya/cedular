@@ -17,7 +17,7 @@ export function CTAModule() {
     },
     {
       icon: Users,
-      text: "Join 10,000+ professionals",
+      text: "Join 100+ professionals",
       color: "text-purple-500",
     },
     {

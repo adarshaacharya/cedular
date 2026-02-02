@@ -45,10 +45,10 @@ export async function Footer() {
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center text-muted-foreground text-xs gap-4">
           <p>&copy; 2025 Cedular. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-primary transition">
+            <Link href="/terms" className="hover:text-primary transition">
               Terms
             </Link>
-            <Link href="#" className="hover:text-primary transition">
+            <Link href="/privacy" className="hover:text-primary transition">
               Privacy
             </Link>
             <Link href="#" className="hover:text-primary transition">

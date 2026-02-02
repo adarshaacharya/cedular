@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const authPages = ["/login", "/signup"];
-const marketingPages = ["/"];
+const marketingPages = ["/", "/privacy", "/terms"];
 /**
  * Better Auth Proxy for Next.js
  *
