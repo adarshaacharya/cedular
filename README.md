@@ -1,5 +1,7 @@
 # Cedular
 
+![Cedular Dashboard](https://github.com/adarsha/project/cedular/blob/main/docs/images/dashboard.png)
+
 CC your scheduling emails to Cedular, and watch it handle everything automatically—schedule, confirm, reschedule, and cancel meetings—all without leaving your email inbox.
 
 ## Features

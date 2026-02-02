@@ -19,7 +19,8 @@
     "eval": "evalite",
     "eval:dev": "evalite dev",
     "eval:run": "evalite run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "workflow:dev": "workflow dev"
   },
   "dependencies": {
     "@ai-sdk/devtools": "0.0.1",
