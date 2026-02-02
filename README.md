@@ -1,8 +1,8 @@
 # Cedular
 
-![Cedular Dashboard](https://github.com/adarsha/project/cedular/blob/main/docs/images/dashboard.png)
+![Cedular Dashboard](https://raw.githubusercontent.com/adarshaacharya/cedular/refs/heads/main/docs/images/dashboard.png?token=GHSAT0AAAAAADGYAKYZXSOPQL57WRAUOKVE2MA2Q2A)
 
-CC your scheduling emails to Cedular, and watch it handle everything automatically—schedule, confirm, reschedule, and cancel meetings—all without leaving your email inbox.
+CC your scheduling emails to Cedular, and watch it handle everything automatically schedule, confirm, reschedule, and cancel meetings — all without leaving your email inbox.
 
 ## Features
 
@@ -23,7 +23,7 @@ CC your scheduling emails to Cedular, and watch it handle everything automatical
 - **Language**: TypeScript
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: Better Auth
-- **AI**: OpenAI SDK
+- **AI**: OpenAI SDK, Workflow Dev Kit
 - **Styling**: Tailwind CSS
 - **UI Components**: Radix UI
 - **Package Manager**: pnpm
