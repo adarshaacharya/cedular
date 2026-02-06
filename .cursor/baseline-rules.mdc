@@ -29,6 +29,7 @@ _"ALWAYS READ THIS DOCS RULES BEFORE WRITING CODE, ALWAYS KNOW REQUIREMENTS BEFO
 - Use Next.js 16 latest feature like cache components, partial prerendering, server components, client components, Server Actions, React Compiler, etc.
 - Don't use emoji's randomly in the UI
 - Don't hardcode tailwind classes / color, use tailwind theming system, since we are in multi-theme project.
+- Use the frontend design skills to make the design exceptional and unique.
 
 
 ## Backend:
