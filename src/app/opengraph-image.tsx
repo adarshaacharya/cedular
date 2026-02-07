@@ -51,8 +51,14 @@ export default async function OpenGraphImage() {
   const fg = "rgba(255,255,255,0.92)";
   const muted = "rgba(255,255,255,0.62)";
   let playfair700: ArrayBuffer | undefined;
+  let nunito600: ArrayBuffer | undefined;
   try {
-    playfair700 = await loadLocalFont("./_og/fonts/Playfair_144pt-Bold.ttf");
+    const [a, b] = await Promise.all([
+      loadLocalFont("./_og/fonts/Playfair_144pt-Bold.ttf"),
+      loadLocalFont("./_og/fonts/nunito-sans-latin-600-normal.ttf"),
+    ]);
+    playfair700 = a;
+    nunito600 = b;
   } catch (e) {
     // Don’t fail the OG route if font loading fails; fall back to system fonts.
     console.error("OG font load failed:", e);
@@ -73,7 +79,7 @@ export default async function OpenGraphImage() {
             // Dark premium base + vignette + a subtle center aura.
             "radial-gradient(900px 520px at 50% 48%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 60%), radial-gradient(1200px 700px at 50% 60%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.00) 55%), radial-gradient(1200px 900px at 50% 40%, rgba(56,189,248,0.10) 0%, rgba(56,189,248,0.00) 55%), radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.62) 78%, rgba(0,0,0,0.82) 100%)",
           fontFamily:
-            'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
+            '"Nunito Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
         }}
       >
         <div
@@ -177,14 +183,28 @@ export default async function OpenGraphImage() {
     ),
     {
       ...size,
-      ...(playfair700 && {
+      ...((playfair700 || nunito600) && {
         fonts: [
-          {
-            name: "Playfair 144pt",
-            data: playfair700,
-            weight: 700,
-            style: "normal",
-          },
+          ...(playfair700
+            ? [
+                {
+                  name: "Playfair 144pt",
+                  data: playfair700,
+                  weight: 700,
+                  style: "normal",
+                } as const,
+              ]
+            : []),
+          ...(nunito600
+            ? [
+                {
+                  name: "Nunito Sans",
+                  data: nunito600,
+                  weight: 600,
+                  style: "normal",
+                } as const,
+              ]
+            : []),
         ],
       }),
     },
