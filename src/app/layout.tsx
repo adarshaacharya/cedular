@@ -7,6 +7,18 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { Nunito_Sans, Playfair_Display, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
+const FALLBACK_APP_URL = "https://cedular.vercel.app";
+
+function getMetadataBase() {
+  const raw = process.env.NEXT_PUBLIC_APP_URL;
+  if (!raw) return new URL(FALLBACK_APP_URL);
+  try {
+    return new URL(raw);
+  } catch {
+    return new URL(FALLBACK_APP_URL);
+  }
+}
+
 const fontSans = Nunito_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -28,6 +40,28 @@ export const metadata: Metadata = {
   description:
     "Your AI scheduling assistant that handles meeting coordination through email. Just CC your assistant and let AI do the work.",
   generator: "v0.app",
+  metadataBase: getMetadataBase(),
+  openGraph: {
+    title: "Cedular - AI Scheduling Assistant",
+    description:
+      "Your AI scheduling assistant that handles meeting coordination through email. Just CC your assistant and let AI do the work.",
+    type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Cedular - AI Scheduling Assistant",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cedular - AI Scheduling Assistant",
+    description:
+      "Your AI scheduling assistant that handles meeting coordination through email. Just CC your assistant and let AI do the work.",
+    images: ["/twitter-image"],
+  },
 };
 
 export default function RootLayout({

@@ -40,8 +40,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (public folder)
+     * - opengraph-image / twitter-image (Next.js OG/Twitter image routes)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|\\.well-known/workflow|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|\\.well-known/workflow|opengraph-image|twitter-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|html)$).*)",
   ],
 };
 
