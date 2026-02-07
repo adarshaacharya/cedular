@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export const size = {
   width: 1200,
@@ -9,16 +10,11 @@ export const size = {
 
 export const contentType = "image/png";
 
-const FALLBACK_APP_URL = "https://cedular.vercel.app";
-
-function getHostLabel() {
-  const raw = process.env.NEXT_PUBLIC_APP_URL;
-  if (!raw) return new URL(FALLBACK_APP_URL).host;
-  try {
-    return new URL(raw).host;
-  } catch {
-    return new URL(FALLBACK_APP_URL).host;
-  }
+async function loadLocalFont(path: string) {
+  // Use fs reads for reliability (edge runtime fetch can be finicky with font assets).
+  const url = new URL(path, import.meta.url);
+  const buf = await readFile(url);
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 }
 
 function Mark({ color }: { color: string }) {
@@ -50,9 +46,17 @@ function Mark({ color }: { color: string }) {
   );
 }
 
-export default function OpenGraphImage() {
-  const primary = "#111827"; // close to --primary in light theme
-  const hostLabel = getHostLabel();
+export default async function OpenGraphImage() {
+  const bg = "#07080a";
+  const fg = "rgba(255,255,255,0.92)";
+  const muted = "rgba(255,255,255,0.62)";
+  let playfair700: ArrayBuffer | undefined;
+  try {
+    playfair700 = await loadLocalFont("./_og/fonts/Playfair_144pt-Bold.ttf");
+  } catch (e) {
+    // Don’t fail the OG route if font loading fails; fall back to system fonts.
+    console.error("OG font load failed:", e);
+  }
 
   return new ImageResponse(
     (
@@ -64,8 +68,10 @@ export default function OpenGraphImage() {
           position: "relative",
           alignItems: "center",
           justifyContent: "center",
-          background:
-            "linear-gradient(135deg, #ffffff 0%, #f6f7f9 60%, #ffffff 100%)",
+          backgroundColor: bg,
+          backgroundImage:
+            // Dark premium base + vignette + a subtle center aura.
+            "radial-gradient(900px 520px at 50% 48%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 60%), radial-gradient(1200px 700px at 50% 60%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.00) 55%), radial-gradient(1200px 900px at 50% 40%, rgba(56,189,248,0.10) 0%, rgba(56,189,248,0.00) 55%), radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.00) 0%, rgba(0,0,0,0.62) 78%, rgba(0,0,0,0.82) 100%)",
           fontFamily:
             'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
         }}
@@ -75,102 +81,112 @@ export default function OpenGraphImage() {
             position: "absolute",
             inset: 0,
             background:
-              "repeating-linear-gradient(0deg, rgba(17,24,39,0.03) 0px, rgba(17,24,39,0.03) 1px, rgba(255,255,255,0) 1px, rgba(255,255,255,0) 18px)",
+              // Subtle grid (like landing), both directions.
+              "repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0px, rgba(255,255,255,0.045) 1px, rgba(255,255,255,0) 1px, rgba(255,255,255,0) 22px), repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, rgba(255,255,255,0) 1px, rgba(255,255,255,0) 22px)",
+            opacity: 0.55,
           }}
         />
 
         <div
           style={{
             position: "relative",
-            width: 1080,
-            height: 470,
+            width: "100%",
+            height: "100%",
             display: "flex",
             alignItems: "center",
-            gap: 52,
-            padding: "70px 80px",
-            borderRadius: 54,
-            backgroundColor: "rgba(255,255,255,0.88)",
-            border: "1px solid rgba(17,24,39,0.12)",
-            boxShadow: "0 40px 110px rgba(17,24,39,0.14)",
+            justifyContent: "center",
           }}
         >
           <div
             style={{
-              width: 190,
-              height: 190,
-              borderRadius: 56,
+              position: "absolute",
+              left: 0,
+              top: 0,
+              right: 0,
+              bottom: 0,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background:
-                "linear-gradient(180deg, rgba(17,24,39,0.06) 0%, rgba(17,24,39,0.03) 100%)",
-              border: "1px solid rgba(17,24,39,0.10)",
-              color: primary,
+              opacity: 0.10,
             }}
           >
-            <Mark color={primary} />
+            <div style={{ display: "flex", transform: "scale(2.6)" }}>
+              <Mark color="#ffffff" />
+            </div>
           </div>
 
           <div
             style={{
               display: "flex",
               flexDirection: "column",
+              alignItems: "center",
               justifyContent: "center",
-              lineHeight: 1.05,
-              color: primary,
-              paddingTop: 4,
+              textAlign: "center",
+              gap: 18,
+              paddingLeft: 90,
+              paddingRight: 90,
             }}
           >
             <div
               style={{
-                fontSize: 92,
-                fontWeight: 800,
-                letterSpacing: "-0.05em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "10px 16px",
+                borderRadius: 999,
+                border: "1px solid rgba(255,255,255,0.14)",
+                backgroundColor: "rgba(255,255,255,0.04)",
+                color: "rgba(255,255,255,0.78)",
+                fontSize: 22,
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Save 2+ hours weekly on scheduling
+            </div>
+
+            <div
+              style={{
+                fontFamily:
+                  '"Playfair 144pt", ui-serif, Georgia, "Times New Roman", Times, serif',
+                fontSize: 132,
+                fontWeight: 700,
+                letterSpacing: "-0.04em",
+                color: fg,
+                lineHeight: 1.0,
+                textShadow: "0 10px 40px rgba(0,0,0,0.55)",
               }}
             >
               Cedular
             </div>
-            <div
-              style={{
-                marginTop: 18,
-                fontSize: 36,
-                fontWeight: 600,
-                color: "rgba(17,24,39,0.72)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              AI Scheduling Assistant
-            </div>
-            <div
-              style={{
-                marginTop: 14,
-                fontSize: 26,
-                fontWeight: 500,
-                color: "rgba(17,24,39,0.56)",
-                letterSpacing: "-0.01em",
-                maxWidth: 720,
-              }}
-            >
-              Just CC your assistant. Let AI do the coordination.
-            </div>
-          </div>
 
-          <div
-            style={{
-              position: "absolute",
-              right: 44,
-              bottom: 36,
-              fontSize: 22,
-              fontWeight: 600,
-              color: "rgba(17,24,39,0.45)",
-              letterSpacing: "0.02em",
-            }}
-          >
-            {hostLabel}
+            <div
+              style={{
+                fontSize: 34,
+                fontWeight: 600,
+                color: muted,
+                letterSpacing: "-0.01em",
+                lineHeight: 1.25,
+              }}
+            >
+              Meetings on Autopilot
+            </div>
           </div>
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      ...(playfair700 && {
+        fonts: [
+          {
+            name: "Playfair 144pt",
+            data: playfair700,
+            weight: 700,
+            style: "normal",
+          },
+        ],
+      }),
+    },
   );
 }
