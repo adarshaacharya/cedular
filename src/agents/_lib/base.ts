@@ -7,10 +7,10 @@ import { openai } from "@ai-sdk/openai";
 export const DEFAULT_MODEL = openai("gpt-4o-mini");
 const DEFAULT_MODEL_NAME = "gpt-4o-mini";
 
-// Increase retries for production stability against transient OpenAI 500 errors.
-// Default is 2 (3 total attempts); we use 5 (6 total attempts). When run inside a
-// workflow step (e.g. gmail-history), the step is also retried by the workflow runtime.
-const DEFAULT_MAX_RETRIES = 3;
+// Retry policy:
+// - We rely on the Workflow step retry layer for resilience/observability.
+// - Keep AI SDK retries at 0 to avoid multiplicative retries (workflow retries * agent retries).
+const DEFAULT_MAX_RETRIES = 0;
 
 /**
  * Run an agent with structured output (for parsing/extraction tasks)
