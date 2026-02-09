@@ -133,7 +133,8 @@ export async function handleReschedule(
           to: extractEmailAddresses(msg.to),
           cc: extractEmailAddresses(msg.cc),
           subject: msg.subject,
-          body: msg.body,
+          bodyText: msg.bodyText || msg.body || "",
+          bodyHtml: msg.bodyHtml || undefined,
           snippet: msg.snippet || undefined,
           sentAt: msg.sentAt,
         }));
@@ -144,6 +145,10 @@ export async function handleReschedule(
 
       try {
         if (sentMessage.messageId) {
+          const generatedResponseText = generatedResponse
+            .replace(/<[^>]*>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
           await saveEmailMessage({
             emailThreadId: dbThread.id,
             gmailMessageId: sentMessage.messageId,
@@ -151,7 +156,7 @@ export async function handleReschedule(
             to: [emailThread.from],
             cc: [],
             subject: replySubject,
-            body: generatedResponse,
+            bodyText: generatedResponseText,
             bodyHtml: generatedResponse,
             snippet: undefined,
             sentAt: new Date(),

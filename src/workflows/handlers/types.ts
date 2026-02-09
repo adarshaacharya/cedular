@@ -19,6 +19,8 @@ export interface HandlerInput {
       subject: string;
       sentAt: Date;
       body: string;
+      bodyText?: string;
+      bodyHtml?: string;
     }>;
   };
   parsedIntent: EmailParseResult;

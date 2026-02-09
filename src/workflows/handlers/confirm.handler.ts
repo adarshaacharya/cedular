@@ -139,7 +139,8 @@ export async function handleConfirm(
         to: extractEmailAddresses(msg.to),
         cc: extractEmailAddresses(msg.cc),
         subject: msg.subject,
-        body: msg.body,
+        bodyText: msg.bodyText || msg.body || "",
+        bodyHtml: msg.bodyHtml || undefined,
         snippet: msg.snippet || undefined,
         sentAt: msg.sentAt,
       }));
@@ -166,6 +167,10 @@ export async function handleConfirm(
 <p>Calendar invites have been sent to all participants.</p>
 <p>Best regards,<br />${assistantName}</p>
 `;
+    const confirmationBodyText = confirmationBody
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
     const replySubject = `Re: ${emailThread.subject}`;
     const sentMessage = await sendEmail({
@@ -191,7 +196,7 @@ export async function handleConfirm(
           to: [emailThread.from],
           cc: [],
           subject: replySubject,
-          body: confirmationBody,
+          bodyText: confirmationBodyText,
           bodyHtml: confirmationBody,
           snippet: undefined,
           sentAt: new Date(),

@@ -69,7 +69,8 @@ export async function handleCancel(
         to: extractEmailAddresses(msg.to),
         cc: extractEmailAddresses(msg.cc),
         subject: msg.subject,
-        body: msg.body,
+        bodyText: msg.bodyText || msg.body || "",
+        bodyHtml: msg.bodyHtml || undefined,
         snippet: msg.snippet || undefined,
         sentAt: msg.sentAt,
       }));
@@ -85,6 +86,10 @@ export async function handleCancel(
 <p>If you'd like to reschedule, please reply to this email with your preferred times.</p>
 <p>Best regards,<br />${assistantName}</p>
 `;
+    const cancellationBodyText = cancellationBody
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
     const latestMessageId =
       emailThread.messages[emailThread.messages.length - 1]?.id;
@@ -113,7 +118,7 @@ export async function handleCancel(
           to: [emailThread.from],
           cc: [],
           subject: replySubject,
-          body: cancellationBody,
+          bodyText: cancellationBodyText,
           bodyHtml: cancellationBody,
           snippet: undefined,
           sentAt: new Date(),

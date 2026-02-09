@@ -110,15 +110,9 @@ function EmailMessage({
     return body.match(timeRegex) || [];
   };
 
-  const meetingLinks = extractMeetingLinks(message.body);
-  const timeSlots = extractTimeSlots(message.body);
-
-  const bodyText =
-    // Prefer extracted text for stable rendering.
-    (message as any).bodyText ||
-    // Fallback to the legacy body field.
-    message.body ||
-    "";
+  const bodyText = message.bodyText || "";
+  const meetingLinks = extractMeetingLinks(bodyText);
+  const timeSlots = extractTimeSlots(bodyText);
 
   const displayedText =
     bodyText.length > 600 && !isExpanded ? `${bodyText.substring(0, 600)}...` : bodyText;

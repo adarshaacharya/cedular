@@ -41,8 +41,7 @@ export async function syncGmailThreadMessagesToDb(args: {
     to: extractEmailAddresses(msg.to || ""),
     cc: extractEmailAddresses(msg.cc || ""),
     subject: msg.subject,
-    body: msg.body,
-    bodyText: msg.bodyText,
+    bodyText: msg.bodyText || "",
     bodyHtml: msg.bodyHtml,
     snippet: msg.snippet || undefined,
     sentAt: msg.sentAt,
@@ -50,4 +49,3 @@ export async function syncGmailThreadMessagesToDb(args: {
 
   await saveEmailMessages(emailThreadDbId, messagesToSave);
 }
-

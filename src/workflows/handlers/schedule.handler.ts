@@ -145,6 +145,10 @@ ${slotLis}
 <p>Please reply with “Option 1”, “Option 2”, or “Option 3” (or paste the time) and I’ll send a calendar invite.</p>
 <p>Best regards,<br />${assistantName || "Assistant"}</p>
 `;
+      const generatedResponseText = generatedResponse
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
       // 5. Send email
       console.log(`[ScheduleHandler] Sending email response`);
@@ -194,9 +198,8 @@ ${slotLis}
           to: extractEmailAddresses(msg.to),
           cc: extractEmailAddresses(msg.cc),
           subject: msg.subject,
-          body: msg.body,
-          bodyText: (msg as any).bodyText || undefined,
-          bodyHtml: (msg as any).bodyHtml || undefined,
+          bodyText: msg.bodyText || msg.body || "",
+          bodyHtml: msg.bodyHtml || undefined,
           snippet: msg.snippet || undefined,
           sentAt: msg.sentAt,
         }));
@@ -215,8 +218,7 @@ ${slotLis}
             to: [emailThread.from],
             cc: [],
             subject: replySubject,
-            body: generatedResponse,
-            bodyText: undefined,
+            bodyText: generatedResponseText,
             bodyHtml: generatedResponse,
             snippet: undefined,
             sentAt: new Date(),

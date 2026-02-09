@@ -47,8 +47,7 @@ model EmailMessage {
     to             String[] // Recipient email addresses
     cc             String[] // CC email addresses
     subject        String?
-    body           String // Back-compat: best available body (HTML preferred, else text)
-    bodyText       String? // Extracted text/plain (or derived) for stable rendering
+    bodyText       String   @default("") // Extracted text/plain (or derived) for stable rendering
     bodyHtml       String? // Extracted text/html when available
     snippet        String? // Gmail snippet
     sentAt         DateTime // When the email was sent

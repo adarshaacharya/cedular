@@ -27,8 +27,7 @@ interface CreateEmailMessageInput {
   to: string[];
   cc?: string[];
   subject?: string;
-  body: string;
-  bodyText?: string;
+  bodyText: string;
   bodyHtml?: string;
   snippet?: string;
   sentAt: Date;
@@ -94,7 +93,6 @@ export async function saveEmailMessage(
       to: input.to,
       cc: input.cc,
       subject: input.subject,
-      body: input.body,
       bodyText: input.bodyText,
       bodyHtml: input.bodyHtml,
       snippet: input.snippet,
@@ -107,7 +105,6 @@ export async function saveEmailMessage(
       to: input.to,
       cc: input.cc,
       subject: input.subject,
-      body: input.body,
       bodyText: input.bodyText,
       bodyHtml: input.bodyHtml,
       snippet: input.snippet,
@@ -124,8 +121,7 @@ export async function saveEmailMessages(
     to: string[];
     cc?: string[];
     subject?: string;
-    body: string;
-    bodyText?: string;
+    bodyText: string;
     bodyHtml?: string;
     snippet?: string;
     sentAt: Date;
