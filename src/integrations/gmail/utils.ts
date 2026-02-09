@@ -60,25 +60,72 @@ export function extractEmailBody(payload: {
     body?: { data?: string | null };
   }>;
 }): string {
-  // Simple message with body
-  if (payload.body?.data) {
-    return Buffer.from(payload.body.data, "base64").toString("utf-8");
-  }
+  const bodies = extractEmailBodies(payload);
+  // Prefer HTML if present for back-compat (previous UI assumed HTML).
+  return bodies.html || bodies.text || "";
+}
 
-  // Multipart message - find text part
-  if (payload.parts) {
-    const textPart = payload.parts.find(
-      (p) =>
-        p.mimeType === MIME_TYPES.TEXT_PLAIN ||
-        p.mimeType === MIME_TYPES.TEXT_HTML
-    );
+function decodeGmailBase64(data: string): string {
+  // Gmail uses base64url in many places; normalize to standard base64.
+  const normalized = data.replace(/-/g, "+").replace(/_/g, "/");
+  return Buffer.from(normalized, "base64").toString("utf-8");
+}
 
-    if (textPart?.body?.data) {
-      return Buffer.from(textPart.body.data, "base64").toString("utf-8");
+function walkParts(
+  parts: Array<{
+    mimeType?: string | null;
+    body?: { data?: string | null };
+    parts?: any[];
+  }>,
+  acc: { text?: string; html?: string }
+) {
+  for (const p of parts) {
+    if (p?.parts && Array.isArray(p.parts)) {
+      walkParts(p.parts, acc);
+      continue;
     }
+
+    const mime = p?.mimeType || "";
+    const data = p?.body?.data || null;
+    if (!data) continue;
+
+    if (!acc.html && mime === MIME_TYPES.TEXT_HTML) {
+      acc.html = decodeGmailBase64(data);
+    } else if (!acc.text && mime === MIME_TYPES.TEXT_PLAIN) {
+      acc.text = decodeGmailBase64(data);
+    }
+
+    if (acc.text && acc.html) return;
+  }
+}
+
+export function extractEmailBodies(payload: {
+  body?: { data?: string | null };
+  mimeType?: string | null;
+  parts?: Array<{
+    mimeType?: string | null;
+    body?: { data?: string | null };
+    parts?: any[];
+  }>;
+}): { text: string | null; html: string | null } {
+  // Simple message with body (mimeType often omitted here; treat as text).
+  if (payload.body?.data) {
+    const decoded = decodeGmailBase64(payload.body.data);
+    // If we know it's HTML, store it as HTML; otherwise store as text.
+    const mime = payload.mimeType || "";
+    if (mime === MIME_TYPES.TEXT_HTML) return { text: null, html: decoded };
+    return { text: decoded, html: null };
   }
 
-  return "";
+  const acc: { text?: string; html?: string } = {};
+  if (payload.parts && Array.isArray(payload.parts)) {
+    walkParts(payload.parts as any[], acc);
+  }
+
+  return {
+    text: acc.text ?? null,
+    html: acc.html ?? null,
+  };
 }
 
 /**

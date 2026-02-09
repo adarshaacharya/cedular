@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma";
 import { EmailThreadStatus } from "@/prisma/generated/prisma/enums";
 import { getZonedParts } from "@/lib/timezone";
 import { saveEmailMessage, saveEmailMessages } from "@/services/email-thread-service";
+import { syncGmailThreadMessagesToDb } from "@/services/gmail-thread-sync";
 
 export async function handleReschedule(
   input: HandlerInput
@@ -151,6 +152,7 @@ export async function handleReschedule(
             cc: [],
             subject: replySubject,
             body: generatedResponse,
+            bodyHtml: generatedResponse,
             snippet: undefined,
             sentAt: new Date(),
           });
@@ -158,6 +160,17 @@ export async function handleReschedule(
       } catch (e) {
         console.error(`[RescheduleHandler] Error saving outgoing message:`, e);
       }
+    }
+
+    // Canonical sync with Gmail so DB matches the mailbox.
+    try {
+      await syncGmailThreadMessagesToDb({
+        userId,
+        threadId: emailThread.threadId,
+        emailThreadDbId: dbThread?.id,
+      });
+    } catch (e) {
+      console.error(`[RescheduleHandler] Thread sync failed:`, e);
     }
 
     // 7. Update email thread with new proposed slots

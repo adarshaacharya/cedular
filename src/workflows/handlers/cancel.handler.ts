@@ -6,6 +6,7 @@ import {
   saveEmailMessage,
   saveEmailMessages,
 } from "@/services/email-thread-service";
+import { syncGmailThreadMessagesToDb } from "@/services/gmail-thread-sync";
 import {
   EmailThreadStatus,
   MeetingStatus,
@@ -113,12 +114,24 @@ export async function handleCancel(
           cc: [],
           subject: replySubject,
           body: cancellationBody,
+          bodyHtml: cancellationBody,
           snippet: undefined,
           sentAt: new Date(),
         });
       }
     } catch (e) {
       console.error(`[CancelHandler] Error saving outgoing message:`, e);
+    }
+
+    // Canonical sync with Gmail so DB matches the mailbox.
+    try {
+      await syncGmailThreadMessagesToDb({
+        userId,
+        threadId: emailThread.threadId,
+        emailThreadDbId: dbThread.id,
+      });
+    } catch (e) {
+      console.error(`[CancelHandler] Thread sync failed:`, e);
     }
 
     return {

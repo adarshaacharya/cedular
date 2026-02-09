@@ -93,7 +93,8 @@ export async function processEmail(
     }
 
     const senderEmail = emailThread.from;
-    const emailBody = emailThread.body;
+    // Prefer text for intent parsing; HTML can confuse the parser/agents.
+    const emailBody = emailThread.bodyText || emailThread.body;
     const emailSubject = emailThread.subject;
     const senderName = extractEmailName(senderEmail);
 

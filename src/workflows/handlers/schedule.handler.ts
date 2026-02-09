@@ -7,6 +7,7 @@ import {
   saveEmailMessage,
   saveEmailMessages,
 } from "@/services/email-thread-service";
+import { syncGmailThreadMessagesToDb } from "@/services/gmail-thread-sync";
 import {
   EmailThreadIntent,
   EmailThreadStatus,
@@ -194,6 +195,8 @@ ${slotLis}
           cc: extractEmailAddresses(msg.cc),
           subject: msg.subject,
           body: msg.body,
+          bodyText: (msg as any).bodyText || undefined,
+          bodyHtml: (msg as any).bodyHtml || undefined,
           snippet: msg.snippet || undefined,
           sentAt: msg.sentAt,
         }));
@@ -213,9 +216,22 @@ ${slotLis}
             cc: [],
             subject: replySubject,
             body: generatedResponse,
+            bodyText: undefined,
+            bodyHtml: generatedResponse,
             snippet: undefined,
             sentAt: new Date(),
           });
+        }
+
+        // Canonical sync with Gmail so DB matches the mailbox (captures the sent message as Gmail stored it).
+        try {
+          await syncGmailThreadMessagesToDb({
+            userId,
+            threadId: emailThread.threadId,
+            emailThreadDbId: savedThread.id,
+          });
+        } catch (e) {
+          console.error(`[ScheduleHandler] Thread sync failed:`, e);
         }
       } catch (error) {
         console.error(

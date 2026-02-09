@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Target,
 } from "lucide-react";
+import { Streamdown } from "streamdown";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
 import type { MeetingModel } from "@/prisma/generated/prisma/models/Meeting";
 import type { EmailMessageModel } from "@/prisma/generated/prisma/models/EmailMessage";
@@ -111,6 +112,16 @@ function EmailMessage({
 
   const meetingLinks = extractMeetingLinks(message.body);
   const timeSlots = extractTimeSlots(message.body);
+
+  const bodyText =
+    // Prefer extracted text for stable rendering.
+    (message as any).bodyText ||
+    // Fallback to the legacy body field.
+    message.body ||
+    "";
+
+  const displayedText =
+    bodyText.length > 600 && !isExpanded ? `${bodyText.substring(0, 600)}...` : bodyText;
 
   return (
     <div className="relative">
@@ -222,19 +233,13 @@ function EmailMessage({
 
             {/* Email content */}
             <div className="text-sm text-foreground">
-              <div
-                className="prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    message.body.length > 300 && !isExpanded
-                      ? `${message.body.substring(0, 300)}...`
-                      : message.body,
-                }}
-              />
+              <Streamdown className="prose prose-sm max-w-none dark:prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                {displayedText}
+              </Streamdown>
             </div>
 
             {/* Show more/less button */}
-            {message.body.length > 300 && (
+            {bodyText.length > 600 && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="mt-2 text-xs text-primary hover:underline"

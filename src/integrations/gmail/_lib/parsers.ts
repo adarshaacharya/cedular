@@ -8,6 +8,7 @@ import {
   extractEmailAddresses,
   getHeaderValue,
   extractEmailBody,
+  extractEmailBodies,
 } from "../utils";
 import type { ParsedEmailThread } from "../types";
 
@@ -59,10 +60,12 @@ export function parseEmailMessage(message: {
   snippet?: string | null;
   payload?: {
     headers?: Array<{ name?: string | null; value?: string | null }>;
+    mimeType?: string | null;
     body?: { data?: string | null };
     parts?: Array<{
       mimeType?: string | null;
       body?: { data?: string | null };
+      parts?: Array<any>;
     }>;
   };
 }): {
@@ -74,6 +77,8 @@ export function parseEmailMessage(message: {
   subject: string;
   sentAt: Date;
   body: string;
+  bodyText?: string;
+  bodyHtml?: string;
 } {
   const headers = message.payload?.headers || [];
 
@@ -82,7 +87,8 @@ export function parseEmailMessage(message: {
   const cc = getHeaderValue(headers, EMAIL_HEADERS.CC);
   const subject = getHeaderValue(headers, EMAIL_HEADERS.SUBJECT);
   const dateStr = getHeaderValue(headers, EMAIL_HEADERS.DATE);
-  const body = extractEmailBody(message.payload || {});
+  const bodies = extractEmailBodies(message.payload || {});
+  const body = bodies.html || bodies.text || extractEmailBody(message.payload || {});
 
   // Parse the date string to Date object
   const sentAt = dateStr ? new Date(dateStr) : new Date();
@@ -96,6 +102,8 @@ export function parseEmailMessage(message: {
     subject: subject || "",
     sentAt,
     body,
+    bodyText: bodies.text || undefined,
+    bodyHtml: bodies.html || undefined,
   };
 }
 
@@ -109,10 +117,12 @@ export function parseEmailThread(thread: {
     snippet?: string | null;
     payload?: {
       headers?: Array<{ name?: string | null; value?: string | null }>;
+      mimeType?: string | null;
       body?: { data?: string | null };
       parts?: Array<{
         mimeType?: string | null;
         body?: { data?: string | null };
+        parts?: Array<any>;
       }>;
     };
   }>;
@@ -131,7 +141,8 @@ export function parseEmailThread(thread: {
   const to = getHeaderValue(headers, EMAIL_HEADERS.TO);
   const date = getHeaderValue(headers, EMAIL_HEADERS.DATE);
 
-  const body = extractEmailBody(firstMessage.payload);
+  const firstBodies = extractEmailBodies(firstMessage.payload);
+  const body = firstBodies.html || firstBodies.text || extractEmailBody(firstMessage.payload);
   const participants = extractParticipants(messages);
 
   return {
@@ -141,6 +152,8 @@ export function parseEmailThread(thread: {
     to,
     date,
     body,
+    bodyText: firstBodies.text || undefined,
+    bodyHtml: firstBodies.html || undefined,
     participants: Array.from(participants),
     messageCount: messages.length,
     messages: messages.map((msg) => parseEmailMessage(msg)),

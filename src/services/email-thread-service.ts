@@ -28,6 +28,8 @@ interface CreateEmailMessageInput {
   cc?: string[];
   subject?: string;
   body: string;
+  bodyText?: string;
+  bodyHtml?: string;
   snippet?: string;
   sentAt: Date;
 }
@@ -93,6 +95,8 @@ export async function saveEmailMessage(
       cc: input.cc,
       subject: input.subject,
       body: input.body,
+      bodyText: input.bodyText,
+      bodyHtml: input.bodyHtml,
       snippet: input.snippet,
       sentAt: input.sentAt,
     },
@@ -104,6 +108,8 @@ export async function saveEmailMessage(
       cc: input.cc,
       subject: input.subject,
       body: input.body,
+      bodyText: input.bodyText,
+      bodyHtml: input.bodyHtml,
       snippet: input.snippet,
       sentAt: input.sentAt,
     },
@@ -119,6 +125,8 @@ export async function saveEmailMessages(
     cc?: string[];
     subject?: string;
     body: string;
+    bodyText?: string;
+    bodyHtml?: string;
     snippet?: string;
     sentAt: Date;
   }>

@@ -17,6 +17,8 @@ export interface ParsedEmailThread {
   to: string;
   date: string;
   body: string;
+  bodyText?: string;
+  bodyHtml?: string;
   participants: string[];
   messageCount: number;
   messages: Array<{
@@ -28,6 +30,8 @@ export interface ParsedEmailThread {
     subject: string;
     sentAt: Date;
     body: string;
+    bodyText?: string;
+    bodyHtml?: string;
   }>;
 }
 
