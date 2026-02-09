@@ -7,6 +7,11 @@ import { openai } from "@ai-sdk/openai";
 export const DEFAULT_MODEL = openai("gpt-4o-mini");
 const DEFAULT_MODEL_NAME = "gpt-4o-mini";
 
+// Increase retries for production stability against transient OpenAI 500 errors.
+// Default is 2 (3 total attempts); we use 5 (6 total attempts). When run inside a
+// workflow step (e.g. gmail-history), the step is also retried by the workflow runtime.
+const DEFAULT_MAX_RETRIES = 3;
+
 /**
  * Run an agent with structured output (for parsing/extraction tasks)
  * Use this for simple extraction/parsing where you just need structured JSON output
@@ -35,6 +40,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
       output: Output.object({
         schema,
       }),
+      maxRetries: DEFAULT_MAX_RETRIES,
       experimental_telemetry: { isEnabled: true },
     });
 
@@ -112,6 +118,7 @@ export async function runToolLoopAgent({
       instructions,
       tools,
       output,
+      maxRetries: DEFAULT_MAX_RETRIES,
       experimental_telemetry: { isEnabled: true },
       // Automatically loops up to 20 steps by default
     });
@@ -126,8 +133,7 @@ export async function runToolLoopAgent({
     const tokensUsed = result.usage?.totalTokens;
 
     console.log(
-      `[Agent: ${agentName}] Completed in ${latencyMs}ms, tokens: ${
-        tokensUsed || "N/A"
+      `[Agent: ${agentName}] Completed in ${latencyMs}ms, tokens: ${tokensUsed || "N/A"
       }`
     );
 
