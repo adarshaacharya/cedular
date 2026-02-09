@@ -4,6 +4,7 @@ import { sendEmail } from "@/integrations/gmail";
 import { extractEmailAddresses } from "@/integrations/gmail/utils";
 import {
   createEmailThread,
+  saveEmailMessage,
   saveEmailMessages,
 } from "@/services/email-thread-service";
 import {
@@ -149,14 +150,16 @@ ${slotLis}
       const latestMessageId =
         emailThread.messages[emailThread.messages.length - 1]?.id;
 
+      const replySubject =
+        emailThread.subject && emailThread.subject.trim()
+          ? `Re: ${emailThread.subject.replace(/^Re:\s*/i, "")}`
+          : "Re: Meeting Request";
+
       const sentMessage = await sendEmail({
         to: emailThread.from,
         body: generatedResponse,
         userId,
-        subject:
-          emailThread.subject && emailThread.subject.trim()
-            ? `Re: ${emailThread.subject.replace(/^Re:\s*/i, "")}`
-            : "Re: Meeting Request",
+        subject: replySubject,
         threadId: emailThread.threadId,
         messageId: latestMessageId,
       });
@@ -199,6 +202,21 @@ ${slotLis}
         console.log(
           `[ScheduleHandler] Saved ${messagesToSave.length} email messages`
         );
+
+        // Also persist the assistant's outgoing reply so the UI shows a full conversation.
+        if (sentMessage.messageId) {
+          await saveEmailMessage({
+            emailThreadId: savedThread.id,
+            gmailMessageId: sentMessage.messageId,
+            from: input.userPreferences.assistantEmail || "assistant",
+            to: [emailThread.from],
+            cc: [],
+            subject: replySubject,
+            body: generatedResponse,
+            snippet: undefined,
+            sentAt: new Date(),
+          });
+        }
       } catch (error) {
         console.error(
           `[ScheduleHandler] Error saving email messages: ${error}`

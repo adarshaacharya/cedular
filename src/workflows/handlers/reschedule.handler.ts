@@ -2,9 +2,11 @@ import { HandlerInput, HandlerOutput } from "./types";
 import { runCalendarAgent } from "@/agents/calendar-agent";
 import { generateResponse } from "@/agents/response-generator";
 import { sendEmail } from "@/integrations/gmail";
+import { extractEmailAddresses } from "@/integrations/gmail/utils";
 import prisma from "@/lib/prisma";
 import { EmailThreadStatus } from "@/prisma/generated/prisma/enums";
 import { getZonedParts } from "@/lib/timezone";
+import { saveEmailMessage, saveEmailMessages } from "@/services/email-thread-service";
 
 export async function handleReschedule(
   input: HandlerInput
@@ -107,11 +109,12 @@ export async function handleReschedule(
     const latestMessageId =
       emailThread.messages[emailThread.messages.length - 1]?.id;
 
+    const replySubject = `Re: ${emailThread.subject.replace(/^Re:\s*/i, "")}`;
     const sentMessage = await sendEmail({
       to: emailThread.from,
       body: generatedResponse,
       userId,
-      subject: `Re: ${emailThread.subject.replace(/^Re:\s*/i, "")}`,
+      subject: replySubject,
       threadId: emailThread.threadId,
       messageId: latestMessageId,
     });
@@ -119,6 +122,43 @@ export async function handleReschedule(
     console.log(
       `[RescheduleHandler] Response email sent: ${sentMessage.messageId}`
     );
+
+    // Persist inbound + outgoing messages so the UI shows the full conversation.
+    if (dbThread) {
+      try {
+        const messagesToSave = emailThread.messages.map((msg) => ({
+          gmailMessageId: msg.id,
+          from: msg.from,
+          to: extractEmailAddresses(msg.to),
+          cc: extractEmailAddresses(msg.cc),
+          subject: msg.subject,
+          body: msg.body,
+          snippet: msg.snippet || undefined,
+          sentAt: msg.sentAt,
+        }));
+        await saveEmailMessages(dbThread.id, messagesToSave);
+      } catch (e) {
+        console.error(`[RescheduleHandler] Error saving inbound messages:`, e);
+      }
+
+      try {
+        if (sentMessage.messageId) {
+          await saveEmailMessage({
+            emailThreadId: dbThread.id,
+            gmailMessageId: sentMessage.messageId,
+            from: input.userPreferences.assistantEmail || "assistant",
+            to: [emailThread.from],
+            cc: [],
+            subject: replySubject,
+            body: generatedResponse,
+            snippet: undefined,
+            sentAt: new Date(),
+          });
+        }
+      } catch (e) {
+        console.error(`[RescheduleHandler] Error saving outgoing message:`, e);
+      }
+    }
 
     // 7. Update email thread with new proposed slots
     if (dbThread) {

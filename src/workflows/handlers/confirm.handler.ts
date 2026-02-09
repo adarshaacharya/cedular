@@ -1,8 +1,13 @@
 import { HandlerInput, HandlerOutput } from "./types";
 import { createCalendarEvent } from "@/integrations/calendar";
 import { sendEmail } from "@/integrations/gmail";
+import { extractEmailAddresses } from "@/integrations/gmail/utils";
 import prisma from "@/lib/prisma";
 import { createMeetingFromEmailThread } from "@/services/meetings-service";
+import {
+  saveEmailMessage,
+  saveEmailMessages,
+} from "@/services/email-thread-service";
 import {
   EmailThreadStatus,
   MeetingStatus,
@@ -125,6 +130,23 @@ export async function handleConfirm(
       data: { status: EmailThreadStatus.confirmed },
     });
 
+    // Persist the latest incoming message(s) for this thread (e.g. the user's "Option 1" reply).
+    try {
+      const messagesToSave = emailThread.messages.map((msg) => ({
+        gmailMessageId: msg.id,
+        from: msg.from,
+        to: extractEmailAddresses(msg.to),
+        cc: extractEmailAddresses(msg.cc),
+        subject: msg.subject,
+        body: msg.body,
+        snippet: msg.snippet || undefined,
+        sentAt: msg.sentAt,
+      }));
+      await saveEmailMessages(dbThread.id, messagesToSave);
+    } catch (e) {
+      console.error(`[ConfirmHandler] Error saving inbound messages:`, e);
+    }
+
     // 6. Generate & send confirmation email
     const startDate = new Date(chosenSlot.start);
     const formattedDate = formatDateInTimeZone(startDate, timezone);
@@ -144,11 +166,12 @@ export async function handleConfirm(
 <p>Best regards,<br />${assistantName}</p>
 `;
 
+    const replySubject = `Re: ${emailThread.subject}`;
     const sentMessage = await sendEmail({
       to: emailThread.from,
       body: confirmationBody,
       userId,
-      subject: `Re: ${emailThread.subject}`,
+      subject: replySubject,
       threadId: emailThread.threadId,
       messageId: emailThread.messages[emailThread.messages.length - 1]?.id,
     });
@@ -156,6 +179,25 @@ export async function handleConfirm(
     console.log(
       `[ConfirmHandler] Confirmation email sent: ${sentMessage.messageId}`
     );
+
+    // Persist outgoing confirmation message for UI visibility.
+    try {
+      if (sentMessage.messageId) {
+        await saveEmailMessage({
+          emailThreadId: dbThread.id,
+          gmailMessageId: sentMessage.messageId,
+          from: userPreferences.assistantEmail || "assistant",
+          to: [emailThread.from],
+          cc: [],
+          subject: replySubject,
+          body: confirmationBody,
+          snippet: undefined,
+          sentAt: new Date(),
+        });
+      }
+    } catch (e) {
+      console.error(`[ConfirmHandler] Error saving outgoing message:`, e);
+    }
 
     // 7. Return result
     return {
