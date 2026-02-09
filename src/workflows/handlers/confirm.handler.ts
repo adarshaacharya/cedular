@@ -8,6 +8,7 @@ import {
   MeetingStatus,
   MeetingSource,
 } from "@/prisma/generated/prisma/enums";
+import { formatDateInTimeZone, formatTimeInTimeZone } from "@/lib/timezone";
 
 interface ProposedSlot {
   start: string;
@@ -126,16 +127,8 @@ export async function handleConfirm(
 
     // 6. Generate & send confirmation email
     const startDate = new Date(chosenSlot.start);
-    const formattedDate = startDate.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-    });
-    const formattedTime = startDate.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    const formattedDate = formatDateInTimeZone(startDate, timezone);
+    const formattedTime = formatTimeInTimeZone(startDate, timezone);
 
     const participantsList = (dbThread.participants || []).join(", ");
     const confirmationBody = `
@@ -144,7 +137,7 @@ export async function handleConfirm(
 <ul>
   <li><strong>Title:</strong> ${dbThread.subject || "Meeting"}</li>
   <li><strong>Date:</strong> ${formattedDate}</li>
-  <li><strong>Time:</strong> ${formattedTime}</li>
+  <li><strong>Time:</strong> ${formattedTime} (${timezone})</li>
   <li><strong>Participants:</strong> ${participantsList || "You"}</li>
 </ul>
 <p>Calendar invites have been sent to all participants.</p>

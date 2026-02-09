@@ -19,6 +19,7 @@ import { extractEmailName } from "@/integrations/gmail/utils";
 import { parseEmail } from "@/agents/email-parser";
 import prisma from "@/lib/prisma";
 import { EmailThreadIntent } from "@/prisma/generated/prisma/enums";
+import { getZonedParts } from "@/lib/timezone";
 import {
   handleConfirm,
   handleSchedule,
@@ -54,6 +55,17 @@ export async function processEmail(
     const userPreferences = await prisma.userPreferences.findUnique({
       where: { userId },
     });
+
+    // Fetch schedule profile early so parsing can resolve relative dates with the correct timezone.
+    const scheduleProfile = await prisma.userScheduleProfile.findUnique({
+      where: { userId },
+    });
+    const userTimezone = scheduleProfile?.timezone || "UTC";
+    const todayParts = getZonedParts(new Date(), userTimezone);
+    const todayDate = `${todayParts.year}-${String(todayParts.month).padStart(
+      2,
+      "0"
+    )}-${String(todayParts.day).padStart(2, "0")}`;
 
     // Step 1: Fetch email from Gmail
     let emailThread;
@@ -126,10 +138,12 @@ export async function processEmail(
     const parsedIntent = await parseEmail({
       subject: emailSubject,
       emailBody: emailBody,
-      userId: senderEmail,
+      userId,
       participants: emailThread.participants,
       threadHistory: emailThread.messages,
       existingThreadStatus: existingDbThread?.status,
+      userTimezone,
+      todayDate,
     });
 
     console.log(

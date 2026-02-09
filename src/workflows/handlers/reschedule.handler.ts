@@ -4,6 +4,7 @@ import { generateResponse } from "@/agents/response-generator";
 import { sendEmail } from "@/integrations/gmail";
 import prisma from "@/lib/prisma";
 import { EmailThreadStatus } from "@/prisma/generated/prisma/enums";
+import { getZonedParts } from "@/lib/timezone";
 
 export async function handleReschedule(
   input: HandlerInput
@@ -32,6 +33,8 @@ export async function handleReschedule(
       where: { userId },
     });
 
+    const requestedDate = parsedIntent.requestedDate || null; // YYYY-MM-DD in user's timezone
+
     // 3. Find new optimal calendar slots
     console.log(`[RescheduleHandler] Finding new available slots`);
     const calendarResult = await runCalendarAgent(
@@ -43,12 +46,27 @@ export async function handleReschedule(
           workingHoursStart: scheduleProfile?.workingHoursStart || "09:00",
           workingHoursEnd: scheduleProfile?.workingHoursEnd || "17:00",
           bufferMinutes: scheduleProfile?.bufferMinutes || 15,
+          ...(requestedDate ? { startDate: requestedDate, daysToCheck: 1 } : {}),
         },
       },
       userId
     );
 
-    const availableSlots = calendarResult.output.slots;
+    const timezone = scheduleProfile?.timezone || "UTC";
+    let availableSlots = calendarResult.output.slots;
+
+    // Safety: enforce requested date if present.
+    if (requestedDate) {
+      const toIsoDate = (d: Date) => {
+        const p = getZonedParts(d, timezone);
+        return `${p.year}-${String(p.month).padStart(2, "0")}-${String(
+          p.day
+        ).padStart(2, "0")}`;
+      };
+      availableSlots = availableSlots.filter(
+        (s) => toIsoDate(new Date(s.start)) === requestedDate
+      );
+    }
 
     if (!availableSlots || availableSlots.length === 0) {
       console.warn(`[RescheduleHandler] No available slots found`);

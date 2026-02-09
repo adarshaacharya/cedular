@@ -5,6 +5,7 @@
  */
 
 import { Output } from "ai";
+import { jsonrepair } from "jsonrepair";
 import {
   calendarAgentInputSchema,
   calendarAgentOutputSchema,
@@ -48,6 +49,16 @@ export async function runCalendarAgent(
     - Timezone: ${validatedInput.preferences?.timezone || "UTC"}
     - Buffer: ${validatedInput.preferences?.bufferMinutes || 15} minutes
     ${
+      validatedInput.preferences?.startDate
+        ? `- Requested start date: ${validatedInput.preferences.startDate} (YYYY-MM-DD in timezone)`
+        : ""
+    }
+    ${
+      validatedInput.preferences?.daysToCheck
+        ? `- Days to check: ${validatedInput.preferences.daysToCheck}`
+        : ""
+    }
+    ${
       validatedInput.preferences?.preferredTimes
         ? `- Preferred times: ${validatedInput.preferences.preferredTimes.join(
             ", "
@@ -66,7 +77,9 @@ export async function runCalendarAgent(
 
     STEP-BY-STEP PROCESS:
     1. First, call getUserCalendarEvents with userId="${userId}" and daysAhead=7 to get the assistant's busy periods
-    2. Then, call findFreeSlots with the busy periods and meeting requirements to find available slots
+    2. Then, call findFreeSlots with the busy periods and meeting requirements to find available slots.
+       Always pass timezone="${validatedInput.preferences?.timezone || "UTC"}" and bufferMinutes=${validatedInput.preferences?.bufferMinutes || 15}
+       If a requested start date was provided, also pass startDate="${validatedInput.preferences?.startDate || ""}" and daysToCheck=${validatedInput.preferences?.daysToCheck || 1}
     3. Finally, call scoreTimeSlot for each slot to rank them by quality
     4. Return the top 3 scored slots in the required structured format (slots array with start, end, score, reason)
 
@@ -76,10 +89,13 @@ export async function runCalendarAgent(
     3. Consider slightly shorter or longer meeting durations
     4. Always provide alternatives - never return empty results
 
-    NOTE: You can only access the assistant's calendar, not the participants' calendars.
-
-    Think step by step and use tools as needed. Show your reasoning.
-    Be helpful and proactive in finding alternatives if the initial search fails.
+	    NOTE: You can only access the assistant's calendar, not the participants' calendars.
+	
+	    IMPORTANT OUTPUT RULES:
+	    - Your final response MUST be a single JSON object matching the schema.
+	    - Do NOT include any prose, explanation, markdown, or code fences.
+	    - Do NOT wrap the JSON in \`\`\`json.
+	    Be helpful and proactive in finding alternatives if the initial search fails.
 
     IMPORTANT: After using the tools, extract the slot information from the tool results and return it
     in the structured format. Use the score from scoreTimeSlot, and format the score as a number between 0-100.
@@ -89,16 +105,51 @@ export async function runCalendarAgent(
     Look for slots in the next 7-14 days if needed.
   `;
 
-  const result = await runToolLoopAgent({
-    agentName: "calendar-agent",
-    instructions,
-    prompt: `Please find the 3 best meeting slots and return them in the structured format.`,
-    tools: calendarTools,
-    userId,
-    output: Output.object({
-      schema: calendarAgentOutputSchema,
-    }),
-  });
+  let result;
+  try {
+    result = await runToolLoopAgent({
+      agentName: "calendar-agent",
+      instructions,
+      prompt: `Return ONLY the JSON object for the 3 best meeting slots in the structured format. No prose, no markdown.`,
+      tools: calendarTools,
+      userId,
+      output: Output.object({
+        schema: calendarAgentOutputSchema,
+      }),
+    });
+  } catch (err) {
+    // The model sometimes returns the correct JSON wrapped in prose or ```json fences.
+    // Recover if possible, since downstream expects structured slots.
+    const anyErr = err as any;
+    const text: string | undefined =
+      typeof anyErr?.text === "string"
+        ? anyErr.text
+        : typeof anyErr?.cause?.text === "string"
+          ? anyErr.cause.text
+          : typeof anyErr?.cause?.message === "string"
+            ? anyErr.cause.message
+            : undefined;
+
+    if (text) {
+      const fenced = text.match(/```json\s*([\s\S]*?)\s*```/i);
+      const candidate = fenced?.[1] || text;
+      const first = candidate.indexOf("{");
+      const last = candidate.lastIndexOf("}");
+      if (first !== -1 && last !== -1 && last > first) {
+        const slice = candidate.slice(first, last + 1);
+        try {
+          const repaired = jsonrepair(slice);
+          const parsed = JSON.parse(repaired);
+          const validated = calendarAgentOutputSchema.parse(parsed);
+          return { output: validated as CalendarAgentOutput };
+        } catch {
+          // fall through to rethrow original error
+        }
+      }
+    }
+
+    throw err;
+  }
 
   if (!result.output) {
     throw new Error("Calendar agent did not return structured output");

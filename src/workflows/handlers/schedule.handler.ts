@@ -1,6 +1,5 @@
 import { HandlerInput, HandlerOutput } from "./types";
 import { runCalendarAgent } from "@/agents/calendar-agent";
-import { generateResponse } from "@/agents/response-generator";
 import { sendEmail } from "@/integrations/gmail";
 import { extractEmailAddresses } from "@/integrations/gmail/utils";
 import {
@@ -12,6 +11,11 @@ import {
   EmailThreadStatus,
 } from "@/prisma/generated/prisma/enums";
 import prisma from "@/lib/prisma";
+import {
+  formatDateInTimeZone,
+  formatTimeInTimeZone,
+  getZonedParts,
+} from "@/lib/timezone";
 
 export async function handleSchedule(
   input: HandlerInput
@@ -33,6 +37,8 @@ export async function handleSchedule(
       scheduleProfile
     );
 
+    const requestedDate = parsedIntent.requestedDate || null; // YYYY-MM-DD in user's timezone
+
     // 2. Find optimal calendar slots
     const calendarAgentInput = {
       participants: emailThread.participants || [emailThread.from],
@@ -42,13 +48,50 @@ export async function handleSchedule(
         workingHoursStart: scheduleProfile?.workingHoursStart || "09:00",
         workingHoursEnd: scheduleProfile?.workingHoursEnd || "17:00",
         bufferMinutes: scheduleProfile?.bufferMinutes || 15,
+        ...(requestedDate ? { startDate: requestedDate, daysToCheck: 1 } : {}),
       },
     };
+    const timezone = calendarAgentInput.preferences.timezone;
 
-    const calendarResult = await runCalendarAgent(calendarAgentInput, userId);
+    let calendarResult = await runCalendarAgent(calendarAgentInput, userId);
 
     // Extract slots directly from structured output
-    const availableSlots = calendarResult.output.slots;
+    let availableSlots = calendarResult.output.slots;
+
+    // Safety: if user requested a specific date, enforce it even if the agent ignored it.
+    if (requestedDate) {
+      const toIsoDate = (d: Date) => {
+        const p = getZonedParts(d, timezone);
+        return `${p.year}-${String(p.month).padStart(2, "0")}-${String(
+          p.day
+        ).padStart(2, "0")}`;
+      };
+      availableSlots = availableSlots.filter(
+        (s) => toIsoDate(new Date(s.start)) === requestedDate
+      );
+    }
+
+    // If a specific date was requested but we found no slots, fall back to "next best" slots.
+    // This avoids sending an empty/failed response when the request is too constrained.
+    let usedFallback = false;
+    if (requestedDate && (!availableSlots || availableSlots.length === 0)) {
+      usedFallback = true;
+      const fallbackResult = await runCalendarAgent(
+        {
+          participants: calendarAgentInput.participants,
+          duration: calendarAgentInput.duration,
+          preferences: {
+            timezone: calendarAgentInput.preferences.timezone,
+            workingHoursStart: calendarAgentInput.preferences.workingHoursStart,
+            workingHoursEnd: calendarAgentInput.preferences.workingHoursEnd,
+            bufferMinutes: calendarAgentInput.preferences.bufferMinutes,
+          },
+        },
+        userId
+      );
+      calendarResult = fallbackResult;
+      availableSlots = fallbackResult.output.slots;
+    }
 
     if (!availableSlots || availableSlots.length === 0) {
       console.log(`[ScheduleHandler] No available slots found by agent`);
@@ -61,7 +104,9 @@ export async function handleSchedule(
     let topSlots: Array<{ start: string; end: string; score?: number }> = [];
     if (availableSlots && availableSlots.length > 0) {
       // Sort by score (highest first) and take top 3
-      const sortedSlots = [...availableSlots].sort((a, b) => b.score - a.score);
+      const sortedSlots = [...availableSlots].sort(
+        (a, b) => (b.score ?? 0) - (a.score ?? 0)
+      );
       topSlots = sortedSlots.slice(0, 3);
       console.log(
         `[ScheduleHandler] Using top ${topSlots.length} scored slots`
@@ -69,30 +114,35 @@ export async function handleSchedule(
     }
     console.log("[ScheduleHandler][Debug] topSlots:", topSlots);
 
-    // 3. Format slots for response generator (or empty if none found)
-    const slotsFormatted =
-      topSlots.length > 0
-        ? topSlots.reduce((acc, slot) => {
-            acc[`${slot.start} - ${slot.end}`] = slot.score?.toString() ?? "";
-            return acc;
-          }, {} as Record<string, string>)
-        : {};
-
     if (topSlots.length > 0) {
-      // 4. Generate response email with proposed times
-      console.log(`[ScheduleHandler] Generating email response`);
-      const generatedResponse = await generateResponse({
-        emailContext: emailThread.body,
-        parsedIntent: parsedIntent.intent,
-        availableSlots: slotsFormatted,
-        userId,
-        senderName,
-        assistantName,
-      });
+      // 4. Deterministic response email with correctly formatted dates/times in the user's timezone.
+      const slotLis = topSlots
+        .map((slot, i) => {
+          const start = new Date(slot.start);
+          const end = new Date(slot.end);
+          const date = formatDateInTimeZone(start, timezone);
+          const startTime = formatTimeInTimeZone(start, timezone);
+          const endTime = formatTimeInTimeZone(end, timezone);
+          return `<li><strong>Option ${i + 1}:</strong> ${date}, ${startTime} - ${endTime} (${timezone})</li>`;
+        })
+        .join("\n");
 
-      if (!generatedResponse) {
-        throw new Error("Failed to generate email response");
-      }
+      const dateNote =
+        requestedDate && usedFallback
+          ? `<p><strong>Note:</strong> I couldn't find availability on <strong>${requestedDate}</strong> in ${timezone}, so I’m suggesting the next best options.</p>`
+          : "";
+
+      const generatedResponse = `
+<p>Hi ${senderName || "there"},</p>
+<p>Thank you for your request to schedule a meeting.</p>
+${dateNote}
+<p>Here are some available time slots in <strong>${timezone}</strong>:</p>
+<ul>
+${slotLis}
+</ul>
+<p>Please reply with “Option 1”, “Option 2”, or “Option 3” (or paste the time) and I’ll send a calendar invite.</p>
+<p>Best regards,<br />${assistantName || "Assistant"}</p>
+`;
 
       // 5. Send email
       console.log(`[ScheduleHandler] Sending email response`);

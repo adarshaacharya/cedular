@@ -5,6 +5,10 @@ import { withWorkflow } from "workflow/next";
 import "./src/env";
 
 const config: NextConfig = {
+  // Include OG fonts in serverless bundle (they're read at runtime via fs)
+  outputFileTracingIncludes: {
+    "/": ["./src/app/_og/fonts/*.ttf"],
+  },
   // Enable Cache Components (opt-in caching)
   cacheComponents: true,
 

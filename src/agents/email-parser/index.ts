@@ -20,6 +20,12 @@ export const emailIntentSchema = z.object({
     .describe(
       "ISO 8601 datetime strings of proposed meeting times, or null if none"
     ),
+  requestedDate: z
+    .string()
+    .nullable()
+    .describe(
+      'Preferred meeting date in YYYY-MM-DD (in the user timezone) when the email mentions a day/date without a specific time, or null if none'
+    ),
   duration: z
     .number()
     .nullable()
@@ -61,6 +67,8 @@ export async function parseEmail({
   participants,
   threadHistory,
   existingThreadStatus,
+  userTimezone,
+  todayDate,
 }: {
   emailBody: string;
   subject: string;
@@ -68,6 +76,8 @@ export async function parseEmail({
   participants?: string[];
   threadHistory?: Array<{ body: string; snippet?: string | null }>;
   existingThreadStatus?: string | null;
+  userTimezone?: string | null;
+  todayDate?: string | null;
 }): Promise<EmailParseResult> {
   // Build conversation context from thread history
   const conversationContext =
@@ -93,6 +103,7 @@ export async function parseEmail({
     Parse the email and extract:
     1. The scheduling intent (schedule new, reschedule existing, cancel, confirm, or info request)
     2. Proposed meeting times (if mentioned)
+    2b. If the email mentions a day/date but NOT a specific time (e.g., "coming Wednesday"), extract requestedDate as YYYY-MM-DD in the user's timezone.
     3. Meeting duration in minutes
     4. Meeting title/topic
     5. Summary context
@@ -104,6 +115,8 @@ export async function parseEmail({
     - Participants are already provided from email headers (To, From, CC), use them as-is
     - Look for duration hints like "30 min", "1 hour", "1.5 hours", "quick sync"
     - Parse common time formats: "tomorrow at 2pm", "next Tuesday 10:00", "Monday morning"
+    - Use the provided "Today's date" and "User timezone" to resolve relative dates like "tomorrow", "this Wednesday", and "coming Wednesday"
+    - If the email only specifies a DAY/DATE but no time, set requestedDate (YYYY-MM-DD) and leave proposedTimes as null
     - If no explicit time is proposed, leave proposedTimes empty
     - Urgency should be HIGH if: ASAP, urgent, emergency, IMPORTANT, today
     - Urgency should be MEDIUM if: normal priority, this week, soon
@@ -123,6 +136,11 @@ export async function parseEmail({
     Example 1: Schedule intent
     "Hi team, can we schedule a 1-hour sync next Tuesday at 10am to discuss Q4 plans? john@company.com and sarah@company.com should join too."
     → intent: "schedule", duration: 60, urgency: "medium", participants: ["john@company.com", "sarah@company.com"]
+
+    Example 1b: Day without time
+    (Assume today's date is 2026-02-09 in Asia/Kathmandu)
+    "Can you schedule a meeting for coming Wednesday to discuss the project?"
+    → intent: "schedule", requestedDate: "2026-02-11", proposedTimes: null
 
     Example 2: Reschedule intent
     "We need to move tomorrow's 2pm standup to 3pm instead. Same attendees."
@@ -158,6 +176,9 @@ export async function parseEmail({
     </thread_history>`
       : ""
   }
+
+    User timezone: ${userTimezone || "Unknown"}
+    Today's date (in user timezone): ${todayDate || "Unknown"}
 
     <latest_email>
     Subject: ${subject}

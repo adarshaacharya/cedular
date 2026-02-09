@@ -4,7 +4,8 @@ import { Output, ToolLoopAgent } from "ai";
 import type { ToolSet } from "ai";
 import { openai } from "@ai-sdk/openai";
 
-export const DEFAULT_MODEL = openai("gpt-4o");
+export const DEFAULT_MODEL = openai("gpt-4o-mini");
+const DEFAULT_MODEL_NAME = "gpt-4o-mini";
 
 /**
  * Run an agent with structured output (for parsing/extraction tasks)
@@ -52,7 +53,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
       latencyMs,
       tokensUsed: tokensUsed || null,
       userId,
-      model: "gpt-4o-mini",
+      model: DEFAULT_MODEL_NAME,
     });
 
     return result.output as z.infer<T>;
@@ -71,7 +72,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
       latencyMs,
       tokensUsed: null,
       userId,
-      model: "gpt-4o-mini",
+      model: DEFAULT_MODEL_NAME,
     });
 
     throw error;
@@ -141,7 +142,7 @@ export async function runToolLoopAgent({
       latencyMs,
       tokensUsed: tokensUsed || null,
       userId,
-      model: typeof model === "string" ? model : "gpt-4o-mini",
+      model: typeof model === "string" ? model : DEFAULT_MODEL_NAME,
     });
 
     return result;
@@ -164,7 +165,7 @@ export async function runToolLoopAgent({
       latencyMs,
       tokensUsed: null,
       userId,
-      model: typeof model === "string" ? model : "gpt-4o-mini",
+      model: typeof model === "string" ? model : DEFAULT_MODEL_NAME,
     });
 
     throw error;

@@ -11,6 +11,19 @@ export const calendarAgentInputSchema = z.object({
       preferredTimes: z.array(z.string()).optional(), // e.g., ["09:00-11:00", "14:00-16:00"]
       avoidTimes: z.array(z.string()).optional(), // e.g., ["12:00-13:00"]
       bufferMinutes: z.number().default(15),
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional()
+        .describe("Optional anchor date (YYYY-MM-DD) in the provided timezone"),
+      daysToCheck: z
+        .number()
+        .min(1)
+        .max(31)
+        .optional()
+        .describe(
+          "Optional number of days to search starting from startDate (defaults to tool defaults if omitted)"
+        ),
     })
     .optional(),
 });

@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 export const runtime = "nodejs";
 
@@ -10,9 +11,9 @@ export const size = {
 
 export const contentType = "image/png";
 
-async function loadLocalFont(path: string) {
-  const url = new URL(path, import.meta.url);
-  const buf = await readFile(url);
+async function loadLocalFont(filename: string): Promise<ArrayBuffer> {
+  const fromCwd = path.join(process.cwd(), "src/app/_og/fonts", filename);
+  const buf = await readFile(fromCwd);
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 }
 
@@ -53,8 +54,8 @@ export default async function TwitterImage() {
   let nunito600: ArrayBuffer | undefined;
   try {
     const [a, b] = await Promise.all([
-      loadLocalFont("./_og/fonts/Playfair_144pt-Bold.ttf"),
-      loadLocalFont("./_og/fonts/nunito-sans-latin-600-normal.ttf"),
+      loadLocalFont("Playfair_144pt-Bold.ttf"),
+      loadLocalFont("nunito-sans-latin-600-normal.ttf"),
     ]);
     playfair700 = a;
     nunito600 = b;

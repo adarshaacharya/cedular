@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 export const runtime = "nodejs";
 
@@ -10,10 +11,10 @@ export const size = {
 
 export const contentType = "image/png";
 
-async function loadLocalFont(path: string) {
-  // Use fs reads for reliability (edge runtime fetch can be finicky with font assets).
-  const url = new URL(path, import.meta.url);
-  const buf = await readFile(url);
+async function loadLocalFont(filename: string): Promise<ArrayBuffer> {
+  // In serverless (e.g. Vercel), cwd is the deployment root and fonts are traced there.
+  const fromCwd = path.join(process.cwd(), "src/app/_og/fonts", filename);
+  const buf = await readFile(fromCwd);
   return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 }
 
@@ -54,8 +55,8 @@ export default async function OpenGraphImage() {
   let nunito600: ArrayBuffer | undefined;
   try {
     const [a, b] = await Promise.all([
-      loadLocalFont("./_og/fonts/Playfair_144pt-Bold.ttf"),
-      loadLocalFont("./_og/fonts/nunito-sans-latin-600-normal.ttf"),
+      loadLocalFont("Playfair_144pt-Bold.ttf"),
+      loadLocalFont("nunito-sans-latin-600-normal.ttf"),
     ]);
     playfair700 = a;
     nunito600 = b;

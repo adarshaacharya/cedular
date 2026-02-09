@@ -12,13 +12,14 @@ import {
 import {
   addDays,
   addMinutes,
-  format,
-  isWithinInterval,
   parseISO,
-  setHours,
-  setMinutes,
-  startOfDay,
 } from "date-fns";
+import {
+  formatRFC3339WithOffset,
+  getWeekdayIndex,
+  getZonedParts,
+  zonedPartsToUtc,
+} from "@/lib/timezone";
 
 export const calendarTools = {
   getUserCalendarEvents: tool({
@@ -92,6 +93,12 @@ export const calendarTools = {
         )
         .describe("Array of busy time periods in ISO 8601 format"),
       duration: z.number().describe("Meeting duration in minutes"),
+      bufferMinutes: z
+        .number()
+        .default(0)
+        .describe(
+          "Extra buffer around busy events in minutes (e.g., 15 means avoid 15 minutes before/after existing events)"
+        ),
       workingHoursStart: z
         .string()
         .default("09:00")
@@ -104,6 +111,19 @@ export const calendarTools = {
         .describe(
           "End of working hours (HH:mm). Can expand to 18:00 or 19:00 if needed"
         ),
+      timezone: z
+        .string()
+        .default("UTC")
+        .describe(
+          "IANA timezone for working hours and returned slots (e.g., Asia/Kathmandu)"
+        ),
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional()
+        .describe(
+          "Optional anchor date (YYYY-MM-DD) in the given timezone to start searching from (defaults to today if omitted)"
+        ),
       daysToCheck: z
         .number()
         .default(7)
@@ -114,58 +134,76 @@ export const calendarTools = {
     execute: async ({
       busyPeriods,
       duration,
+      bufferMinutes,
       workingHoursStart,
       workingHoursEnd,
+      timezone,
+      startDate,
       daysToCheck,
     }) => {
       const freeSlots: Array<{ start: string; end: string }> = [];
       const [startHour, startMinute] = workingHoursStart.split(":").map(Number);
       const [endHour, endMinute] = workingHoursEnd.split(":").map(Number);
+      const buffer = Math.max(0, Math.floor(bufferMinutes || 0));
 
       // Parse busy periods
       const busyIntervals = busyPeriods.map((period) => ({
-        start: parseISO(period.start),
-        end: parseISO(period.end),
+        // Apply buffer around busy events to avoid back-to-back scheduling.
+        start: addMinutes(parseISO(period.start), -buffer),
+        end: addMinutes(parseISO(period.end), buffer),
       }));
+
+      // Work in the user's timezone, but compare conflicts in UTC instants.
+      const now = new Date();
+      let baseDay: Date;
+      if (startDate) {
+        const [y, m, d] = startDate.split("-").map(Number);
+        // Use a UTC date as a convenient day counter; we only use its UTC Y-M-D.
+        baseDay = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+      } else {
+        const today = getZonedParts(now, timezone);
+        // Use a UTC date as a convenient day counter; we only use its UTC Y-M-D.
+        baseDay = new Date(
+          Date.UTC(today.year, today.month - 1, today.day, 0, 0, 0)
+        );
+      }
+
+      const hasOverlap = (slotStart: Date, slotEnd: Date) =>
+        busyIntervals.some((b) => slotStart < b.end && slotEnd > b.start);
 
       // Check each day
       for (let dayOffset = 0; dayOffset < daysToCheck; dayOffset++) {
-        const currentDay = addDays(startOfDay(new Date()), dayOffset);
-        let currentTime = setMinutes(
-          setHours(currentDay, startHour),
-          startMinute
-        );
-        const dayEnd = setMinutes(setHours(currentDay, endHour), endMinute);
+        const day = addDays(baseDay, dayOffset);
+        const year = day.getUTCFullYear();
+        const month = day.getUTCMonth() + 1;
+        const dayOfMonth = day.getUTCDate();
 
         // Iterate through the day in 30-minute increments
-        while (currentTime < dayEnd) {
-          const slotEnd = addMinutes(currentTime, duration);
+        for (
+          let minutes = startHour * 60 + startMinute;
+          minutes + duration <= endHour * 60 + endMinute;
+          minutes += 30
+        ) {
+          const startParts = {
+            year,
+            month,
+            day: dayOfMonth,
+            hour: Math.floor(minutes / 60),
+            minute: minutes % 60,
+            second: 0,
+          };
+          const slotStartUtc = zonedPartsToUtc(startParts, timezone);
+          const slotEndUtc = addMinutes(slotStartUtc, duration);
 
-          // Skip if slot extends beyond working hours
-          if (slotEnd > dayEnd) {
-            break;
-          }
+          // Don't propose slots in the past.
+          if (slotStartUtc.getTime() <= now.getTime()) continue;
 
-          // Check if this slot conflicts with any busy period
-          const hasConflict = busyIntervals.some(
-            (busy) =>
-              isWithinInterval(currentTime, {
-                start: busy.start,
-                end: busy.end,
-              }) ||
-              isWithinInterval(slotEnd, { start: busy.start, end: busy.end }) ||
-              (currentTime <= busy.start && slotEnd >= busy.end)
-          );
-
-          if (!hasConflict) {
+          if (!hasOverlap(slotStartUtc, slotEndUtc)) {
             freeSlots.push({
-              start: currentTime.toISOString(),
-              end: slotEnd.toISOString(),
+              start: formatRFC3339WithOffset(slotStartUtc, timezone),
+              end: formatRFC3339WithOffset(slotEndUtc, timezone),
             });
           }
-
-          // Move to next slot (30 min increments)
-          currentTime = addMinutes(currentTime, 30);
         }
       }
 
@@ -194,11 +232,16 @@ export const calendarTools = {
         .optional(),
     }),
     execute: async ({ slot, preferences }) => {
+      const timeZone = preferences?.timezone || "UTC";
       let score = 1.0;
       const slotStart = parseISO(slot.start);
-      const slotHour = slotStart.getHours();
-      const slotDay = slotStart.getDay(); // 0 = Sunday, 6 = Saturday
+      const zoned = getZonedParts(slotStart, timeZone);
+      const slotHour = zoned.hour;
+      const slotDay = getWeekdayIndex(slotStart, timeZone); // 0 = Sunday, 6 = Saturday
       const reasons: string[] = [];
+      const timeStr = `${String(zoned.hour).padStart(2, "0")}:${String(
+        zoned.minute
+      ).padStart(2, "0")}`;
 
       // Prefer mid-morning (9am-11am) and early afternoon (1pm-3pm)
       if (slotHour >= 9 && slotHour < 11) {
@@ -233,7 +276,6 @@ export const calendarTools = {
 
       // Check user preferences
       if (preferences?.preferredTimes) {
-        const timeStr = format(slotStart, "HH:mm");
         if (preferences.preferredTimes.includes(timeStr)) {
           score += 0.4;
           reasons.push("Matches preferred time");
@@ -241,7 +283,6 @@ export const calendarTools = {
       }
 
       if (preferences?.avoidTimes) {
-        const timeStr = format(slotStart, "HH:mm");
         if (preferences.avoidTimes.includes(timeStr)) {
           score -= 0.5;
           reasons.push("In avoid times list");
@@ -253,9 +294,18 @@ export const calendarTools = {
 
       return {
         slot,
-        score: parseFloat(score.toFixed(2)),
+        // Calendar agent expects 0-100.
+        score: Math.round(score * 100),
         reasoning: reasons.join("; ") || "Standard time slot",
-        humanReadable: `${format(slotStart, "EEEE, MMMM d 'at' h:mm a")}`,
+        humanReadable: `${new Intl.DateTimeFormat("en-US", {
+          timeZone,
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(slotStart)}`,
       };
     },
   }),
