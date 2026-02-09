@@ -1,0 +1,31 @@
+// Gmail message processing state for workflow idempotency and retries.
+//
+// We intentionally track processing per Gmail *message* (not thread) so a workflow
+// retry can safely skip already-processed messages while reattempting only failures.
+
+enum GmailMessageProcessingStatus {
+    pending
+    processed
+    failed
+    dead
+}
+
+model GmailMessageProcessing {
+    id            String                       @id @default(uuid())
+    userId        String
+    user          User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    gmailMessageId String
+    threadId      String
+    status        GmailMessageProcessingStatus @default(pending)
+    attempts      Int                          @default(0)
+    lastError     String?
+    lastAttemptAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([userId, gmailMessageId])
+    @@index([userId, status])
+    @@index([threadId])
+    @@map("gmail_message_processing")
+}

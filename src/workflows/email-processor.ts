@@ -29,6 +29,11 @@ import {
   HandlerOutput,
 } from "./handlers";
 import { handleInfoRequest } from "./handlers/info-request.handler";
+import {
+  beginGmailMessageProcessing,
+  markGmailMessageFailed,
+  markGmailMessageProcessed,
+} from "@/services/gmail-message-processing";
 
 export interface EmailProcessorInput {
   threadId: string;
@@ -261,6 +266,7 @@ export async function processEmailFromHistory(
 ): Promise<HistoryProcessorResult> {
   const startTime = Date.now();
   const { userId } = input;
+  const MAX_MESSAGE_ATTEMPTS = 5;
 
   try {
     console.log(`[History Workflow] Starting for user: ${userId}`);
@@ -331,32 +337,137 @@ export async function processEmailFromHistory(
 
     // Process each new message
     let processedCount = 0;
+    const retryableFailures: Array<{
+      threadId: string;
+      messageId: string;
+      error: string;
+      attempts: number;
+    }> = [];
+    const deadFailures: Array<{
+      threadId: string;
+      messageId: string;
+      error: string;
+      attempts: number;
+    }> = [];
+
     for (const event of historyResult.events) {
       if (event.type === "messageAdded") {
         console.log(
           `[History Workflow] Processing threadId: ${event.threadId}`
         );
 
+        const begin = await beginGmailMessageProcessing({
+          userId,
+          gmailMessageId: event.messageId,
+          threadId: event.threadId,
+          maxAttempts: MAX_MESSAGE_ATTEMPTS,
+        });
+
+        if (begin.action === "skip_processed") {
+          console.log(
+            `[History Workflow] Skipping already processed messageId: ${event.messageId}`
+          );
+          continue;
+        }
+
+        if (begin.action === "skip_dead") {
+          console.log(
+            `[History Workflow] Skipping dead messageId (max attempts reached): ${event.messageId}`
+          );
+          continue;
+        }
+
+        if (begin.action === "deadletter") {
+          deadFailures.push({
+            threadId: event.threadId,
+            messageId: event.messageId,
+            error:
+              begin.lastError ||
+              `Exceeded max attempts (${MAX_MESSAGE_ATTEMPTS})`,
+            attempts: begin.attempts,
+          });
+          continue;
+        }
+
         // Process the email using existing workflow logic
-        await processEmail({
+        const result = await processEmail({
           threadId: event.threadId,
           userId,
           messageId: event.messageId,
         });
 
-        processedCount++;
+        if (result.success) {
+          await markGmailMessageProcessed({
+            userId,
+            gmailMessageId: event.messageId,
+          });
+          processedCount++;
+        } else {
+          await markGmailMessageFailed({
+            userId,
+            gmailMessageId: event.messageId,
+            error: result.error || "Unknown error",
+          });
+
+          retryableFailures.push({
+            threadId: event.threadId,
+            messageId: event.messageId,
+            error: result.error || "Unknown error",
+            attempts: begin.attempts,
+          });
+        }
       }
     }
 
-    // Update lastProcessedHistoryId
-    await prisma.userPreferences.update({
-      where: { userId },
-      data: { lastProcessedHistoryId: historyResult.latestHistoryId },
-    });
+    // Only advance the checkpoint when there are no retryable failures.
+    // This lets a workflow retry re-fetch the same history range and attempt only
+    // the failed message(s), while skipping the already-processed ones.
+    if (retryableFailures.length === 0) {
+      await prisma.userPreferences.update({
+        where: { userId },
+        data: { lastProcessedHistoryId: historyResult.latestHistoryId },
+      });
 
-    console.log(
-      `[History Workflow] Updated lastProcessedHistoryId to: ${historyResult.latestHistoryId}`
-    );
+      console.log(
+        `[History Workflow] Updated lastProcessedHistoryId to: ${historyResult.latestHistoryId}`
+      );
+    } else {
+      console.error(
+        `[History Workflow] Not updating lastProcessedHistoryId due to ${retryableFailures.length} retryable failure(s)`
+      );
+    }
+
+    if (deadFailures.length > 0) {
+      console.error(
+        `[History Workflow] ${deadFailures.length} message(s) moved to dead-letter after exceeding max attempts`
+      );
+    }
+
+    if (retryableFailures.length > 0) {
+      const preview = retryableFailures
+        .slice(0, 3)
+        .map(
+          (f) =>
+            `threadId=${f.threadId} messageId=${f.messageId} attempts=${f.attempts} error=${f.error}`
+        )
+        .join(" | ");
+      throw new Error(
+        `One or more messages failed to process (retryable). ${preview}`
+      );
+    }
+
+    if (deadFailures.length > 0) {
+      const preview = deadFailures
+        .slice(0, 3)
+        .map(
+          (f) =>
+            `threadId=${f.threadId} messageId=${f.messageId} attempts=${f.attempts} error=${f.error}`
+        )
+        .join(" | ");
+      throw new Error(
+        `One or more messages permanently failed (dead-letter). ${preview}`
+      );
+    }
 
     return {
       success: true,
@@ -368,11 +479,8 @@ export async function processEmailFromHistory(
       error instanceof Error ? error.message : "Unknown error";
     console.error(`[History Workflow] Error: ${errorMessage}`);
 
-    return {
-      success: false,
-      processedCount: 0,
-      error: errorMessage,
-      duration: Date.now() - startTime,
-    };
+    // Let the workflow step fail so observability/retries can work correctly.
+    // The webhook already returns 200 to Gmail; the workflow system owns retries.
+    throw error instanceof Error ? error : new Error(errorMessage);
   }
 }

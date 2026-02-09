@@ -17,6 +17,7 @@ model User {
     userScheduleProfile UserScheduleProfile?
     chats               Chat[]
     meetings            Meeting[]
+    gmailMessageProcessing GmailMessageProcessing[]
 
     @@map("user")
 }
