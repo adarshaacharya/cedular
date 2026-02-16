@@ -23,6 +23,8 @@ export const env = createEnv({
       .url()
       .optional()
       .default("https://cloud.langfuse.com"),
+    RESEND_API_KEY: z.string(),
+    RESEND_FROM_EMAIL: z.string().email(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -46,6 +48,8 @@ export const env = createEnv({
     LANGFUSE_SECRET_KEY: process.env.LANGFUSE_SECRET_KEY,
     LANGFUSE_PUBLIC_KEY: process.env.LANGFUSE_PUBLIC_KEY,
     LANGFUSE_BASEURL: process.env.LANGFUSE_BASEURL,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

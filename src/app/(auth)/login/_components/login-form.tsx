@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "@/lib/auth/client";
+import { authClient, signIn } from "@/lib/auth/client";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -12,17 +12,23 @@ import Link from "next/link";
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
+  const [emailForResend, setEmailForResend] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setResendMessage(null);
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    setEmailForResend(email);
 
     const { error } = await signIn.email({
-      email: formData.get("email") as string,
+      email,
       password: formData.get("password") as string,
       callbackURL: "/dashboard",
     });
@@ -31,6 +37,29 @@ export function LoginForm() {
       setError(error.message || "Invalid email or password");
       setIsLoading(false);
     }
+  };
+
+  const handleResendVerification = async () => {
+    if (!emailForResend) {
+      setError("Enter your email first, then resend verification.");
+      return;
+    }
+
+    setIsResending(true);
+    setResendMessage(null);
+
+    const { error } = await authClient.sendVerificationEmail({
+      email: emailForResend,
+      callbackURL: "/dashboard",
+    });
+
+    if (error) {
+      setError(error.message || "Failed to resend verification email.");
+    } else {
+      setResendMessage("Verification email sent. Check your inbox.");
+    }
+
+    setIsResending(false);
   };
 
   const handleSignInWithGoogle = async () => {
@@ -61,6 +90,7 @@ export function LoginForm() {
             className="pl-10"
             disabled={isLoading}
             required
+            onChange={(e) => setEmailForResend(e.target.value)}
           />
         </div>
       </div>
@@ -84,6 +114,14 @@ export function LoginForm() {
           <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
+      {resendMessage && (
+        <div
+          className="rounded-md border border-emerald-200 bg-emerald-50 p-3"
+          role="status"
+        >
+          <p className="text-sm text-emerald-800">{resendMessage}</p>
+        </div>
+      )}
 
       <LoadingButton
         type="submit"
@@ -93,6 +131,15 @@ export function LoginForm() {
       >
         Sign In
       </LoadingButton>
+      <Button
+        type="button"
+        variant="ghost"
+        className="w-full"
+        onClick={handleResendVerification}
+        disabled={isLoading || isResending}
+      >
+        {isResending ? "Sending..." : "Resend verification email"}
+      </Button>
 
       <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
         <span className="relative z-10 bg-background px-2 text-muted-foreground">

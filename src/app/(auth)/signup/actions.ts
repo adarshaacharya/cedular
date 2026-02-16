@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth/server";
 import { headers } from "next/headers";
 
@@ -84,8 +83,13 @@ export async function signupAction(
       headers: await headers(),
     });
 
-    // Redirect to dashboard on success
-    redirect("/dashboard");
+    return {
+      success: true,
+      message: "Check your inbox to verify your email before signing in.",
+      inputs: {
+        email,
+      },
+    };
   } catch (error) {
     return {
       errors: {

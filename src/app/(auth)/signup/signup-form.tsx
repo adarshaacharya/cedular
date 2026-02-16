@@ -164,6 +164,14 @@ export function SignupForm({
             <p className="text-sm text-destructive">{state.errors._form[0]}</p>
           </div>
         )}
+        {state?.success && state?.message && (
+          <div
+            className="rounded-md border border-emerald-200 bg-emerald-50 p-3"
+            role="status"
+          >
+            <p className="text-sm text-emerald-800">{state.message}</p>
+          </div>
+        )}
 
         <Field>
           <LoadingButton
