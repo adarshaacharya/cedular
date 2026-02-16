@@ -16,12 +16,15 @@ import React from "react";
 import Link from "next/link";
 
 interface ThreadsTableProps {
-  threadsPromise: Promise<EmailThreadModel[]>;
+  threadsPromise: Promise<{
+    data: EmailThreadModel[];
+    pageCount: number;
+  }>;
 }
 
 export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
   "use no memo";
-  const threads = React.use(threadsPromise);
+  const { data: threads, pageCount } = React.use(threadsPromise);
   const router = useRouter();
 
   const columns = useMemo<ColumnDef<EmailThreadModel>[]>(
@@ -145,7 +148,11 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
   const { table } = useDataTable({
     data: threads,
     columns,
-    pageCount: 1,
+    pageCount,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+    shallow: false,
     getRowId: (row: EmailThreadModel) => row.id,
   });
 

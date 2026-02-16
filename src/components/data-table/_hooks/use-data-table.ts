@@ -48,9 +48,6 @@ interface UseDataTableProps<TData>
       | "state"
       | "pageCount"
       | "getCoreRowModel"
-      | "manualFiltering"
-      | "manualPagination"
-      | "manualSorting"
     >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
   initialState?: Omit<Partial<TableState>, "sorting"> & {
@@ -297,9 +294,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    manualPagination: true,
-    manualSorting: true,
-    manualFiltering: true,
+    manualPagination: tableProps.manualPagination ?? false,
+    manualSorting: tableProps.manualSorting ?? false,
+    manualFiltering: tableProps.manualFiltering ?? false,
     meta: {
       ...tableProps.meta,
       queryKeys: {

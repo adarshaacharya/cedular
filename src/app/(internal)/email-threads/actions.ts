@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
+import type { SearchParamsInput } from "@/lib/table-query/types";
+import { queryEmailThreadsTable } from "./table-config";
 import { EmailThreadStatus } from "@/prisma/generated/prisma/enums";
 
 export async function getEmailThreadById(id: string) {
@@ -39,24 +41,17 @@ async function fetchEmailThreadById(id: string, userId: string) {
   return thread;
 }
 
-export async function getEmailThreads() {
+export async function getEmailThreads(input?: SearchParamsInput) {
   const session = await getServerSession();
 
   if (!session?.user) {
-    return [];
+    return { data: [], total: 0, pageCount: 1 };
   }
 
-  const threads = await prisma.emailThread.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 10, // Limit to recent 10 threads
+  return queryEmailThreadsTable({
+    userId: session.user.id,
+    input,
   });
-
-  return threads;
 }
 
 export async function getEmailThreadsStats() {

@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { getServerSession } from "@/lib/auth/get-session";
+import type { SearchParamsInput } from "@/lib/table-query/types";
+import { queryMeetingsTable } from "./table-config";
 import type { MeetingStatus } from "@/prisma/generated/prisma/enums";
 
 export async function getMeetingById(id: string) {
@@ -42,46 +44,17 @@ export async function getMeetingById(id: string) {
   return meeting;
 }
 
-export async function getMeetings() {
+export async function getMeetings(input?: SearchParamsInput) {
   const session = await getServerSession();
 
   if (!session?.user) {
-    return [];
+    return { data: [], total: 0, pageCount: 1 };
   }
 
-  const meetings = await prisma.meeting.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
-      emailThread: {
-        select: {
-          id: true,
-          subject: true,
-          threadId: true,
-          status: true,
-          intent: true,
-          participants: true,
-          createdAt: true,
-        },
-      },
-    },
-    orderBy: [
-      {
-        startTime: "asc",
-      },
-    ],
+  return queryMeetingsTable({
+    userId: session.user.id,
+    input,
   });
-
-  return meetings;
 }
 
 export async function getMeetingsCount() {
@@ -130,7 +103,6 @@ export async function updateMeetingStatus(
     throw new Error("Unauthorized");
   }
 
-  // Verify the meeting belongs to the user
   const meeting = await prisma.meeting.findFirst({
     where: {
       id: meetingId,

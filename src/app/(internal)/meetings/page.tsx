@@ -1,7 +1,11 @@
 import { MeetingsList } from "./_components/meetings-list";
 import { MeetingsStats } from "./_components/meetings-stats";
 
-export default function MeetingsPage() {
+interface MeetingsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default function MeetingsPage({ searchParams }: MeetingsPageProps) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="mx-auto w-full max-w-screen-2xl space-y-6">
@@ -20,7 +24,7 @@ export default function MeetingsPage() {
 
         <div className="w-full">
           <div className="mt-6">
-            <MeetingsList />
+            <MeetingsList searchParams={searchParams} />
           </div>
         </div>
       </div>

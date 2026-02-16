@@ -25,8 +25,15 @@ export const metadata: Metadata = {
   description: "View and manage your email threads and conversations",
 };
 
-export default async function EmailThreadsPage() {
-  const threadsPromise = getEmailThreads();
+interface EmailThreadsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function EmailThreadsPage({
+  searchParams,
+}: EmailThreadsPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const threadsPromise = getEmailThreads(resolvedSearchParams);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">

@@ -23,7 +23,10 @@ type MeetingWithThread = MeetingModel & {
 };
 
 interface MeetingsTableProps {
-  meetingsPromise: Promise<MeetingWithThread[]>;
+  meetingsPromise: Promise<{
+    data: MeetingWithThread[];
+    pageCount: number;
+  }>;
 }
 
 const MEETING_SOURCE_LABELS = {
@@ -33,7 +36,7 @@ const MEETING_SOURCE_LABELS = {
 
 export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   "use no memo";
-  const meetings = React.use(meetingsPromise);
+  const { data: meetings, pageCount } = React.use(meetingsPromise);
 
   const columns = useMemo<ColumnDef<MeetingWithThread>[]>(
     () => [
@@ -197,7 +200,11 @@ export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
   const { table } = useDataTable({
     data: meetings,
     columns,
-    pageCount: 1,
+    pageCount,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+    shallow: false,
     getRowId: (row: MeetingWithThread) => row.id,
   });
 
