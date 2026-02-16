@@ -82,7 +82,11 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
         ),
         cell: ({ row }) => {
           const status = row.getValue<string>("status");
-          return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+          return (
+            <Badge variant={getStatusVariant(status)}>
+              {formatEnumLabel(status)}
+            </Badge>
+          );
         },
         meta: {
           label: "Status",
@@ -91,6 +95,8 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
             { label: "Pending", value: "pending" },
             { label: "Processing", value: "processing" },
             { label: "Scheduled", value: "scheduled" },
+            { label: "Awaiting Confirmation", value: "awaiting_confirmation" },
+            { label: "Confirmed", value: "confirmed" },
             { label: "Failed", value: "failed" },
           ],
         },
@@ -173,9 +179,22 @@ function getStatusVariant(status: string) {
       return "default";
     case "scheduled":
       return "default";
+    case "awaiting_confirmation":
+      return "outline";
+    case "confirmed":
+      return "default";
     case "failed":
       return "destructive";
     default:
       return "secondary";
   }
+}
+
+function formatEnumLabel(value: string) {
+  return value
+    .split("_")
+    .map((word) =>
+      word.length > 0 ? word[0].toUpperCase() + word.slice(1) : word
+    )
+    .join(" ");
 }

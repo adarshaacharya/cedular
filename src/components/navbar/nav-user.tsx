@@ -64,22 +64,12 @@ export function NavUser({
     {
       label: "Account",
       icon: BadgeCheck,
-      href: "/account",
+      onClick: () => router.push("/settings"),
     },
-    {
-      label: "Billing",
-      icon: CreditCard,
-      href: "/billing",
-    },
-    {
-      label: "Notifications",
-      icon: Bell,
-      href: "/notifications",
-    },
+
     {
       label: "Log out",
       icon: LogOut,
-      href: "/logout",
       onClick: handleSignOut,
     },
   ];
@@ -128,9 +118,9 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Sparkles />
-                Upgrade to Pro
+                Upgrade to Cedular Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -73,6 +73,15 @@ function getMeetingStatusVariant(status: string) {
   }
 }
 
+function formatEnumLabel(value: string) {
+  return value
+    .split("_")
+    .map((word) =>
+      word.length > 0 ? word[0].toUpperCase() + word.slice(1) : word
+    )
+    .join(" ");
+}
+
 interface ProposedSlot {
   start: string;
   end: string;
@@ -276,7 +285,7 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
               variant={getStatusVariant(thread.status)}
               className={`text-sm ${getStatusColor(thread.status)}`}
             >
-              {thread.status.replace("_", " ")}
+              {formatEnumLabel(thread.status)}
             </Badge>
           </div>
         </div>
@@ -362,7 +371,7 @@ export function EmailThreadDetail({ thread }: EmailThreadDetailProps) {
                     variant={getStatusVariant(thread.status)}
                     className="text-sm"
                   >
-                    {thread.status.replace("_", " ")}
+                    {formatEnumLabel(thread.status)}
                   </Badge>
                 </div>
                 <div>
