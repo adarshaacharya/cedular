@@ -75,6 +75,7 @@ interface DataTableToolbarFilterProps<TData> {
 function DataTableToolbarFilter<TData>({
   column,
 }: DataTableToolbarFilterProps<TData>) {
+  "use no memo";
   {
     const columnMeta = column.columnDef.meta;
 

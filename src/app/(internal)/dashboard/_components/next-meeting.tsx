@@ -47,23 +47,23 @@ export async function NextMeeting() {
             <div className="flex items-center gap-2 mb-2">
               <Badge
                 variant="secondary"
-                className="bg-blue-50 text-blue-700 border-blue-200"
+                className="border bg-muted text-foreground"
               >
                 Next Meeting
               </Badge>
               {isWithinTwoHours && (
                 <Badge
                   variant="secondary"
-                  className="bg-orange-50 text-orange-700 border-orange-200 animate-pulse"
+                  className="border bg-muted text-foreground animate-pulse"
                 >
                   Starting Soon
                 </Badge>
               )}
             </div>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-3">
+            <h2 className="text-2xl font-semibold mb-3">
               {meeting.title}
             </h2>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-slate-600 dark:text-slate-400">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 <span className="font-medium">

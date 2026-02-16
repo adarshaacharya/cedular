@@ -68,6 +68,7 @@ interface UseDataTableProps<TData>
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
+  "use no memo";
   const {
     columns,
     pageCount = -1,

@@ -20,6 +20,7 @@ interface ThreadsTableProps {
 }
 
 export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
+  "use no memo";
   const threads = React.use(threadsPromise);
   const router = useRouter();
 

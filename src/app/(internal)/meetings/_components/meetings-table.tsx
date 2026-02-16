@@ -32,6 +32,7 @@ const MEETING_SOURCE_LABELS = {
 };
 
 export function MeetingsTable({ meetingsPromise }: MeetingsTableProps) {
+  "use no memo";
   const meetings = React.use(meetingsPromise);
 
   const columns = useMemo<ColumnDef<MeetingWithThread>[]>(
