@@ -32,11 +32,19 @@ import { CedularLogo } from "@/components/brand/cedular-logo";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   chatHistoryTrigger?: React.ReactNode;
+  assistantEmail?: string | null;
 }
 
-export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
+const SUPPORT_EMAIL = "hi@adarsha.dev";
+
+export function AppSidebar({
+  chatHistoryTrigger,
+  assistantEmail,
+  ...props
+}: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  
 
   // Assistant section - AI-focused features
   const navAssistant = [
@@ -93,16 +101,8 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
 
   const navSecondary = [
     {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-      onClick: () => {
-        window.open("mailto:hello@adarsha.dev", "_blank");
-      },
-    },
-    {
       title: "Feedback",
-      url: "#",
+      url: `mailto:${SUPPORT_EMAIL}`,
       icon: Send,
     },
   ];
@@ -110,15 +110,17 @@ export function AppSidebar({ chatHistoryTrigger, ...props }: AppSidebarProps) {
   // User data from session
   const user = session?.user
     ? {
-        name: session.user.name || "User",
-        email: session.user.email || "",
-        avatar: session.user.image || "",
-      }
+      name: session.user.name || "User",
+      email: session.user.email || "",
+      avatar: session.user.image || "",
+      assistantEmail: assistantEmail || "",
+    }
     : {
-        name: "User",
-        email: "",
-        avatar: "",
-      };
+      name: "User",
+      email: "",
+      avatar: "",
+      assistantEmail: "",
+    };
 
   return (
     <Sidebar collapsible="icon" {...props}>
