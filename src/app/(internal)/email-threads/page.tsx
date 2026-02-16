@@ -29,12 +29,20 @@ interface EmailThreadsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function EmailThreadsPage({
+async function ThreadsTableContent({
   searchParams,
-}: EmailThreadsPageProps) {
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const resolvedSearchParams = await searchParams;
   const threadsPromise = getEmailThreads(resolvedSearchParams);
 
+  return <ThreadsTable threadsPromise={threadsPromise} />;
+}
+
+export default async function EmailThreadsPage({
+  searchParams,
+}: EmailThreadsPageProps) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="mx-auto w-full max-w-screen-2xl space-y-6">
@@ -56,7 +64,7 @@ export default async function EmailThreadsPage({
         <div className="w-full">
           <div className="mt-6">
             <Suspense fallback={<ThreadsTableSkeleton />}>
-              <ThreadsTable threadsPromise={threadsPromise} />
+              <ThreadsTableContent searchParams={searchParams} />
             </Suspense>
           </div>
         </div>
