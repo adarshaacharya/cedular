@@ -20,6 +20,8 @@ import {
   Calendar as CalendarIcon,
   Timer,
   Copy,
+  Clock,
+  Zap,
 } from "lucide-react";
 import type { MeetingModel } from "@/prisma/generated/prisma/models/Meeting";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
