@@ -160,13 +160,13 @@ export function HeroSection() {
         {/* Elegant header with more breathing room */}
         <div className="text-center mb-24">
           {/* Time saved indicator - subtle but impactful */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-8">
-            <Zap className="w-4 h-4" />
-            Save 2+ hours weekly on scheduling
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-tech font-bold tracking-[0.2em] uppercase mb-8">
+            <Zap className="w-3 h-3" />
+            Optimizing 2+ hours weekly
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-normal text-balance mb-8 leading-tight">
-            <span className="block text-muted-foreground font-normal text-lg sm:text-xl lg:text-2xl mb-4 tracking-wide">
+            <span className="block text-muted-foreground font-tech font-bold text-xs sm:text-sm lg:text-base mb-4 tracking-[0.4em] uppercase opacity-70">
               INTELLIGENT SCHEDULING
             </span>
             <span className="bg-linear-to-r from-foreground via-primary to-accent bg-clip-text text-transparent font-display">
@@ -239,10 +239,10 @@ export function HeroSection() {
 
                   {/* Clean typography */}
                   <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-primary tracking-wider uppercase">
+                    <h3 className="text-[10px] font-tech font-bold text-primary tracking-[0.2em] uppercase">
                       {phase.label}
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-[200px] mx-auto">
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-[200px] mx-auto font-medium">
                       {phase.description}
                     </p>
                   </div>

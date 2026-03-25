@@ -45,28 +45,28 @@ export function Header() {
       }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CedularLogo className="h-8 w-8" />
-          <span className="text-xl font-bold text-foreground">Cedular</span>
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <CedularLogo className="h-8 w-8 group-hover:rotate-12 transition-transform duration-300" />
+          <span className="text-xl font-tech font-bold tracking-tighter text-foreground">CEDULAR</span>
         </div>
         <nav className="hidden md:flex items-center gap-8">
           <a
             href="#how-it-works"
-            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+            className="text-xs font-tech tracking-widest text-muted-foreground hover:text-primary transition-colors duration-200 uppercase"
           >
-            How It Works
+            Protocol
           </a>
           <a
             href="#demo"
-            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+            className="text-xs font-tech tracking-widest text-muted-foreground hover:text-primary transition-colors duration-200 uppercase"
           >
-            Demo
+            Interface
           </a>
           <a
             href="#get-started"
-            className="text-base text-muted-foreground hover:text-foreground transition-colors duration-200 font-medium"
+            className="text-xs font-tech tracking-widest text-muted-foreground hover:text-primary transition-colors duration-200 uppercase"
           >
-            Get Started
+            Deploy
           </a>
         </nav>
         <div className="flex items-center gap-4">

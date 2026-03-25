@@ -79,6 +79,9 @@ export function HowItWorks() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-tech font-bold tracking-[0.2em] uppercase mb-4">
+            Autonomous Logic
+          </div>
           <h2 className="text-4xl sm:text-5xl font-display font-semibold mb-4 text-balance">
             How It Works
           </h2>
@@ -129,8 +132,8 @@ export function HowItWorks() {
                       <Icon className={`w-6 h-6 ${step.color}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">
+                      <h3 className="text-xl font-tech font-bold mb-2 tracking-tight group-hover:text-primary transition-colors">{step.title}</h3>
+                      <p className="text-muted-foreground leading-relaxed font-medium">
                         {step.description}
                       </p>
                     </div>
@@ -246,43 +249,43 @@ export function HowItWorks() {
 
         {/* Key Metrics */}
         <div className="mt-20 grid md:grid-cols-4 gap-6 text-center">
-          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-6 h-6 text-primary" />
+          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-primary/10 group-hover:scale-110 transition-transform">
+              <CheckCircle className="w-5 h-5 text-primary" />
             </div>
-            <div className="text-3xl font-bold text-primary mb-2">95%</div>
-            <div className="text-sm text-muted-foreground">
-              Scheduling Success Rate
-            </div>
-          </div>
-
-          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-6 h-6 text-primary" />
-            </div>
-            <div className="text-3xl font-bold text-primary mb-2">&lt;4min</div>
-            <div className="text-sm text-muted-foreground">
-              Average Response Time
+            <div className="text-3xl font-tech font-bold text-primary mb-2">95%</div>
+            <div className="text-[10px] font-tech font-bold text-muted-foreground uppercase tracking-widest">
+              Success Rate
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Globe className="w-6 h-6 text-primary" />
+          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-primary/10 group-hover:scale-110 transition-transform">
+              <Zap className="w-5 h-5 text-primary" />
             </div>
-            <div className="text-3xl font-bold text-primary mb-2">400+</div>
-            <div className="text-sm text-muted-foreground">
-              Timezones Supported
+            <div className="text-3xl font-tech font-bold text-primary mb-2">&lt;4M</div>
+            <div className="text-[10px] font-tech font-bold text-muted-foreground uppercase tracking-widest">
+              Response Time
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors">
-            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Users className="w-6 h-6 text-primary" />
+          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-primary/10 group-hover:scale-110 transition-transform">
+              <Globe className="w-5 h-5 text-primary" />
             </div>
-            <div className="text-3xl font-bold text-primary mb-2">100+</div>
-            <div className="text-sm text-muted-foreground">
-              Meetings Scheduled
+            <div className="text-3xl font-tech font-bold text-primary mb-2">400+</div>
+            <div className="text-[10px] font-tech font-bold text-muted-foreground uppercase tracking-widest">
+              Timezones
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 border border-primary/10 group-hover:scale-110 transition-transform">
+              <Users className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-3xl font-tech font-bold text-primary mb-2">100+</div>
+            <div className="text-[10px] font-tech font-bold text-muted-foreground uppercase tracking-widest">
+              Active Nodes
             </div>
           </div>
         </div>
