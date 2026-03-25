@@ -73,28 +73,6 @@ export async function handleSchedule(
       );
     }
 
-    // If a specific date was requested but we found no slots, fall back to "next best" slots.
-    // This avoids sending an empty/failed response when the request is too constrained.
-    let usedFallback = false;
-    if (requestedDate && (!availableSlots || availableSlots.length === 0)) {
-      usedFallback = true;
-      const fallbackResult = await runCalendarAgent(
-        {
-          participants: calendarAgentInput.participants,
-          duration: calendarAgentInput.duration,
-          preferences: {
-            timezone: calendarAgentInput.preferences.timezone,
-            workingHoursStart: calendarAgentInput.preferences.workingHoursStart,
-            workingHoursEnd: calendarAgentInput.preferences.workingHoursEnd,
-            bufferMinutes: calendarAgentInput.preferences.bufferMinutes,
-          },
-        },
-        userId
-      );
-      calendarResult = fallbackResult;
-      availableSlots = fallbackResult.output.slots;
-    }
-
     if (!availableSlots || availableSlots.length === 0) {
       console.log(`[ScheduleHandler] No available slots found by agent`);
     } else {
@@ -129,15 +107,9 @@ export async function handleSchedule(
         })
         .join("\n");
 
-      const dateNote =
-        requestedDate && usedFallback
-          ? `<p><strong>Note:</strong> I couldn't find availability on <strong>${requestedDate}</strong> in ${timezone}, so I’m suggesting the next best options.</p>`
-          : "";
-
       const generatedResponse = `
 <p>Hi ${senderName || "there"},</p>
 <p>Thank you for your request to schedule a meeting.</p>
-${dateNote}
 <p>Here are some available time slots in <strong>${timezone}</strong>:</p>
 <ul>
 ${slotLis}
@@ -249,8 +221,10 @@ ${slotLis}
         responseMessageId: sentMessage.messageId ?? undefined,
       };
     } else {
-      // No slots found: send a polite failure message and set thread status to failed
-      const noSlotsMessage = `Hi ${senderName},\n\nUnfortunately, I couldn't find any available time slots for your requested meeting. Please try again with different preferences or dates, or reach out if you need further assistance.\n\nBest regards,\n${assistantName}`;
+      // No slots found: if a specific date was requested, respond with a strict date-aware message.
+      const noSlotsMessage = requestedDate
+        ? `Hi ${senderName},\n\nI couldn't find any available time slots on ${requestedDate} in ${timezone}. If you'd like, reply with another date (or say "next available") and I'll suggest options.\n\nBest regards,\n${assistantName}`
+        : `Hi ${senderName},\n\nUnfortunately, I couldn't find any available time slots for your requested meeting. Please try again with different preferences or dates, or reach out if you need further assistance.\n\nBest regards,\n${assistantName}`;
       console.log(`[ScheduleHandler] No slots found, sending failure message`);
       const latestMessageId =
         emailThread.messages[emailThread.messages.length - 1]?.id;
