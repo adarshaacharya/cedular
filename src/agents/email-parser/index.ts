@@ -119,10 +119,19 @@ function buildEmailParserPrompt({
 function isRetryableProviderError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
 
+  const message = error.message.toLowerCase();
+
   return (
-    error.message.includes("An error occurred while processing your request") ||
-    error.message.includes("Please include the request ID") ||
-    error.message.includes("No object generated")
+    message.includes("an error occurred while processing your request") ||
+    message.includes("please include the request id") ||
+    message.includes("no object generated") ||
+    message.includes("econnreset") ||
+    message.includes("etimedout") ||
+    message.includes("fetch failed") ||
+    message.includes("socket hang up") ||
+    message.includes("cannot connect to api") ||
+    message.includes("503") ||
+    message.includes("504")
   );
 }
 

@@ -377,6 +377,13 @@ export async function processEmailFromHistory(
           continue;
         }
 
+        if (begin.action === "skip_inflight") {
+          console.log(
+            `[History Workflow] Skipping in-flight messageId: ${event.messageId} (attempts=${begin.attempts})`
+          );
+          continue;
+        }
+
         if (begin.action === "deadletter") {
           deadFailures.push({
             threadId: event.threadId,

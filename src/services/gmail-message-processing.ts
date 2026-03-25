@@ -5,6 +5,7 @@ export const DEFAULT_MAX_MESSAGE_ATTEMPTS = 5;
 export type BeginProcessingResult =
   | { action: "skip_processed" }
   | { action: "skip_dead" }
+  | { action: "skip_inflight"; attempts: number }
   | { action: "deadletter"; attempts: number; lastError?: string | null }
   | { action: "process"; attempts: number };
 
@@ -25,6 +26,13 @@ export async function beginGmailMessageProcessing({
 
   if (existing?.status === "processed") return { action: "skip_processed" };
   if (existing?.status === "dead") return { action: "skip_dead" };
+  if (
+    existing?.status === "pending" &&
+    existing.lastAttemptAt &&
+    Date.now() - existing.lastAttemptAt.getTime() < 90_000
+  ) {
+    return { action: "skip_inflight", attempts: existing.attempts };
+  }
 
   const nextAttempts = (existing?.attempts || 0) + 1;
 
@@ -102,4 +110,3 @@ export async function markGmailMessageFailed({
     data: { status: "failed", lastError: error || "Unknown error" },
   });
 }
-

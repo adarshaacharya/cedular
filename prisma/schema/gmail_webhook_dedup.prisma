@@ -1,0 +1,15 @@
+// Dedupe incoming Gmail webhook notifications to avoid starting overlapping
+// history workflows for the same user/history window.
+
+model GmailWebhookDedup {
+    id                    String   @id @default(uuid())
+    userId                String
+    historyId             String
+    notificationMessageId String?
+    createdAt             DateTime @default(now())
+
+    @@unique([userId, historyId])
+    @@unique([userId, notificationMessageId])
+    @@index([userId, createdAt])
+    @@map("gmail_webhook_dedup")
+}

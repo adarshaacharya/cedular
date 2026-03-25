@@ -80,6 +80,39 @@ export async function POST(request: NextRequest) {
       `[Webhook] Processing history for user: ${userId}, historyId: ${currentHistoryId}`
     );
 
+    try {
+      await prisma.gmailWebhookDedup.create({
+        data: {
+          userId,
+          historyId: currentHistoryId,
+          notificationMessageId: body.message.messageId,
+        },
+      });
+    } catch (error) {
+      // Gmail can deliver duplicate notifications for the same mailbox state.
+      // If we've already seen this user/history pair, acknowledge and skip.
+      const isUniqueViolation =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "P2002";
+
+      if (isUniqueViolation) {
+        console.log(
+          `[Webhook] Duplicate notification ignored for user=${userId}, historyId=${currentHistoryId}`
+        );
+        return NextResponse.json(
+          {
+            success: true,
+            message: "Duplicate notification ignored",
+          },
+          { status: 200 }
+        );
+      }
+
+      throw error;
+    }
+
     // Reliable approach: Use History API to process all new emails
     // This ensures we don't miss emails and prevents duplicates
     await start(handleGmailHistory, [
