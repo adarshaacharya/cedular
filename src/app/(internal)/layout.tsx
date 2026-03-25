@@ -21,7 +21,19 @@ async function InternalSidebar() {
   );
 }
 
-export default async function InternalLayout({
+export default function InternalLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<div />}>
+      <InternalLayoutContent>{children}</InternalLayoutContent>
+    </Suspense>
+  );
+}
+
+async function InternalLayoutContent({
   children,
 }: {
   children: React.ReactNode;
