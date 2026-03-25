@@ -10,10 +10,11 @@ import { useDataTable } from "@/components/data-table/_hooks/use-data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { Eye } from "lucide-react";
+import { Eye, Mail, Users, Zap, Calendar } from "lucide-react";
 import type { EmailThreadModel } from "@/prisma/generated/prisma/models/EmailThread";
 import React from "react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface ThreadsTableProps {
   threadsPromise: Promise<{
@@ -163,8 +164,89 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
   });
 
   return (
-    <div>
-      <DataTable table={table}>
+    <div className="space-y-4">
+      <DataTable 
+        table={table}
+        renderCustomRow={(row) => {
+          const thread = row.original;
+          const status = thread.status;
+          
+          return (
+            <Link
+              href={`/email-threads/${thread.id}`}
+              className="block group"
+            >
+              <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1">
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                  <Mail className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
+                </div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "h-10 w-10 rounded-xl flex items-center justify-center border transition-transform duration-500 group-hover:scale-110",
+                        status === "confirmed" ? "bg-green-500/10 border-green-500/20" : 
+                        status === "failed" ? "bg-destructive/10 border-destructive/20" :
+                        "bg-primary/10 border-primary/20"
+                      )}>
+                        <Mail className={cn(
+                          "h-5 w-5",
+                          status === "confirmed" ? "text-green-500" : 
+                          status === "failed" ? "text-destructive" :
+                          "text-primary"
+                        )} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-tech font-bold tracking-tight truncate group-hover:text-primary transition-colors">
+                          {thread.subject || "No Subject"}
+                        </h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                          <span className="font-tech text-[10px] tracking-widest uppercase opacity-70">SESSION ID:</span>
+                          <span className="font-mono">{thread.id.slice(0, 8)}...</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border border-border/40">
+                        <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs font-medium">
+                          {thread.participants.length} Participants
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border border-border/40">
+                        <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs font-medium uppercase tracking-tighter">
+                          {thread.intent || "Analyzing..."}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-lg border border-border/40">
+                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="text-xs font-medium">
+                          {formatDistanceToNow(thread.createdAt, { addSuffix: true })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 shrink-0">
+                    <Badge 
+                      variant={getStatusVariant(status)}
+                      className="font-tech text-[10px] tracking-[0.1em] px-3 py-1 uppercase border-none"
+                    >
+                      {formatEnumLabel(status)}
+                    </Badge>
+                    <div className="h-10 w-10 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                      <Eye className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          );
+        }}
+      >
         <DataTableToolbar table={table} />
       </DataTable>
     </div>

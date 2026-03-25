@@ -20,9 +20,11 @@ export async function UpcomingMeetings() {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-tech tracking-tight">Upcoming</CardTitle>
-            <CardDescription className="text-[10px] font-tech uppercase tracking-widest text-muted-foreground/60 mt-1">
-              Confirmed Briefings
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Upcoming meetings
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-1">
+              Confirmed on your calendar
             </CardDescription>
           </div>
           <div className="h-8 w-8 rounded-lg bg-green-500/5 border border-green-500/10 flex items-center justify-center">
@@ -34,11 +36,11 @@ export async function UpcomingMeetings() {
         {meetings.length === 0 ? (
           <div className="text-center py-10 border-2 border-dashed border-muted/20 rounded-2xl bg-muted/5">
             <Calendar className="mx-auto h-10 w-10 text-muted-foreground/20 mb-3" />
-            <p className="text-xs font-tech text-muted-foreground/60 tracking-widest mb-4">
-              NO MISSIONS
+            <p className="text-sm text-muted-foreground mb-4">
+              No meetings scheduled yet
             </p>
-            <Button variant="ghost" size="sm" className="font-tech text-[10px] tracking-widest hover:text-primary" asChild>
-              <Link href="/email-threads">CHECK REQUESTS</Link>
+            <Button variant="ghost" size="sm" className="text-sm hover:text-primary" asChild>
+              <Link href="/email-threads">Check requests</Link>
             </Button>
           </div>
         ) : (
@@ -56,10 +58,10 @@ export async function UpcomingMeetings() {
                   <div className="absolute top-0 right-0 w-16 h-16 bg-green-500/5 rounded-full -mr-8 -mt-8 group-hover/item:bg-green-500/10 transition-colors" />
                   <div className="flex items-start justify-between gap-3 relative z-10">
                     <div className="min-w-0 flex-1">
-                      <p className="font-modern font-bold text-sm group-hover/item:text-green-500 transition-colors truncate">
+                      <p className="font-semibold text-sm group-hover/item:text-green-600 transition-colors truncate dark:group-hover/item:text-green-400">
                         {meeting.title}
                       </p>
-                      <p className="text-[10px] font-tech text-muted-foreground/60 mt-1 uppercase tracking-tighter">
+                      <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">
                         {format(meeting.time, "MMM d, h:mm a")}
                       </p>
                     </div>
@@ -73,7 +75,8 @@ export async function UpcomingMeetings() {
                     <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-md">
                       <Users className="h-3 w-3 text-green-500/70" />
                       <span>
-                        {meeting.participants} Member{meeting.participants > 1 ? "s" : ""}
+                        {meeting.participants} guest
+                        {meeting.participants !== 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>
@@ -84,10 +87,10 @@ export async function UpcomingMeetings() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full font-tech text-[10px] tracking-widest text-muted-foreground hover:text-green-500 hover:bg-green-500/5 transition-all"
+                className="w-full text-sm text-muted-foreground hover:text-green-600 hover:bg-green-500/5 transition-all dark:hover:text-green-400"
                 asChild
               >
-                <Link href="/calendar">VIEW ALL MISSIONS</Link>
+                <Link href="/calendar">Open calendar</Link>
               </Button>
             )}
           </div>

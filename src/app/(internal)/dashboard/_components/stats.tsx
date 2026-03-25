@@ -88,9 +88,9 @@ export async function DashboardStats() {
             {pendingRequests > 0 && (
               <Badge
                 variant="secondary"
-                className="bg-accent/10 text-accent border-accent/20 font-tech text-[10px] px-2"
+                className="bg-accent/10 text-accent border-accent/20 font-medium text-xs px-2"
               >
-                ACTION
+                Action needed
               </Badge>
             )}
           </div>
@@ -155,9 +155,9 @@ export async function DashboardStats() {
           <div className="flex items-center gap-2 mb-1">
             <Badge
               variant={googleStatus.connected ? "default" : "destructive"}
-              className={`font-tech text-[10px] px-2 ${googleStatus.connected ? "bg-primary" : "bg-destructive"}`}
+              className={`text-xs font-medium px-2 ${googleStatus.connected ? "bg-primary" : "bg-destructive"}`}
             >
-              {googleStatus.connected ? "SYNCED" : "OFFLINE"}
+              {googleStatus.connected ? "Connected" : "Setup required"}
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-2 font-medium">

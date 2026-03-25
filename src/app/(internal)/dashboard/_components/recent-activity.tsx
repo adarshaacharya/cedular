@@ -57,14 +57,16 @@ export async function RecentActivity() {
   ]);
 
   return (
-    <Card className="border-none bg-card/50 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden">
+    <Card className="relative border-none bg-card/50 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden">
       <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl font-tech tracking-tight">Recent Activity</CardTitle>
-            <CardDescription className="text-xs font-medium uppercase tracking-widest text-muted-foreground/60 mt-1">
-              Live Scheduling Stream
+            <CardTitle className="text-xl font-semibold tracking-tight">
+              Recent activity
+            </CardTitle>
+            <CardDescription className="text-xs font-medium text-muted-foreground mt-1">
+              Latest threads and scheduling updates
             </CardDescription>
           </div>
           <div className="h-8 w-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
@@ -76,15 +78,15 @@ export async function RecentActivity() {
         {threads.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed border-muted/20 rounded-2xl bg-muted/5">
             <Calendar className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-            <h3 className="text-lg font-tech font-medium mb-2">No active sessions</h3>
-            <p className="text-sm text-muted-foreground max-w-[200px] mx-auto mb-6">
-              Your scheduling engine is waiting for the first request.
+            <h3 className="text-lg font-medium mb-2">Nothing here yet</h3>
+            <p className="text-sm text-muted-foreground max-w-[240px] mx-auto mb-6">
+              When people email your assistant, threads will show up here.
             </p>
             {!googleStatus.connected && (
-              <Button variant="outline" className="font-tech text-xs tracking-widest" asChild>
+              <Button variant="outline" className="text-sm" asChild>
                 <Link href="/settings">
                   <Mail className="mr-2 h-3 w-3" />
-                  CONNECT GOOGLE
+                  Connect Google
                 </Link>
               </Button>
             )}
@@ -108,11 +110,11 @@ export async function RecentActivity() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm truncate group-hover/item:text-primary transition-colors font-modern">
-                        {thread.subject || "Untitled Request"}
+                      <p className="font-semibold text-sm truncate group-hover/item:text-primary transition-colors">
+                        {thread.subject || "Untitled request"}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-tech text-muted-foreground/80 uppercase tracking-tighter">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
                           {thread.participants?.[0]?.split('@')[0] || "Unknown"}
                         </span>
                         <span className="text-[10px] text-muted-foreground/40">•</span>
@@ -126,7 +128,7 @@ export async function RecentActivity() {
                   </div>
                   <Badge
                     variant={getStatusVariant(thread.status)}
-                    className="ml-4 font-tech text-[9px] tracking-widest px-2 py-0.5 border-none relative z-10"
+                    className="ml-4 text-[10px] font-medium px-2 py-0.5 border-none relative z-10"
                   >
                     {getStatusLabel(thread.status)}
                   </Badge>
@@ -136,10 +138,10 @@ export async function RecentActivity() {
             {threads.length >= 5 && (
               <Button
                 variant="ghost"
-                className="w-full text-xs font-tech tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                className="w-full text-sm text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
                 asChild
               >
-                <Link href="/email-threads">VIEW ALL SESSIONS</Link>
+                <Link href="/email-threads">View all threads</Link>
               </Button>
             )}
           </div>
