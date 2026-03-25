@@ -130,7 +130,7 @@ export async function getPendingRequestsCount() {
   const session = await getServerSession();
 
   if (!session?.user) {
-    throw new Error("Unauthorized");
+    return 0;
   }
 
   return prisma.emailThread.count({

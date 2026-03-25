@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Nunito_Sans, Playfair_Display, Geist_Mono } from "next/font/google";
+import { Nunito_Sans, Playfair_Display, Geist_Mono, Orbitron, Tektur } from "next/font/google";
 import { Toaster } from "sonner";
 
 const FALLBACK_APP_URL = "https://cedular.vercel.app";
@@ -33,6 +33,17 @@ const fontDisplay = Playfair_Display({
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+});
+
+const fontTech = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-tech",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+
+const fontModern = Tektur({
+  subsets: ["latin"],
+  variable: "--font-modern",
 });
 
 export const metadata: Metadata = {
@@ -72,7 +83,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`antialiased ${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable}`}
+        className={`antialiased ${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontTech.variable} ${fontModern.variable}`}
       >
         <ThemeProvider
           attribute="class"

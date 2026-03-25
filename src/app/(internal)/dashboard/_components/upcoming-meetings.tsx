@@ -16,26 +16,33 @@ export async function UpcomingMeetings() {
   const meetings = await getUpcomingMeetings();
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <CardTitle>Upcoming Meetings</CardTitle>
-        <CardDescription>
-          Your confirmed meetings for the next few days
-        </CardDescription>
+    <Card className="border-none bg-card/50 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-tech tracking-tight">Upcoming</CardTitle>
+            <CardDescription className="text-[10px] font-tech uppercase tracking-widest text-muted-foreground/60 mt-1">
+              Confirmed Briefings
+            </CardDescription>
+          </div>
+          <div className="h-8 w-8 rounded-lg bg-green-500/5 border border-green-500/10 flex items-center justify-center">
+            <Calendar className="h-4 w-4 text-green-500" />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {meetings.length === 0 ? (
-          <div className="text-center py-8">
-            <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground mb-4">
-              No upcoming meetings scheduled
+          <div className="text-center py-10 border-2 border-dashed border-muted/20 rounded-2xl bg-muted/5">
+            <Calendar className="mx-auto h-10 w-10 text-muted-foreground/20 mb-3" />
+            <p className="text-xs font-tech text-muted-foreground/60 tracking-widest mb-4">
+              NO MISSIONS
             </p>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/email-threads">Check Requests</Link>
+            <Button variant="ghost" size="sm" className="font-tech text-[10px] tracking-widest hover:text-primary" asChild>
+              <Link href="/email-threads">CHECK REQUESTS</Link>
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {meetings.map((meeting) => {
               const timeUntil = formatDistanceToNow(meeting.time, {
                 addSuffix: true,
@@ -44,50 +51,30 @@ export async function UpcomingMeetings() {
               return (
                 <div
                   key={meeting.id}
-                  className="flex flex-col gap-2 p-3 border rounded-lg hover:bg-muted/50 hover:shadow-md transition-all group"
+                  className="flex flex-col gap-3 p-4 border border-border/40 rounded-xl bg-background/40 hover:bg-background hover:border-green-500/30 hover:shadow-lg transition-all duration-300 group/item relative overflow-hidden"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 flex-1 min-w-0">
-                      <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
-                          {meeting.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {format(meeting.time, "MMM d, h:mm a")}
-                        </p>
-                      </div>
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-green-500/5 rounded-full -mr-8 -mt-8 group-hover/item:bg-green-500/10 transition-colors" />
+                  <div className="flex items-start justify-between gap-3 relative z-10">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-modern font-bold text-sm group-hover/item:text-green-500 transition-colors truncate">
+                        {meeting.title}
+                      </p>
+                      <p className="text-[10px] font-tech text-muted-foreground/60 mt-1 uppercase tracking-tighter">
+                        {format(meeting.time, "MMM d, h:mm a")}
+                      </p>
                     </div>
-                    <Badge variant="default" className="bg-green-500 shrink-0">
-                      Confirmed
-                    </Badge>
+                    <div className="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]" />
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
+                  <div className="flex items-center gap-3 text-[10px] font-medium text-muted-foreground/60 relative z-10">
+                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-md">
+                      <Clock className="h-3 w-3 text-green-500/70" />
                       <span>{timeUntil}</span>
                     </div>
-                    <span>•</span>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
+                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-md">
+                      <Users className="h-3 w-3 text-green-500/70" />
                       <span>
-                        {meeting.participants} participant
-                        {meeting.participants > 1 ? "s" : ""}
+                        {meeting.participants} Member{meeting.participants > 1 ? "s" : ""}
                       </span>
-                    </div>
-                    <span>•</span>
-                    <div className="flex items-center gap-1">
-                      {meeting.meetingLink && (
-                        <a
-                          href={meeting.meetingLink || ""}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          Link
-                        </a>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -95,12 +82,12 @@ export async function UpcomingMeetings() {
             })}
             {meetings.length >= 2 && (
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="w-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="w-full font-tech text-[10px] tracking-widest text-muted-foreground hover:text-green-500 hover:bg-green-500/5 transition-all"
                 asChild
               >
-                <Link href="/calendar">View All Meetings</Link>
+                <Link href="/calendar">VIEW ALL MISSIONS</Link>
               </Button>
             )}
           </div>

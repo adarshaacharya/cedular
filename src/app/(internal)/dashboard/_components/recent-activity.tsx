@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Mail } from "lucide-react";
+import { Calendar, Mail, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 
@@ -57,61 +57,76 @@ export async function RecentActivity() {
   ]);
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>
-          Your latest scheduling requests and updates
-        </CardDescription>
+    <Card className="border-none bg-card/50 backdrop-blur-md shadow-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden">
+      <div className="absolute top-0 left-0 w-1 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-tech tracking-tight">Recent Activity</CardTitle>
+            <CardDescription className="text-xs font-medium uppercase tracking-widest text-muted-foreground/60 mt-1">
+              Live Scheduling Stream
+            </CardDescription>
+          </div>
+          <div className="h-8 w-8 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center">
+            <Zap className="h-4 w-4 text-primary" />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {threads.length === 0 ? (
-          <div className="text-center py-8">
-            <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No recent activity</h3>
-            <p className="text-muted-foreground mb-4">
-              Your scheduling requests will appear here once you start receiving
-              them.
+          <div className="text-center py-12 border-2 border-dashed border-muted/20 rounded-2xl bg-muted/5">
+            <Calendar className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-tech font-medium mb-2">No active sessions</h3>
+            <p className="text-sm text-muted-foreground max-w-[200px] mx-auto mb-6">
+              Your scheduling engine is waiting for the first request.
             </p>
             {!googleStatus.connected && (
-              <Button variant="outline" asChild>
+              <Button variant="outline" className="font-tech text-xs tracking-widest" asChild>
                 <Link href="/settings">
-                  <Mail className="mr-2 h-4 w-4" />
-                  Connect Google Account
+                  <Mail className="mr-2 h-3 w-3" />
+                  CONNECT GOOGLE
                 </Link>
               </Button>
             )}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {threads.map((thread) => (
               <Link
                 key={thread.id}
                 href={`/email-threads/${thread.id}`}
-                className="block"
+                className="block group/item"
               >
-                <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 hover:shadow-md transition-all cursor-pointer group">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div
-                      className={`w-2 h-2 rounded-full ${getStatusColor(
-                        thread.status
-                      )} ${thread.status === "pending" ? "animate-pulse" : ""}`}
-                    />
+                <div className="flex items-center justify-between p-4 border border-border/40 rounded-xl bg-background/40 hover:bg-background hover:border-primary/30 hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden">
+                  <div className="absolute inset-0 bg-linear-to-r from-primary/5 to-transparent opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                  <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
+                    <div className="relative">
+                      <div
+                        className={`w-3 h-3 rounded-full ${getStatusColor(
+                          thread.status
+                        )} shadow-[0_0_8px_rgba(0,0,0,0.1)] ${thread.status === "pending" ? "animate-pulse ring-4 ring-orange-500/20" : ""}`}
+                      />
+                    </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate group-hover:text-primary transition-colors">
-                        {thread.subject || "No subject"}
+                      <p className="font-semibold text-sm truncate group-hover/item:text-primary transition-colors font-modern">
+                        {thread.subject || "Untitled Request"}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {thread.participants?.[0]} •{" "}
-                        {formatDistanceToNow(thread.createdAt, {
-                          addSuffix: true,
-                        })}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-tech text-muted-foreground/80 uppercase tracking-tighter">
+                          {thread.participants?.[0]?.split('@')[0] || "Unknown"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/40">•</span>
+                        <span className="text-[10px] font-medium text-muted-foreground/60">
+                          {formatDistanceToNow(thread.createdAt, {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <Badge
                     variant={getStatusVariant(thread.status)}
-                    className="ml-2"
+                    className="ml-4 font-tech text-[9px] tracking-widest px-2 py-0.5 border-none relative z-10"
                   >
                     {getStatusLabel(thread.status)}
                   </Badge>
@@ -120,11 +135,11 @@ export async function RecentActivity() {
             ))}
             {threads.length >= 5 && (
               <Button
-                variant="outline"
-                className="w-full hover:text-primary-foreground transition-colors"
+                variant="ghost"
+                className="w-full text-xs font-tech tracking-widest text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
                 asChild
               >
-                <Link href="/email-threads">View All Requests</Link>
+                <Link href="/email-threads">VIEW ALL SESSIONS</Link>
               </Button>
             )}
           </div>

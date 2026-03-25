@@ -133,7 +133,12 @@ export function AppSidebar({
                   <CedularLogo className="h-9 w-9" />
                 </div>
                 <div className="grid flex-1 text-left text-md leading-tight">
-                  <span className="truncate font-medium">Cedular</span>
+                  <span className="truncate font-semibold tracking-tight">
+                    Cedular
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground font-normal tracking-wide uppercase">
+                    Workspace
+                  </span>
                 </div>
               </SidebarMenuButton>
               <SidebarThemeToggler />
