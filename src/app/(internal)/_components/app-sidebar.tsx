@@ -128,18 +128,20 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center justify-between w-full">
-              <SidebarMenuButton size="lg" className="flex-1">
-                <div className="flex aspect-square size-12 items-center justify-center rounded-lg">
-                  <CedularLogo className="h-9 w-9" />
-                </div>
-                <div className="grid flex-1 text-left text-md leading-tight">
-                  <span className="truncate font-semibold tracking-tight">
-                    Cedular
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground font-normal tracking-wide uppercase">
-                    Workspace
-                  </span>
-                </div>
+              <SidebarMenuButton size="lg" className="flex-1" asChild>
+                <Link href="/dashboard">
+                  <div className="flex aspect-square size-12 items-center justify-center rounded-lg">
+                    <CedularLogo className="h-9 w-9" />
+                  </div>
+                  <div className="grid flex-1 text-left text-md leading-tight">
+                    <span className="truncate font-semibold tracking-tight">
+                      Cedular
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground font-normal tracking-wide uppercase">
+                      Workspace
+                    </span>
+                  </div>
+                </Link>
               </SidebarMenuButton>
               <SidebarThemeToggler />
             </div>

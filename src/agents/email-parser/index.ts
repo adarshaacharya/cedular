@@ -6,6 +6,7 @@
 
 import { z } from "zod";
 import { runStructuredAgent } from "../_lib/base";
+import { openai } from "@ai-sdk/openai";
 
 export const emailIntentSchema = z.object({
   intent: z
@@ -49,6 +50,82 @@ export const emailIntentSchema = z.object({
 
 export type EmailParseResult = z.infer<typeof emailIntentSchema>;
 
+const PRIMARY_MODEL = openai("gpt-4o-mini");
+const FALLBACK_MODEL = openai("gpt-4.1-mini");
+const MAX_THREAD_MESSAGES = 6;
+const MAX_THREAD_MESSAGE_CHARS = 2000;
+const MAX_LATEST_EMAIL_CHARS = 6000;
+
+function truncate(value: string, maxChars: number): string {
+  if (value.length <= maxChars) return value;
+  return `${value.slice(0, maxChars)}\n...[truncated]`;
+}
+
+function buildEmailParserPrompt({
+  participants,
+  threadHistory,
+  userTimezone,
+  todayDate,
+  subject,
+  emailBody,
+}: {
+  participants?: string[];
+  threadHistory?: Array<{ body: string; snippet?: string | null }>;
+  userTimezone?: string | null;
+  todayDate?: string | null;
+  subject: string;
+  emailBody: string;
+}) {
+  const boundedThreadHistory =
+    threadHistory?.slice(-MAX_THREAD_MESSAGES).map((msg) => ({
+      ...msg,
+      body: truncate(msg.body, MAX_THREAD_MESSAGE_CHARS),
+    })) ?? [];
+
+  const conversationContext =
+    boundedThreadHistory.length > 1
+      ? boundedThreadHistory
+          .map((msg, i) => `--- Message ${i + 1} ---\n${msg.body}`)
+          .join("\n\n")
+      : null;
+
+  return `
+    Participants: ${
+      participants && participants.length > 0
+        ? participants.join(", ")
+        : "Not provided"
+    }${
+    conversationContext
+      ? `
+
+    <thread_history>
+    ${conversationContext}
+    </thread_history>`
+      : ""
+  }
+
+    User timezone: ${userTimezone || "Unknown"}
+    Today's date (in user timezone): ${todayDate || "Unknown"}
+
+    <latest_email>
+    Subject: ${subject}
+    Body: ${truncate(emailBody, MAX_LATEST_EMAIL_CHARS)}
+    </latest_email>
+
+    Extract the scheduling information from the email above.
+  `;
+}
+
+function isRetryableProviderError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+
+  return (
+    error.message.includes("An error occurred while processing your request") ||
+    error.message.includes("Please include the request ID") ||
+    error.message.includes("No object generated")
+  );
+}
+
 /**
  * Parse an email to extract scheduling information
  *
@@ -79,14 +156,6 @@ export async function parseEmail({
   userTimezone?: string | null;
   todayDate?: string | null;
 }): Promise<EmailParseResult> {
-  // Build conversation context from thread history
-  const conversationContext =
-    threadHistory && threadHistory.length > 1
-      ? threadHistory
-          .map((msg, i) => `--- Message ${i + 1} ---\n${msg.body}`)
-          .join("\n\n")
-      : null;
-
   // Hint about existing thread status
   const statusHint =
     existingThreadStatus === "awaiting_confirmation"
@@ -162,39 +231,46 @@ export async function parseEmail({
     Return ONLY valid JSON matching the schema. No explanations.
   `;
 
-  const prompt = `
-    Participants: ${
-      participants && participants.length > 0
-        ? participants.join(", ")
-        : "Not provided"
-    }${
-    conversationContext
-      ? `
-
-    <thread_history>
-    ${conversationContext}
-    </thread_history>`
-      : ""
-  }
-
-    User timezone: ${userTimezone || "Unknown"}
-    Today's date (in user timezone): ${todayDate || "Unknown"}
-
-    <latest_email>
-    Subject: ${subject}
-    Body: ${emailBody}
-    </latest_email>
-
-    Extract the scheduling information from the email above.
-  `;
-
-  const result = await runStructuredAgent({
-    agentName: "email-parser",
-    instructions,
-    prompt,
-    schema: emailIntentSchema,
-    userId,
+  const prompt = buildEmailParserPrompt({
+    participants,
+    threadHistory,
+    userTimezone,
+    todayDate,
+    subject,
+    emailBody,
   });
+
+  let result: EmailParseResult;
+
+  try {
+    result = await runStructuredAgent({
+      agentName: "email-parser",
+      instructions,
+      prompt,
+      schema: emailIntentSchema,
+      userId,
+      model: PRIMARY_MODEL,
+      modelName: "gpt-4o-mini",
+    });
+  } catch (error) {
+    if (!isRetryableProviderError(error)) {
+      throw error;
+    }
+
+    console.warn(
+      "[Agent: email-parser] Primary model failed; retrying once with fallback model"
+    );
+
+    result = await runStructuredAgent({
+      agentName: "email-parser-fallback",
+      instructions,
+      prompt,
+      schema: emailIntentSchema,
+      userId,
+      model: FALLBACK_MODEL,
+      modelName: "gpt-4.1-mini",
+    });
+  }
 
   // Use provided participants from headers instead of extracted ones
   if (participants && participants.length > 0) {

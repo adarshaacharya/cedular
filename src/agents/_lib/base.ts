@@ -22,12 +22,16 @@ export async function runStructuredAgent<T extends z.ZodType>({
   prompt,
   schema,
   userId,
+  model = DEFAULT_MODEL,
+  modelName = DEFAULT_MODEL_NAME,
 }: {
   agentName: string;
   instructions: string;
   prompt: string;
   schema: T;
   userId: string;
+  model?: ReturnType<typeof openai>;
+  modelName?: string;
 }): Promise<z.infer<T>> {
   const startTime = Date.now();
 
@@ -35,7 +39,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
     console.log(`[Agent: ${agentName}] Starting...`);
 
     const agent = new ToolLoopAgent({
-      model: DEFAULT_MODEL,
+      model,
       instructions,
       output: Output.object({
         schema,
@@ -59,7 +63,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
       latencyMs,
       tokensUsed: tokensUsed || null,
       userId,
-      model: DEFAULT_MODEL_NAME,
+      model: modelName,
     });
 
     return result.output as z.infer<T>;
@@ -78,7 +82,7 @@ export async function runStructuredAgent<T extends z.ZodType>({
       latencyMs,
       tokensUsed: null,
       userId,
-      model: DEFAULT_MODEL_NAME,
+      model: modelName,
     });
 
     throw error;
