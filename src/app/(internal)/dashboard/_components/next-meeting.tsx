@@ -2,31 +2,38 @@ import { getNextMeeting } from "../actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, MapPin, Calendar, ExternalLink } from "lucide-react";
+import { Clock, Timer, Users, Calendar, ExternalLink } from "lucide-react";
 import { formatDistanceToNow, format, differenceInMinutes } from "date-fns";
 import Link from "next/link";
-import Image from "next/image";
 
 export async function NextMeeting() {
   const meeting = await getNextMeeting();
 
   if (!meeting) {
     return (
-      <Card className="mb-8 border-none bg-card/50 backdrop-blur-md shadow-xl overflow-hidden group">
+      <Card className="relative mb-8 border-none bg-card/50 backdrop-blur-md shadow-xl overflow-hidden group">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-50" />
-        <CardContent className="pt-10 pb-10 relative z-10">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <div 
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
+            }}
+          />
+        </div>
+        <CardContent className="pt-12 pb-12 relative z-10">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border/50 mb-6 group-hover:scale-110 transition-transform duration-500">
-              <Calendar className="h-8 w-8 text-muted-foreground/40" />
+            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-muted/50 border border-border/50 mb-8 group-hover:scale-110 transition-transform duration-700">
+              <div className="absolute inset-0 rounded-3xl bg-primary/5 animate-pulse" />
+              <Calendar className="h-10 w-10 text-muted-foreground/30 relative z-10" />
             </div>
-            <h2 className="text-2xl font-semibold mb-3 tracking-tight text-foreground">
-              No upcoming meetings
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-sm mx-auto font-medium">
-              Your schedule is clear. Time to focus on your deep work!
+            <h2 className="text-3xl font-tech font-bold mb-4 tracking-tight text-foreground">System Standby</h2>
+            <p className="text-muted-foreground mb-10 max-w-sm mx-auto font-medium text-lg leading-relaxed">
+              Your scheduling engine is active and monitoring for incoming missions.
             </p>
-            <Button asChild variant="outline" className="text-sm px-8">
-              <Link href="/email-threads">Check scheduling requests</Link>
+            <Button asChild variant="outline" className="font-tech text-[10px] tracking-[0.2em] px-10 py-6 h-auto border-border/60 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-500">
+              <Link href="/email-threads">CHECK INCOMING DATA</Link>
             </Button>
           </div>
         </CardContent>
@@ -47,31 +54,29 @@ export async function NextMeeting() {
             <div className="flex items-center gap-3 mb-4">
               <Badge
                 variant="outline"
-                className="text-xs font-medium px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
+                className="font-tech text-[10px] tracking-widest px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
               >
-                Next meeting
+                UPCOMING MISSION
               </Badge>
               {isWithinTwoHours && (
                 <Badge
                   variant="default"
-                  className="text-xs font-medium bg-orange-500 hover:bg-orange-600 animate-pulse"
+                  className="font-tech text-[10px] tracking-widest px-2 py-0.5 bg-orange-500 hover:bg-orange-600 animate-pulse"
                 >
-                  Starting soon
+                  STARTING SOON
                 </Badge>
               )}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold mb-4 tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
+            <h2 className="text-3xl font-tech font-bold mb-4 tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
               {meeting.title}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm font-medium text-muted-foreground">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm font-medium text-muted-foreground">
               <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg border border-border/40">
                 <div className="h-8 w-8 rounded-md bg-background flex items-center justify-center border border-border/60">
                   <Clock className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Starts
-                  </p>
+                  <p className="text-[10px] font-tech uppercase tracking-tighter opacity-60">Countdown</p>
                   <p className="text-foreground">{formatDistanceToNow(meeting.startTime, { addSuffix: true })}</p>
                 </div>
               </div>
@@ -81,10 +86,20 @@ export async function NextMeeting() {
                   <Calendar className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Time
+                  <p className="text-[10px] font-tech uppercase tracking-tighter opacity-60">Schedule</p>
+                  <p className="text-foreground">
+                    {format(meeting.startTime, "MMM d, h:mm a")}
                   </p>
-                  <p className="text-foreground">{format(meeting.startTime, "MMM d, h:mm a")}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg border border-border/40">
+                <div className="h-8 w-8 rounded-md bg-background flex items-center justify-center border border-border/60">
+                  <Timer className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-tech uppercase tracking-tighter opacity-60">Duration</p>
+                  <p className="text-foreground">{duration} min</p>
                 </div>
               </div>
 
@@ -93,12 +108,9 @@ export async function NextMeeting() {
                   <Users className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Guests
-                  </p>
+                  <p className="text-[10px] font-tech uppercase tracking-tighter opacity-60">Personnel</p>
                   <p className="text-foreground">
-                    {meeting.participants.length} participant
-                    {meeting.participants.length !== 1 ? "s" : ""}
+                    {meeting.participants.length} Member{meeting.participants.length !== 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
@@ -110,7 +122,7 @@ export async function NextMeeting() {
               <Button
                 asChild
                 size="lg"
-                className="bg-primary hover:bg-primary/90 shadow-md px-8 py-6 h-auto"
+                className="font-tech text-xs tracking-widest bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 px-8 py-6 h-auto"
               >
                 <Link
                   href={meeting.meetingLink}
@@ -118,7 +130,7 @@ export async function NextMeeting() {
                   rel="noopener noreferrer"
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
-                  Join meeting
+                  JOIN NOW
                 </Link>
               </Button>
             )}
@@ -126,9 +138,9 @@ export async function NextMeeting() {
               asChild
               variant="outline"
               size="lg"
-              className="px-8 py-6 h-auto border-border/60"
+              className="font-tech text-xs tracking-widest px-8 py-6 h-auto border-border/60 hover:bg-muted/50 transition-all"
             >
-              <Link href={`/meetings/${meeting.id}`}>Meeting details</Link>
+              <Link href={`/meetings/${meeting.id}`}>DETAILS</Link>
             </Button>
           </div>
         </div>

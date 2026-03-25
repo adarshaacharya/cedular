@@ -5,6 +5,7 @@ import { AppSidebar } from "./_components/app-sidebar";
 import { ChatHistoryTrigger } from "./_components/chat-history-trigger";
 import { getServerSession } from "@/lib/auth/get-session";
 import { getUserPreferences } from "./settings/actions";
+import { redirect } from "next/navigation";
 
 async function InternalSidebar() {
   const session = await getServerSession();
@@ -20,11 +21,17 @@ async function InternalSidebar() {
   );
 }
 
-export default function InternalLayout({
+export default async function InternalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await getServerSession();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
   return (
     <SidebarProvider className={cn("font-tech antialiased")}>
       <Suspense fallback={<div />}>
