@@ -30,17 +30,17 @@ export function TodaysSchedule({
   const isToday = isSameDay(selectedDate, new Date());
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-8 shadow-sm">
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-8 shadow-sm">
       <div className="flex items-center justify-between mb-8 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-zinc-50 flex items-center justify-center border border-zinc-100">
-            <CalendarIconLucide className="h-5 w-5 text-zinc-600" />
+          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border">
+            <CalendarIconLucide className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-zinc-900 flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-card-foreground flex items-center gap-2">
               Today's Schedule
             </h3>
-            <p className="text-sm font-medium text-zinc-500">
+            <p className="text-sm font-medium text-muted-foreground">
               {format(selectedDate, "EEEE, MMMM d")}
             </p>
           </div>
@@ -48,7 +48,7 @@ export function TodaysSchedule({
         {filteredMeetings.length > 0 && (
           <Badge
             variant="secondary"
-            className="px-3 py-1 bg-zinc-100 text-zinc-700 border-none font-medium"
+            className="px-3 py-1 bg-muted text-muted-foreground border-none font-medium"
           >
             {filteredMeetings.length}{" "}
             {filteredMeetings.length !== 1 ? "meetings" : "meeting"}
@@ -57,14 +57,16 @@ export function TodaysSchedule({
       </div>
 
       {filteredMeetings.length === 0 ? (
-        <div className="text-center py-16 bg-zinc-50/50 rounded-xl border border-dashed border-zinc-200">
+        <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
           <div className="opacity-20 mb-4 flex justify-center">
-            <CalendarIconLucide className="h-12 w-12 text-zinc-400" />
+            <CalendarIconLucide className="h-12 w-12 text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium text-zinc-500">
+          <p className="text-sm font-medium text-muted-foreground">
             No meetings scheduled for today
           </p>
-          <p className="text-xs text-zinc-400 mt-1">Enjoy your free day!</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Enjoy your free day!
+          </p>
         </div>
       ) : (
         <div className="space-y-4 relative z-10">
@@ -72,12 +74,12 @@ export function TodaysSchedule({
             <div
               key={meeting.id}
               className={cn(
-                "flex flex-col md:flex-row md:items-center gap-6 p-5 rounded-xl border border-zinc-100 transition-all hover:border-zinc-300 hover:shadow-md bg-white group",
+                "flex flex-col md:flex-row md:items-center gap-6 p-5 rounded-xl border border-border transition-all hover:border-primary/30 hover:shadow-md bg-card group",
               )}
             >
               {/* Time */}
               <div className="flex flex-row md:flex-col items-center md:items-start justify-between md:justify-center min-w-[120px]">
-                <div className="text-xl font-bold text-zinc-900">
+                <div className="text-xl font-bold text-card-foreground">
                   {format(new Date(meeting.startTime), "h:mm a")}
                 </div>
               </div>
@@ -85,7 +87,7 @@ export function TodaysSchedule({
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1">
-                  <h4 className="font-semibold text-base text-zinc-900 group-hover:text-blue-600 transition-colors">
+                  <h4 className="font-semibold text-base text-card-foreground group-hover:text-primary transition-colors">
                     {meeting.title}
                   </h4>
                   <Badge
@@ -93,8 +95,8 @@ export function TodaysSchedule({
                     className={cn(
                       "text-[10px] font-medium border-none px-2 py-0.5",
                       meeting.status === "confirmed"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-blue-50 text-blue-700",
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
                     )}
                   >
                     {meeting.status.charAt(0).toUpperCase() +
@@ -102,12 +104,12 @@ export function TodaysSchedule({
                   </Badge>
                 </div>
                 <div className="flex gap-4 items-center">
-                  <div className="flex items-center gap-1.5 text-xs text-zinc-500">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Users className="w-3.5 h-3.5" />
                     <span>{meeting.participants} personnel</span>
                   </div>
                   {meeting.description && (
-                    <div className="text-xs text-zinc-400 truncate max-w-md">
+                    <div className="text-xs text-muted-foreground/70 truncate max-w-md">
                       {meeting.description}
                     </div>
                   )}
@@ -119,7 +121,7 @@ export function TodaysSchedule({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-10 border-zinc-200 text-zinc-700 hover:bg-zinc-50 transition-all"
+                  className="h-10 border-border text-foreground hover:bg-muted transition-all"
                   asChild
                 >
                   <a
@@ -138,7 +140,7 @@ export function TodaysSchedule({
       )}
 
       {/* Legend */}
-      <div className="mt-8 pt-6 border-t border-zinc-100 flex items-center gap-6 text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+      <div className="mt-8 pt-6 border-t border-border flex items-center gap-6 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500" />
           <span>Confirmed</span>

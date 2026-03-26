@@ -75,11 +75,11 @@ export function FullCalendarView() {
   return (
     <div className="w-full space-y-4">
       {/* Calendar Primary Container */}
-      <div className="flex flex-col border border-zinc-200 rounded-xl overflow-hidden bg-white shadow-sm">
+      <div className="flex flex-col border border-border rounded-xl overflow-hidden bg-card shadow-sm">
         {/* Calendar Header */}
-        <div className="flex items-center justify-between p-6 border-b border-zinc-100">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            <h2 className="text-2xl font-semibold tracking-tight text-card-foreground">
               {format(currentMonth, "MMMM yyyy")}
             </h2>
           </div>
@@ -88,16 +88,16 @@ export function FullCalendarView() {
               variant="outline"
               size="sm"
               onClick={goToToday}
-              className="px-4 h-9 border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium transition-all"
+              className="px-4 h-9 font-medium transition-all"
             >
               Today
             </Button>
-            <div className="flex items-center gap-1 border border-zinc-200 rounded-lg p-1 ml-2 bg-white">
+            <div className="flex items-center gap-1 border border-border rounded-lg p-1 ml-2 bg-background">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousMonth}
-                className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-md"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-md"
               >
                 <ChevronLeftIcon className="h-4 w-4" />
               </Button>
@@ -105,7 +105,7 @@ export function FullCalendarView() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNextMonth}
-                className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-md"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground rounded-md"
               >
                 <ChevronRightIcon className="h-4 w-4" />
               </Button>
@@ -114,11 +114,11 @@ export function FullCalendarView() {
         </div>
 
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-zinc-50/50 border-b border-zinc-100">
+        <div className="grid grid-cols-7 bg-muted/30 border-b border-border">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayName) => (
             <div
               key={dayName}
-              className="py-3 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider"
+              className="py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider"
             >
               {dayName}
             </div>
@@ -126,7 +126,7 @@ export function FullCalendarView() {
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 bg-white">
+        <div className="grid grid-cols-7 bg-card">
           {weeks.map((week, weekIndex) =>
             week.map((date, dayIndex) => {
               const dateKey = getDateKey(date);
@@ -140,10 +140,10 @@ export function FullCalendarView() {
                   key={`${weekIndex}-${dayIndex}`}
                   onClick={() => handleDateClick(date)}
                   className={cn(
-                    "min-h-[140px] p-4 border-b border-r border-zinc-100 text-left transition-colors hover:bg-zinc-50/50 focus:outline-none relative group",
-                    !isCurrentMonth && "bg-zinc-50/30 opacity-40",
+                    "min-h-[140px] p-4 border-b border-r border-border text-left transition-colors hover:bg-muted/50 focus:outline-none relative group",
+                    !isCurrentMonth && "bg-muted/10 opacity-40",
                     isSelected &&
-                      "bg-blue-50/30 ring-1 ring-blue-200 ring-inset z-10",
+                      "bg-blue-500/5 ring-1 ring-blue-500/20 ring-inset z-10",
                   )}
                 >
                   {/* Date Number */}
@@ -152,10 +152,10 @@ export function FullCalendarView() {
                       className={cn(
                         "inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-full transition-all",
                         isToday
-                          ? "bg-zinc-900 text-white"
+                          ? "bg-primary text-primary-foreground"
                           : isCurrentMonth
-                            ? "text-zinc-700"
-                            : "text-zinc-400",
+                            ? "text-foreground"
+                            : "text-muted-foreground",
                       )}
                     >
                       {format(date, "d")}
@@ -173,18 +173,18 @@ export function FullCalendarView() {
                         className={cn(
                           "text-[11px] px-2 py-1 rounded border transition-all truncate",
                           meeting.status === "confirmed"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                            : "bg-blue-50 text-blue-700 border-blue-100",
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 font-medium"
+                            : "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400 font-medium",
                         )}
                       >
-                        <span className="font-medium mr-1.5">
+                        <span className="mr-1.5 opacity-70">
                           {format(new Date(meeting.startTime), "h:mm a")}
                         </span>
                         <span>{meeting.title}</span>
                       </div>
                     ))}
                     {meetings.length > 2 && (
-                      <div className="text-[10px] text-zinc-400 px-2 font-medium">
+                      <div className="text-[10px] text-muted-foreground px-2 font-medium">
                         + {meetings.length - 2} more
                       </div>
                     )}
