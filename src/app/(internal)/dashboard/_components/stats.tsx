@@ -44,8 +44,8 @@ export async function DashboardStats() {
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-      <Card className="relative overflow-hidden border-none bg-card hover:shadow-2xl transition-all duration-500 group">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mb-8">
+      <Card className="relative overflow-hidden border-none bg-card/50 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
         <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
           <Calendar className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
         </div>
@@ -70,7 +70,7 @@ export async function DashboardStats() {
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden border-none bg-card hover:shadow-2xl transition-all duration-500 group">
+      <Card className="relative overflow-hidden border-none bg-card/50 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
         <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
           <Clock className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
         </div>
@@ -108,7 +108,7 @@ export async function DashboardStats() {
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden border-none bg-card hover:shadow-2xl transition-all duration-500 group">
+      <Card className="relative overflow-hidden border-none bg-card/50 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
         <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
           <CheckCircle className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
         </div>
@@ -131,7 +131,7 @@ export async function DashboardStats() {
         </CardContent>
       </Card>
 
-      <Card className="relative overflow-hidden border-none bg-card hover:shadow-2xl transition-all duration-500 group">
+      <Card className="relative overflow-hidden border-none bg-card/50 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 group">
         <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:opacity-10 transition-opacity">
           <Zap className="h-24 w-24 -mr-8 -mt-8 rotate-12" />
         </div>
