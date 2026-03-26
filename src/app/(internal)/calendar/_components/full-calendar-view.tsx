@@ -1,16 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CalendarIcon,
-  Clock,
-  Users,
-  Video,
-  ExternalLink,
-  Zap,
-} from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import {
   format,
   startOfMonth,
@@ -23,20 +14,15 @@ import {
   addMonths,
   subMonths,
 } from "date-fns";
-import { getMeetingsForMonth } from "../actions";
+import { getMeetingsForMonth, type CalendarMeeting } from "../actions";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { TodaysSchedule } from "./todays-schedule";
 
 export function FullCalendarView() {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
-  const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
 
   // SWR for meetings in current month
   const { data: meetingsByDate = {} } = useSWR(
@@ -47,7 +33,13 @@ export function FullCalendarView() {
 
   const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  const goToToday = () => setCurrentMonth(new Date());
+  const goToToday = () => {
+    setCurrentMonth(new Date());
+    setSelectedDate(new Date());
+  };
+
+  // Flatten all meetings for components
+  const allMeetings = Object.values(meetingsByDate).flat() as CalendarMeeting[];
 
   // Generate calendar days
   const monthStart = startOfMonth(currentMonth);
@@ -81,58 +73,60 @@ export function FullCalendarView() {
   const today = new Date();
 
   return (
-    <div className="w-full">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <h2 className="text-xl font-tech font-bold tracking-tight text-foreground/80 ">
-            {format(currentMonth, "MMMM yyyy")}
-          </h2>
+    <div className="w-full space-y-4">
+      {/* Calendar Primary Container */}
+      <div className="flex flex-col border border-zinc-200 rounded-xl overflow-hidden bg-white shadow-sm">
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between p-6 border-b border-zinc-100">
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              {format(currentMonth, "MMMM yyyy")}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToToday}
+              className="px-4 h-9 border-zinc-200 hover:bg-zinc-50 text-zinc-700 font-medium transition-all"
+            >
+              Today
+            </Button>
+            <div className="flex items-center gap-1 border border-zinc-200 rounded-lg p-1 ml-2 bg-white">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousMonth}
+                className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-md"
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextMonth}
+                className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-md"
+              >
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={goToToday}
-            className="font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
-          >
-            TODAY
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={goToPreviousMonth}
-            className="border-border/60 hover:bg-muted/50"
-          >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={goToNextMonth}
-            className="border-border/60 hover:bg-muted/50"
-          >
-            <ChevronRightIcon className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
 
-      {/* Calendar Grid */}
-      <div className="border border-border/10 rounded-2xl overflow-hidden shadow-2xl bg-background/20 backdrop-blur-md">
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-muted/10 border-b border-border/10">
+        <div className="grid grid-cols-7 bg-zinc-50/50 border-b border-zinc-100">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayName) => (
             <div
               key={dayName}
-              className="py-4 text-center text-[10px] font-tech font-bold tracking-[0.2em] text-muted-foreground uppercase"
+              className="py-3 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider"
             >
               {dayName}
             </div>
           ))}
         </div>
 
-        {/* Calendar Days */}
-        <div className="grid grid-cols-7">
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 bg-white">
           {weeks.map((week, weekIndex) =>
             week.map((date, dayIndex) => {
               const dateKey = getDateKey(date);
@@ -142,332 +136,68 @@ export function FullCalendarView() {
               const isSelected = selectedDate && isSameDay(date, selectedDate);
 
               return (
-                <Popover key={`${weekIndex}-${dayIndex}`}>
-                  <PopoverTrigger asChild>
-                    <button
-                      onClick={() => handleDateClick(date)}
+                <button
+                  key={`${weekIndex}-${dayIndex}`}
+                  onClick={() => handleDateClick(date)}
+                  className={cn(
+                    "min-h-[140px] p-4 border-b border-r border-zinc-100 text-left transition-colors hover:bg-zinc-50/50 focus:outline-none relative group",
+                    !isCurrentMonth && "bg-zinc-50/30 opacity-40",
+                    isSelected &&
+                      "bg-blue-50/30 ring-1 ring-blue-200 ring-inset z-10",
+                  )}
+                >
+                  {/* Date Number */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span
                       className={cn(
-                        "min-h-[140px] p-3 border-b border-r border-border/10 text-left transition-all duration-300 hover:bg-primary/5 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:ring-inset group relative",
-                        !isCurrentMonth &&
-                          "bg-muted/5 text-muted-foreground/30",
-                        isToday && "bg-primary/[0.03]",
-                        isSelected &&
-                          "bg-primary/[0.08] ring-1 ring-primary/30 ring-inset",
+                        "inline-flex items-center justify-center w-8 h-8 text-sm font-medium rounded-full transition-all",
+                        isToday
+                          ? "bg-zinc-900 text-white"
+                          : isCurrentMonth
+                            ? "text-zinc-700"
+                            : "text-zinc-400",
                       )}
                     >
-                      {/* Date Number */}
-                      <div className="flex items-center justify-between mb-3">
-                        <span
-                          className={cn(
-                            "inline-flex items-center justify-center w-8 h-8 text-xs font-tech font-bold rounded-xl transition-all duration-300",
-                            isToday
-                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110"
-                              : "text-muted-foreground group-hover:text-primary",
-                            !isCurrentMonth && "opacity-30",
-                          )}
-                        >
-                          {format(date, "d")}
+                      {format(date, "d")}
+                    </span>
+                    {meetings.length > 0 && (
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                    )}
+                  </div>
+
+                  {/* Events */}
+                  <div className="space-y-1">
+                    {meetings.slice(0, 2).map((meeting) => (
+                      <div
+                        key={meeting.id}
+                        className={cn(
+                          "text-[11px] px-2 py-1 rounded border transition-all truncate",
+                          meeting.status === "confirmed"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : "bg-blue-50 text-blue-700 border-blue-100",
+                        )}
+                      >
+                        <span className="font-medium mr-1.5">
+                          {format(new Date(meeting.startTime), "h:mm a")}
                         </span>
-                        {meetings.length > 0 && (
-                          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" />
-                        )}
+                        <span>{meeting.title}</span>
                       </div>
-
-                      {/* Events */}
-                      <div className="space-y-1.5">
-                        {meetings.slice(0, 3).map((meeting) => (
-                          <div
-                            key={meeting.id}
-                            className={cn(
-                              "text-[10px] px-2 py-1 rounded-lg truncate font-tech font-bold tracking-tight border transition-all duration-300 hover:scale-[1.02]",
-                              meeting.status === "confirmed"
-                                ? "bg-green-500/10 text-green-500 border-green-500/20"
-                                : "bg-primary/10 text-primary border-primary/20",
-                            )}
-                          >
-                            <span className="opacity-60 mr-1">
-                              {format(meeting.startTime, "h:mm")}
-                            </span>
-                            {meeting.title.toUpperCase()}
-                          </div>
-                        ))}
-                        {meetings.length > 3 && (
-                          <div className="text-[9px] font-tech font-bold text-muted-foreground/60 px-2 tracking-widest">
-                            + {meetings.length - 3} MORE
-                          </div>
-                        )}
+                    ))}
+                    {meetings.length > 2 && (
+                      <div className="text-[10px] text-zinc-400 px-2 font-medium">
+                        + {meetings.length - 2} more
                       </div>
-                    </button>
-                  </PopoverTrigger>
-
-                  {/* Popover for meeting details */}
-                  {meetings.length > 0 && (
-                    <PopoverContent
-                      className="w-85 p-0 border-border/40 bg-card/95 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden"
-                      side="right"
-                      align="start"
-                    >
-                      <div className="p-5">
-                        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-border/40">
-                          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <CalendarIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <h4 className="font-tech text-xs font-bold tracking-widest text-muted-foreground uppercase">
-                              Temporal Node
-                            </h4>
-                            <p className="text-sm font-bold text-foreground">
-                              {format(date, "EEEE, MMMM d, yyyy")}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-none">
-                          {meetings.map((meeting) => (
-                            <div
-                              key={meeting.id}
-                              className="p-4 border border-border/10 rounded-xl bg-muted/20 hover:bg-muted/40 transition-all duration-300 group/item"
-                            >
-                              <div className="flex items-start justify-between gap-4 mb-3">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-tech font-bold text-sm tracking-tight text-foreground group-hover/item:text-primary transition-colors">
-                                    {meeting.title.toUpperCase()}
-                                  </p>
-                                  {meeting.description && (
-                                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                                      {meeting.description}
-                                    </p>
-                                  )}
-                                  <div className="grid grid-cols-1 gap-2 mt-4">
-                                    <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground uppercase tracking-tighter">
-                                      <Clock className="h-3.5 w-3.5 text-primary/60" />
-                                      <span>
-                                        {format(meeting.startTime, "h:mm a")} -{" "}
-                                        {format(meeting.endTime, "h:mm a")}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground uppercase tracking-tighter">
-                                      <Users className="h-3.5 w-3.5 text-primary/60" />
-                                      <span>
-                                        {meeting.participants} PERSONNEL
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <Badge
-                                  variant={
-                                    meeting.status === "confirmed"
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                  className={cn(
-                                    "shrink-0 font-tech text-[8px] tracking-widest uppercase px-2 py-0.5 border-none",
-                                    meeting.status === "confirmed"
-                                      ? "bg-green-500 shadow-lg shadow-green-500/20"
-                                      : "bg-primary/20 text-primary",
-                                  )}
-                                >
-                                  {meeting.status}
-                                </Badge>
-                              </div>
-
-                              {meeting.meetingLink && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full mt-2 font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
-                                  asChild
-                                >
-                                  <a
-                                    href={meeting.meetingLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <Video className="h-3.5 w-3.5 mr-2" />
-                                    ESTABLISH LINK
-                                    <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
-                                  </a>
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  )}
-                </Popover>
+                    )}
+                  </div>
+                </button>
               );
             }),
           )}
         </div>
       </div>
 
-      {/* Today's Schedule Section */}
-      <TodaysSchedule meetingsByDate={meetingsByDate} />
-    </div>
-  );
-}
-
-interface MeetingData {
-  id: string;
-  title: string;
-  startTime: Date;
-  endTime: Date;
-  participants: number;
-  meetingLink: string | null;
-  status: string;
-  description: string | null;
-}
-
-function TodaysSchedule({
-  meetingsByDate,
-}: {
-  meetingsByDate: Record<string, MeetingData[]>;
-}) {
-  const today = new Date();
-  const todayKey = `${today.getFullYear()}-${String(
-    today.getMonth() + 1,
-  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  const todayMeetings = meetingsByDate[todayKey] || [];
-
-  return (
-    <div className="mt-12 relative overflow-hidden rounded-2xl border border-border/40 bg-card/50 backdrop-blur-sm p-8 shadow-xl">
-      <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-        <Zap className="h-32 w-32 rotate-12" />
-      </div>
-
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg shadow-primary/5">
-            <Zap className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
-              Active Missions
-            </h3>
-            <p className="text-xl font-bold text-foreground">
-              {format(today, "EEEE, MMMM d")}
-            </p>
-          </div>
-        </div>
-        {todayMeetings.length > 0 && (
-          <Badge
-            variant="secondary"
-            className="font-tech text-[10px] tracking-widest px-3 py-1 bg-primary/10 text-primary border-none uppercase"
-          >
-            {todayMeetings.length} NODE{todayMeetings.length !== 1 ? "S" : ""}{" "}
-            ACTIVE
-          </Badge>
-        )}
-      </div>
-
-      {todayMeetings.length === 0 ? (
-        <div className="text-center py-12 bg-muted/20 rounded-2xl border border-dashed border-border/60">
-          <CalendarIcon className="h-16 w-16 mx-auto mb-4 opacity-10" />
-          <p className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
-            No active missions detected
-          </p>
-          <p className="text-sm text-muted-foreground/60 mt-2">
-            Enjoy your temporal freedom.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4 relative z-10">
-          {todayMeetings.map((meeting) => (
-            <div
-              key={meeting.id}
-              className={cn(
-                "flex flex-col md:flex-row md:items-center gap-6 p-5 rounded-2xl border transition-all duration-300 hover:border-primary/40 hover:bg-background/40 group",
-                meeting.status === "confirmed"
-                  ? "border-l-4 border-l-green-500 bg-green-500/[0.02]"
-                  : "border-l-4 border-l-primary bg-primary/[0.02]",
-              )}
-            >
-              {/* Time */}
-              <div className="flex flex-row md:flex-col items-center md:items-center justify-between md:justify-center min-w-[100px] gap-2">
-                <div className="font-tech text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                  {format(meeting.startTime, "h:mm a")}
-                </div>
-                <div className="font-tech text-[10px] tracking-widest text-muted-foreground uppercase opacity-60">
-                  {format(meeting.endTime, "h:mm a")}
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="hidden md:block h-12 w-px bg-border/40" />
-
-              {/* Meeting Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <p className="font-tech font-bold text-lg tracking-tight text-foreground group-hover:text-primary transition-colors uppercase">
-                    {meeting.title}
-                  </p>
-                  <Badge
-                    variant={
-                      meeting.status === "confirmed" ? "default" : "secondary"
-                    }
-                    className={cn(
-                      "font-tech text-[8px] tracking-widest uppercase border-none",
-                      meeting.status === "confirmed"
-                        ? "bg-green-500 shadow-lg shadow-green-500/20"
-                        : "bg-primary/20 text-primary",
-                    )}
-                  >
-                    {meeting.status}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2 font-medium uppercase tracking-tighter">
-                    <Users className="h-3.5 w-3.5 text-primary/60" />
-                    <span>{meeting.participants} PERSONNEL</span>
-                  </div>
-                  <div className="flex items-center gap-2 font-medium uppercase tracking-tighter">
-                    <Clock className="h-3.5 w-3.5 text-primary/60" />
-                    <span>
-                      {Math.round(
-                        (new Date(meeting.endTime).getTime() -
-                          new Date(meeting.startTime).getTime()) /
-                          60000,
-                      )}{" "}
-                      MIN SESSION
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Join Button */}
-              {meeting.meetingLink && (
-                <Button
-                  size="sm"
-                  className="font-tech text-[10px] tracking-widest bg-primary hover:bg-primary/90 shadow-lg shadow-primary/10 px-8 py-5 h-auto"
-                  asChild
-                >
-                  <a
-                    href={meeting.meetingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Video className="h-4 w-4 mr-2" />
-                    JOIN SESSION
-                  </a>
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Legend */}
-      <div className="mt-8 pt-6 border-t border-border/40 flex flex-wrap items-center gap-8 text-[10px] font-tech font-bold tracking-widest uppercase text-muted-foreground/60">
-        <div className="flex items-center gap-3">
-          <div className="w-4 h-4 rounded-lg bg-green-500/20 border border-green-500/40 shadow-[0_0_8px_rgba(34,197,94,0.2)]" />
-          <span>Confirmed Mission</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="w-4 h-4 rounded-lg bg-primary/20 border border-primary/40 shadow-[0_0_8px_rgba(var(--primary-rgb),0.2)]" />
-          <span>Proposed Node</span>
-        </div>
-      </div>
+      {/* Vertical Split: Detailed Selected Day Schedule */}
+      <TodaysSchedule selectedDate={selectedDate} meetings={allMeetings} />
     </div>
   );
 }

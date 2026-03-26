@@ -46,7 +46,7 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-border/5 bg-card/20 backdrop-blur-md p-6 lg:p-10 shadow-3xl transition-all duration-500">
+        <div className="relative">
           <Suspense
             fallback={
               <div className="space-y-4">
@@ -58,7 +58,7 @@ export default function CalendarPage() {
                     <Skeleton className="h-10 w-10" />
                   </div>
                 </div>
-                <Skeleton className="h-[600px] w-full rounded-xl" />
+                <Skeleton className="h-[600px] w-full rounded-3xl" />
               </div>
             }
           >
