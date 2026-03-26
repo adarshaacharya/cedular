@@ -9,7 +9,6 @@ import {
   Calendar,
   Users,
   Mail,
-  MapPin,
   ExternalLink,
   Video,
   CheckCircle,
@@ -48,7 +47,7 @@ function getStatusConfig(status: string) {
     case "confirmed":
       return {
         variant: "default" as const,
-        color: "bg-green-100 text-green-800 border-green-200",
+        color: "bg-green-500/10 text-green-500 border-green-500/20",
         icon: CheckCircle,
         label: "Confirmed",
         description: "This meeting is confirmed and ready to go",
@@ -56,7 +55,7 @@ function getStatusConfig(status: string) {
     case "proposed":
       return {
         variant: "secondary" as const,
-        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
         icon: AlertCircle,
         label: "Proposed",
         description: "This meeting needs confirmation",
@@ -64,7 +63,7 @@ function getStatusConfig(status: string) {
     case "cancelled":
       return {
         variant: "destructive" as const,
-        color: "bg-red-100 text-red-800 border-red-200",
+        color: "bg-red-500/10 text-red-500 border-red-500/20",
         icon: XCircle,
         label: "Cancelled",
         description: "This meeting has been cancelled",
@@ -72,7 +71,7 @@ function getStatusConfig(status: string) {
     default:
       return {
         variant: "secondary" as const,
-        color: "bg-gray-100 text-gray-800 border-gray-200",
+        color: "bg-muted text-muted-foreground border-border",
         icon: AlertCircle,
         label: status,
         description: "Meeting status unknown",
@@ -86,21 +85,21 @@ function getSourceConfig(source: string) {
       return {
         icon: Mail,
         label: "From Email Thread",
-        color: "text-blue-600",
+        color: "text-primary",
         description: "Created from an email conversation",
       };
     case "chat_assistant":
       return {
         icon: MessageSquare,
         label: "From Chat Assistant",
-        color: "text-purple-600",
+        color: "text-primary",
         description: "Scheduled via AI chat assistant",
       };
     default:
       return {
         icon: Globe,
         label: "Manual Entry",
-        color: "text-gray-600",
+        color: "text-muted-foreground",
         description: "Manually created meeting",
       };
   }
@@ -146,9 +145,7 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
   const duration = Math.round(
     (endTime.getTime() - startTime.getTime()) / (1000 * 60)
   );
-  const statusConfig = getStatusConfig(meeting.status);
   const sourceConfig = getSourceConfig(meeting.source);
-  const StatusIcon = statusConfig.icon;
   const SourceIcon = sourceConfig.icon;
   const timeUntil = getTimeUntilMeeting(startTime);
 
@@ -432,7 +429,7 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                   <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-2">Calendar Status</div>
                   {meeting.calendarEventId ? (
                     <div className="space-y-3">
-                      <Badge className="bg-green-500 font-tech text-[9px] tracking-widest uppercase border-none">
+                      <Badge className="bg-green-500/10 text-green-500 font-tech text-[9px] tracking-widest uppercase border-green-500/20">
                         <CheckCircle className="h-3 w-3 mr-1.5" />
                         SYNCED
                       </Badge>

@@ -10,7 +10,7 @@ interface MeetingPageProps {
 
 function MeetingDetailSkeleton() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.03),transparent_50%),radial-gradient(ellipse_at_bottom_right,rgba(var(--accent-rgb),0.03),transparent_50%)]">
       <div className="container mx-auto px-4 py-8 lg:px-8 xl:px-12 max-w-7xl">
         {/* Header skeleton */}
         <div className="mb-8">
@@ -30,20 +30,20 @@ function MeetingDetailSkeleton() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
           <div className="lg:col-span-2 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-border/40">
                 <Skeleton className="h-6 w-24 mb-4" />
                 <Skeleton className="h-8 w-32 mb-2" />
                 <Skeleton className="h-5 w-40 mb-3" />
                 <Skeleton className="h-4 w-36" />
               </div>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-border/40">
                 <Skeleton className="h-6 w-28 mb-4" />
                 <Skeleton className="h-6 w-16 ml-auto mb-4" />
                 <Skeleton className="h-8 w-32 mb-2" />
                 <Skeleton className="h-4 w-24" />
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 shadow-sm border border-border/40">
               <Skeleton className="h-6 w-32 mb-6" />
               <div className="space-y-6">
                 <div className="flex gap-4">
@@ -72,13 +72,13 @@ function MeetingDetailSkeleton() {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-border/40">
               <Skeleton className="h-6 w-28 mb-4" />
               <Skeleton className="h-4 w-32 mb-2" />
               <Skeleton className="h-5 w-24 mb-3" />
               <Skeleton className="h-8 w-full" />
             </div>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-border/40">
               <Skeleton className="h-6 w-32 mb-4" />
               <Skeleton className="h-6 w-16 mb-2" />
               <Skeleton className="h-4 w-40 mb-3" />
