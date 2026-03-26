@@ -30,18 +30,15 @@ export default function CalendarPage() {
 
       <div className="relative z-10 w-full px-4 py-8 lg:px-12 xl:px-16 space-y-8">
         <div className="relative max-w-7xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div className="space-y-1">
-              <Badge
-                variant="outline"
-                className="font-tech text-xs tracking-[0.2em] px-3 py-1 border-primary/20 text-primary bg-primary/5 uppercase"
-              >
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-tech font-bold tracking-widest uppercase">
                 Temporal Grid
-              </Badge>
-              <h1 className="text-4xl lg:text-5xl font-tech font-bold tracking-tight text-foreground leading-tight">
+              </div>
+              <h1 className="text-4xl font-tech font-bold tracking-tight">
                 Calendar
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed font-medium">
+              <p className="text-muted-foreground text-lg max-w-xl font-medium">
                 Synchronize and manage your mission schedule across the temporal
                 grid.
               </p>

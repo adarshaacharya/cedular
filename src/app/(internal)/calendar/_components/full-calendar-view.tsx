@@ -85,8 +85,8 @@ export function FullCalendarView() {
       {/* Calendar Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <h2 className="text-3xl font-tech font-bold tracking-tight text-foreground">
-            {format(currentMonth, "MMMM yyyy").toUpperCase()}
+          <h2 className="text-xl font-tech font-bold tracking-tight text-foreground/80 ">
+            {format(currentMonth, "MMMM yyyy")}
           </h2>
         </div>
         <div className="flex items-center gap-2">
