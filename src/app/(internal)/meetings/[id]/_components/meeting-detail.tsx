@@ -143,8 +143,9 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
   const startTime = new Date(meeting.startTime);
   const endTime = new Date(meeting.endTime);
   const duration = Math.round(
-    (endTime.getTime() - startTime.getTime()) / (1000 * 60)
+    (endTime.getTime() - startTime.getTime()) / (1000 * 60),
   );
+  const statusConfig = getStatusConfig(meeting.status);
   const sourceConfig = getSourceConfig(meeting.source);
   const SourceIcon = sourceConfig.icon;
   const timeUntil = getTimeUntilMeeting(startTime);
@@ -170,7 +171,10 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
             </Link>
             <div className="flex items-center gap-3">
               {meeting.meetingLink && (
-                <Button asChild className="shadow-lg shadow-primary/20 font-tech text-xs tracking-widest px-6 bg-primary hover:bg-primary/90">
+                <Button
+                  asChild
+                  className="shadow-lg shadow-primary/20 font-tech text-xs tracking-widest px-6 bg-primary hover:bg-primary/90"
+                >
                   <Link
                     href={meeting.meetingLink}
                     target="_blank"
@@ -181,7 +185,11 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                   </Link>
                 </Button>
               )}
-              <Button variant="outline" size="sm" className="shadow-sm font-tech text-[10px] tracking-widest border-border/60">
+              <Button
+                variant="outline"
+                size="sm"
+                className="shadow-sm font-tech text-[10px] tracking-widest border-border/60"
+              >
                 <Copy className="h-4 w-4 mr-2" />
                 COPY DATA
               </Button>
@@ -190,25 +198,31 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
 
           <div className="space-y-4 relative z-10">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge 
+              <Badge
                 variant={statusConfig.variant}
                 className={cn(
                   "font-tech text-[10px] tracking-[0.2em] px-3 py-1 uppercase border-none",
-                  isInProgress ? "bg-blue-500 animate-pulse" : 
-                  isUpcoming ? "bg-green-500" : "bg-muted text-muted-foreground"
+                  isInProgress
+                    ? "bg-blue-500 animate-pulse"
+                    : isUpcoming
+                      ? "bg-green-500"
+                      : "bg-muted text-muted-foreground",
                 )}
               >
                 {statusConfig.label} {isInProgress && "• ACTIVE"}
               </Badge>
-              <Badge variant="outline" className="font-tech text-[10px] tracking-widest px-3 py-1 border-primary/20 text-primary/70 bg-primary/5 uppercase">
+              <Badge
+                variant="outline"
+                className="font-tech text-[10px] tracking-widest px-3 py-1 border-primary/20 text-primary/70 bg-primary/5 uppercase"
+              >
                 {meeting.source.replace("_", " ")}
               </Badge>
             </div>
-            
+
             <h1 className="text-4xl lg:text-6xl font-tech font-bold tracking-tight text-foreground leading-tight max-w-4xl">
               {meeting.title}
             </h1>
-            
+
             {meeting.description && (
               <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed font-medium">
                 {meeting.description}
@@ -233,7 +247,9 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                       <Clock className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Schedule</h3>
+                    <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+                      Schedule
+                    </h3>
                   </div>
                   <div className="space-y-4">
                     <div className="text-3xl font-tech font-bold tracking-tight text-foreground">
@@ -281,8 +297,13 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                       <Users className="h-5 w-5 text-primary" />
                     </div>
-                    <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Personnel</h3>
-                    <Badge variant="secondary" className="ml-auto font-tech text-[10px] bg-primary/10 text-primary border-none">
+                    <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+                      Personnel
+                    </h3>
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto font-tech text-[10px] bg-primary/10 text-primary border-none"
+                    >
                       {meeting.participants.length}
                     </Badge>
                   </div>
@@ -290,7 +311,10 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                     <div className="flex items-center gap-3">
                       <div className="flex -space-x-3">
                         {meeting.participants.slice(0, 5).map((email, idx) => (
-                          <Avatar key={idx} className="h-10 w-10 border-4 border-card shadow-lg">
+                          <Avatar
+                            key={idx}
+                            className="h-10 w-10 border-4 border-card shadow-lg"
+                          >
                             <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold font-tech">
                               {email.charAt(0).toUpperCase()}
                             </AvatarFallback>
@@ -305,10 +329,18 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                     </div>
                     <div className="space-y-3 max-h-[140px] overflow-y-auto pr-2 custom-scrollbar">
                       {meeting.participants.map((email, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-3 p-2 rounded-xl bg-muted/30 border border-border/40 group/item hover:bg-muted/50 transition-colors">
-                          <span className="text-xs font-medium truncate text-foreground/80">{email}</span>
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between gap-3 p-2 rounded-xl bg-muted/30 border border-border/40 group/item hover:bg-muted/50 transition-colors"
+                        >
+                          <span className="text-xs font-medium truncate text-foreground/80">
+                            {email}
+                          </span>
                           {idx === 0 && (
-                            <Badge variant="outline" className="font-tech text-[8px] tracking-widest uppercase px-1.5 py-0 border-primary/30 text-primary/60">
+                            <Badge
+                              variant="outline"
+                              className="font-tech text-[8px] tracking-widest uppercase px-1.5 py-0 border-primary/30 text-primary/60"
+                            >
                               ORG
                             </Badge>
                           )}
@@ -326,28 +358,45 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                   <Zap className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Session Lifecycle</h3>
+                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+                  Session Lifecycle
+                </h3>
               </div>
               <div className="relative space-y-8 before:absolute before:inset-0 before:ml-2 before:-translate-x-px before:h-full before:w-0.5 before:bg-linear-to-b before:from-primary/50 before:via-border/50 before:to-transparent">
                 <div className="relative flex items-center gap-6 group">
                   <div className="absolute left-0 h-4 w-4 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)] ring-4 ring-primary/10" />
                   <div className="flex-1 ml-6 p-4 rounded-xl bg-muted/30 border border-border/40 group-hover:bg-muted/50 transition-colors">
-                    <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">Initialization</div>
-                    <div className="text-sm font-bold text-foreground mb-1">Meeting Created</div>
+                    <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">
+                      Initialization
+                    </div>
+                    <div className="text-sm font-bold text-foreground mb-1">
+                      Meeting Created
+                    </div>
                     <div className="text-xs text-muted-foreground font-medium">
-                      {format(new Date(meeting.createdAt), 'MMM d, yyyy • h:mm a')}
+                      {format(
+                        new Date(meeting.createdAt),
+                        "MMM d, yyyy • h:mm a",
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className="relative flex items-center gap-6 group">
-                  <div className={cn(
-                    "absolute left-0 h-4 w-4 -translate-x-1/2 rounded-full shadow-lg ring-4",
-                    statusConfig.variant === "default" ? "bg-green-500 ring-green-500/10" : "bg-yellow-500 ring-yellow-500/10"
-                  )} />
+                  <div
+                    className={cn(
+                      "absolute left-0 h-4 w-4 -translate-x-1/2 rounded-full shadow-lg ring-4",
+                      statusConfig.variant === "default"
+                        ? "bg-green-500 ring-green-500/10"
+                        : "bg-yellow-500 ring-yellow-500/10",
+                    )}
+                  />
                   <div className="flex-1 ml-6 p-4 rounded-xl bg-muted/30 border border-border/40 group-hover:bg-muted/50 transition-colors">
-                    <div className="font-tech text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Current State</div>
-                    <div className="text-sm font-bold text-foreground mb-1">Status: {statusConfig.label.toUpperCase()}</div>
+                    <div className="font-tech text-[10px] tracking-widest uppercase text-muted-foreground mb-1">
+                      Current State
+                    </div>
+                    <div className="text-sm font-bold text-foreground mb-1">
+                      Status: {statusConfig.label.toUpperCase()}
+                    </div>
                     <div className="text-xs text-muted-foreground font-medium">
                       {statusConfig.description}
                     </div>
@@ -355,14 +404,24 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 </div>
 
                 <div className="relative flex items-center gap-6 group">
-                  <div className={cn(
-                    "absolute left-0 h-4 w-4 -translate-x-1/2 rounded-full shadow-lg ring-4",
-                    isUpcoming ? "bg-primary ring-primary/10" : "bg-muted ring-muted/10"
-                  )} />
+                  <div
+                    className={cn(
+                      "absolute left-0 h-4 w-4 -translate-x-1/2 rounded-full shadow-lg ring-4",
+                      isUpcoming
+                        ? "bg-primary ring-primary/10"
+                        : "bg-muted ring-muted/10",
+                    )}
+                  />
                   <div className="flex-1 ml-6 p-4 rounded-xl bg-muted/30 border border-border/40 group-hover:bg-muted/50 transition-colors">
-                    <div className="font-tech text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Execution</div>
+                    <div className="font-tech text-[10px] tracking-widest uppercase text-muted-foreground mb-1">
+                      Execution
+                    </div>
                     <div className="text-sm font-bold text-foreground mb-1">
-                      {isUpcoming ? "Upcoming Session" : isInProgress ? "Active Session" : "Session Completed"}
+                      {isUpcoming
+                        ? "Upcoming Session"
+                        : isInProgress
+                          ? "Active Session"
+                          : "Session Completed"}
                     </div>
                     <div className="text-xs text-muted-foreground font-medium">
                       {format(startTime, "MMM d, yyyy • h:mm a")}
@@ -381,12 +440,18 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                   <SourceIcon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Source Node</h3>
+                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+                  Source Node
+                </h3>
               </div>
               <div className="space-y-6">
                 <div className="p-4 rounded-xl bg-muted/30 border border-border/40">
-                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">Protocol</div>
-                  <div className="text-sm font-bold text-foreground">{sourceConfig.label}</div>
+                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">
+                    Protocol
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    {sourceConfig.label}
+                  </div>
                   <p className="text-xs text-muted-foreground mt-2 font-medium leading-relaxed">
                     {sourceConfig.description}
                   </p>
@@ -395,18 +460,30 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 {meeting.emailThread && (
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-muted/30 border border-border/40">
-                      <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">Linked Thread</div>
+                      <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">
+                        Linked Thread
+                      </div>
                       <div className="text-sm font-bold text-foreground line-clamp-2 mb-2">
                         {meeting.emailThread.subject || "No subject"}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="font-tech text-[8px] tracking-widest uppercase px-1.5 py-0 border-primary/20 text-primary/60">
+                        <Badge
+                          variant="outline"
+                          className="font-tech text-[8px] tracking-widest uppercase px-1.5 py-0 border-primary/20 text-primary/60"
+                        >
                           {meeting.emailThread.status}
                         </Badge>
                       </div>
                     </div>
-                    <Link href={`/email-threads/${meeting.emailThread.id}`} className="block">
-                      <Button variant="outline" size="sm" className="w-full font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all">
+                    <Link
+                      href={`/email-threads/${meeting.emailThread.id}`}
+                      className="block"
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
+                      >
                         <ExternalLink className="h-3.5 w-3.5 mr-2" />
                         OPEN THREAD
                       </Button>
@@ -422,11 +499,15 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                   <CalendarIcon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Synchronization</h3>
+                <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+                  Synchronization
+                </h3>
               </div>
               <div className="space-y-6">
                 <div className="p-4 rounded-xl bg-muted/30 border border-border/40">
-                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-2">Calendar Status</div>
+                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-2">
+                    Calendar Status
+                  </div>
                   {meeting.calendarEventId ? (
                     <div className="space-y-3">
                       <Badge className="bg-green-500/10 text-green-500 font-tech text-[9px] tracking-widest uppercase border-green-500/20">
@@ -439,11 +520,21 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <Badge variant="secondary" className="font-tech text-[9px] tracking-widest uppercase">OFFLINE</Badge>
+                      <Badge
+                        variant="secondary"
+                        className="font-tech text-[9px] tracking-widest uppercase"
+                      >
+                        OFFLINE
+                      </Badge>
                       <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                        This session is not yet synchronized with your primary calendar node.
+                        This session is not yet synchronized with your primary
+                        calendar node.
                       </p>
-                      <Button variant="outline" size="sm" className="w-full font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
+                      >
                         <CalendarIcon className="h-3.5 w-3.5 mr-2" />
                         PUSH TO CALENDAR
                       </Button>
@@ -452,7 +543,9 @@ export function MeetingDetail({ meeting }: MeetingDetailProps) {
                 </div>
 
                 <div className="p-4 rounded-xl bg-muted/30 border border-border/40">
-                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">Internal Reference</div>
+                  <div className="font-tech text-[10px] tracking-widest uppercase text-primary mb-1">
+                    Internal Reference
+                  </div>
                   <div className="font-mono text-[10px] text-muted-foreground break-all">
                     {meeting.id}
                   </div>
