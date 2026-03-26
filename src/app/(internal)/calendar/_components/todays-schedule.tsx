@@ -38,7 +38,7 @@ export function TodaysSchedule({
           </div>
           <div>
             <h3 className="font-semibold text-lg text-card-foreground flex items-center gap-2">
-              Today's Schedule
+              Today&rsquo;s Schedule
             </h3>
             <p className="text-sm font-medium text-muted-foreground">
               {format(selectedDate, "EEEE, MMMM d")}
