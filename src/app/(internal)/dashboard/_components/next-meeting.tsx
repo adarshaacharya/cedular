@@ -59,12 +59,12 @@ export async function NextMeeting() {
                 UPCOMING MISSION
               </Badge>
               {isWithinTwoHours && (
-                <Badge
-                  variant="default"
-                  className="font-tech text-[10px] tracking-widest px-2 py-0.5 bg-orange-500 hover:bg-orange-600 animate-pulse"
-                >
-                  STARTING SOON
-                </Badge>
+                      <Badge
+                        variant="default"
+                        className="font-tech text-[10px] tracking-widest px-2 py-0.5 bg-primary hover:bg-primary/90 animate-pulse"
+                      >
+                        STARTING SOON
+                      </Badge>
               )}
             </div>
             <h2 className="text-3xl font-tech font-bold mb-4 tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">

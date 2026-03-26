@@ -38,7 +38,7 @@ export function ThreadsTable({ threadsPromise }: ThreadsTableProps) {
         ),
         cell: ({ row }) => (
           <Link
-            className="font-medium hover:underline hover:text-blue-500 cursor-pointer"
+            className="font-medium hover:underline hover:text-primary cursor-pointer"
             href={`/email-threads/${row.original.id}`}
           >
             {row.getValue("subject") || "No subject"}

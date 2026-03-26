@@ -48,13 +48,13 @@ function getStatusVariant(status: string) {
 function getStatusColor(status: string) {
   switch (status) {
     case "confirmed":
-      return "text-green-600";
+      return "text-green-500";
     case "failed":
-      return "text-red-600";
+      return "text-destructive";
     case "processing":
-      return "text-blue-600";
+      return "text-primary";
     case "awaiting_confirmation":
-      return "text-yellow-600";
+      return "text-yellow-500";
     default:
       return "";
   }
@@ -191,10 +191,10 @@ function EmailMessage({
 
             {/* Meeting links - prominently displayed */}
             {meetingLinks.length > 0 && (
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
+              <div className="mb-4 p-3 bg-primary/5 rounded-md border border-primary/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <Calendar className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">
                     Meeting Links
                   </span>
                 </div>
@@ -205,7 +205,7 @@ function EmailMessage({
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300 hover:underline"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
                     >
                       {link}
                       <ExternalLink className="h-3 w-3" />
@@ -217,16 +217,16 @@ function EmailMessage({
 
             {/* Time slots - prominently displayed */}
             {timeSlots.length > 0 && (
-              <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-md border border-green-200 dark:border-green-800">
+              <div className="mb-4 p-3 bg-green-500/5 rounded-md border border-green-500/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-900 dark:text-green-100">
+                  <Clock className="h-4 w-4 text-green-500" />
+                  <span className="text-sm font-medium text-foreground">
                     Time Slots Mentioned
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {timeSlots.map((slot, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs">
+                    <Badge key={idx} variant="outline" className="text-xs border-green-500/30 text-green-500 bg-green-500/5">
                       {slot}
                     </Badge>
                   ))}
