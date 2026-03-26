@@ -16,7 +16,9 @@ async function InternalSidebar() {
   return (
     <AppSidebar
       assistantEmail={assistantEmail}
-      chatHistoryTrigger={<ChatHistoryTrigger className="w-full justify-start" />}
+      chatHistoryTrigger={
+        <ChatHistoryTrigger className="w-full justify-start" />
+      }
     />
   );
 }
@@ -49,10 +51,10 @@ async function InternalLayoutContent({
       <Suspense fallback={<div />}>
         <InternalSidebar />
       </Suspense>
-      <SidebarInset
-        className="border-l border-border/50 bg-linear-to-b from-muted/30 via-background to-background"
-      >
-        {children}
+      <SidebarInset className="bg-background">
+        <div className="mx-auto w-full max-w-(--breakpoint-2xl)">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

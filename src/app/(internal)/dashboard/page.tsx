@@ -68,7 +68,7 @@ async function DashboardContent() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full space-y-8">
+      <div className="relative z-10 w-full space-y-8">
         <Suspense fallback={<Skeleton className="h-32 mb-8 rounded-2xl" />}>
           <WelcomeBanner />
         </Suspense>

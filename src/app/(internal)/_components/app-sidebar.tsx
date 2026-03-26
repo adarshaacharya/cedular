@@ -45,7 +45,6 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  
 
   // Assistant section - AI-focused features
   const navAssistant = [
@@ -111,35 +110,38 @@ export function AppSidebar({
   // User data from session
   const user = session?.user
     ? {
-      name: session.user.name || "User",
-      email: session.user.email || "",
-      avatar: session.user.image || "",
-      assistantEmail: assistantEmail || "",
-    }
+        name: session.user.name || "User",
+        email: session.user.email || "",
+        avatar: session.user.image || "",
+        assistantEmail: assistantEmail || "",
+      }
     : {
-      name: "User",
-      email: "",
-      avatar: "",
-      assistantEmail: "",
-    };
+        name: "User",
+        email: "",
+        avatar: "",
+        assistantEmail: "",
+      };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar variant="floating" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center justify-between w-full">
               <SidebarMenuButton size="lg" className="flex-1" asChild>
                 <Link href="/dashboard">
-                  <div className="flex aspect-square size-12 items-center justify-center rounded-lg">
-                    <CedularLogo className="h-9 w-9" />
+                  <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-primary/5 ring-1 ring-primary/10">
+                    <CedularLogo className="h-7 w-7" />
                   </div>
-                  <div className="grid flex-1 text-left text-md leading-tight">
-                    <span className="truncate font-semibold tracking-tight">
-                      Cedular
-                    </span>
-                    <span className="truncate text-xs text-muted-foreground font-normal tracking-wide uppercase">
-                      Workspace
+                  <div className="grid flex-1 text-left text-sm leading-tight ml-2">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate font-bold tracking-tight text-foreground">
+                        Cedular
+                      </span>
+                      <div className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    </div>
+                    <span className="truncate text-[10px] text-muted-foreground font-medium tracking-widest uppercase">
+                      Protocol v1.0
                     </span>
                   </div>
                 </Link>

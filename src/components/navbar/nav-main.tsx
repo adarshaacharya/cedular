@@ -2,7 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import Link from "next/link";
-
+import { cn } from "@/lib/utils";
 import {
   Collapsible,
   CollapsibleContent,
@@ -52,10 +52,27 @@ export function NavMain({
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      className={cn(
+                        "transition-all duration-200",
+                        item.isActive
+                          ? "bg-primary/5 text-primary font-medium"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {item.icon && (
+                        <item.icon
+                          className={cn(
+                            "size-4",
+                            item.isActive
+                              ? "text-primary"
+                              : "text-muted-foreground",
+                          )}
+                        />
+                      )}
+                      <span className="tracking-tight">{item.title}</span>
+                      <ChevronRight className="ml-auto size-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -85,10 +102,31 @@ export function NavMain({
           // If item has no sub-items, render as simple button
           return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                className={cn(
+                  "transition-all duration-200",
+                  item.isActive
+                    ? "bg-primary/5 text-primary font-medium shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
                 <Link href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  {item.icon && (
+                    <item.icon
+                      className={cn(
+                        "size-4",
+                        item.isActive
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                  )}
+                  <span className="tracking-tight">{item.title}</span>
+                  {item.isActive && (
+                    <div className="ml-auto flex h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

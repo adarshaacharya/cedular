@@ -42,7 +42,7 @@ export function FullCalendarView() {
   const { data: meetingsByDate = {} } = useSWR(
     `calendar-meetings-${currentMonth.getFullYear()}-${currentMonth.getMonth()}`,
     () =>
-      getMeetingsForMonth(currentMonth.getFullYear(), currentMonth.getMonth())
+      getMeetingsForMonth(currentMonth.getFullYear(), currentMonth.getMonth()),
   );
 
   const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -90,25 +90,25 @@ export function FullCalendarView() {
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={goToToday}
             className="font-tech text-[10px] tracking-widest border-border/60 hover:bg-primary hover:text-primary-foreground transition-all"
           >
             TODAY
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
+          <Button
+            variant="outline"
+            size="icon"
             onClick={goToPreviousMonth}
             className="border-border/60 hover:bg-muted/50"
           >
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="outline" 
-            size="icon" 
+          <Button
+            variant="outline"
+            size="icon"
             onClick={goToNextMonth}
             className="border-border/60 hover:bg-muted/50"
           >
@@ -118,9 +118,9 @@ export function FullCalendarView() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="border border-border/40 rounded-2xl overflow-hidden shadow-2xl bg-background/20 backdrop-blur-sm">
+      <div className="border border-border/10 rounded-2xl overflow-hidden shadow-2xl bg-background/20 backdrop-blur-md">
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-muted/30 border-b border-border/40">
+        <div className="grid grid-cols-7 bg-muted/10 border-b border-border/10">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayName) => (
             <div
               key={dayName}
@@ -147,10 +147,12 @@ export function FullCalendarView() {
                     <button
                       onClick={() => handleDateClick(date)}
                       className={cn(
-                        "min-h-[140px] p-3 border-b border-r border-border/40 text-left transition-all duration-300 hover:bg-primary/5 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:ring-inset group relative",
-                        !isCurrentMonth && "bg-muted/10 text-muted-foreground/40",
-                        isToday && "bg-primary/[0.02]",
-                        isSelected && "bg-primary/[0.05] ring-1 ring-primary/20 ring-inset"
+                        "min-h-[140px] p-3 border-b border-r border-border/10 text-left transition-all duration-300 hover:bg-primary/5 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:ring-inset group relative",
+                        !isCurrentMonth &&
+                          "bg-muted/5 text-muted-foreground/30",
+                        isToday && "bg-primary/[0.03]",
+                        isSelected &&
+                          "bg-primary/[0.08] ring-1 ring-primary/30 ring-inset",
                       )}
                     >
                       {/* Date Number */}
@@ -158,8 +160,10 @@ export function FullCalendarView() {
                         <span
                           className={cn(
                             "inline-flex items-center justify-center w-8 h-8 text-xs font-tech font-bold rounded-xl transition-all duration-300",
-                            isToday ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110" : "text-muted-foreground group-hover:text-primary",
-                            !isCurrentMonth && "opacity-30"
+                            isToday
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110"
+                              : "text-muted-foreground group-hover:text-primary",
+                            !isCurrentMonth && "opacity-30",
                           )}
                         >
                           {format(date, "d")}
@@ -178,7 +182,7 @@ export function FullCalendarView() {
                               "text-[10px] px-2 py-1 rounded-lg truncate font-tech font-bold tracking-tight border transition-all duration-300 hover:scale-[1.02]",
                               meeting.status === "confirmed"
                                 ? "bg-green-500/10 text-green-500 border-green-500/20"
-                                : "bg-primary/10 text-primary border-primary/20"
+                                : "bg-primary/10 text-primary border-primary/20",
                             )}
                           >
                             <span className="opacity-60 mr-1">
@@ -218,11 +222,11 @@ export function FullCalendarView() {
                           </div>
                         </div>
 
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-none">
                           {meetings.map((meeting) => (
                             <div
                               key={meeting.id}
-                              className="p-4 border border-border/40 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-300 group/item"
+                              className="p-4 border border-border/10 rounded-xl bg-muted/20 hover:bg-muted/40 transition-all duration-300 group/item"
                             >
                               <div className="flex items-start justify-between gap-4 mb-3">
                                 <div className="flex-1 min-w-0">
@@ -238,7 +242,8 @@ export function FullCalendarView() {
                                     <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground uppercase tracking-tighter">
                                       <Clock className="h-3.5 w-3.5 text-primary/60" />
                                       <span>
-                                        {format(meeting.startTime, "h:mm a")} - {format(meeting.endTime, "h:mm a")}
+                                        {format(meeting.startTime, "h:mm a")} -{" "}
+                                        {format(meeting.endTime, "h:mm a")}
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] font-medium text-muted-foreground uppercase tracking-tighter">
@@ -250,10 +255,16 @@ export function FullCalendarView() {
                                   </div>
                                 </div>
                                 <Badge
-                                  variant={meeting.status === "confirmed" ? "default" : "secondary"}
+                                  variant={
+                                    meeting.status === "confirmed"
+                                      ? "default"
+                                      : "secondary"
+                                  }
                                   className={cn(
                                     "shrink-0 font-tech text-[8px] tracking-widest uppercase px-2 py-0.5 border-none",
-                                    meeting.status === "confirmed" ? "bg-green-500 shadow-lg shadow-green-500/20" : "bg-primary/20 text-primary"
+                                    meeting.status === "confirmed"
+                                      ? "bg-green-500 shadow-lg shadow-green-500/20"
+                                      : "bg-primary/20 text-primary",
                                   )}
                                 >
                                   {meeting.status}
@@ -286,7 +297,7 @@ export function FullCalendarView() {
                   )}
                 </Popover>
               );
-            })
+            }),
           )}
         </div>
       </div>
@@ -315,7 +326,7 @@ function TodaysSchedule({
 }) {
   const today = new Date();
   const todayKey = `${today.getFullYear()}-${String(
-    today.getMonth() + 1
+    today.getMonth() + 1,
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const todayMeetings = meetingsByDate[todayKey] || [];
 
@@ -331,15 +342,21 @@ function TodaysSchedule({
             <Zap className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">Active Missions</h3>
+            <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+              Active Missions
+            </h3>
             <p className="text-xl font-bold text-foreground">
               {format(today, "EEEE, MMMM d")}
             </p>
           </div>
         </div>
         {todayMeetings.length > 0 && (
-          <Badge variant="secondary" className="font-tech text-[10px] tracking-widest px-3 py-1 bg-primary/10 text-primary border-none uppercase">
-            {todayMeetings.length} NODE{todayMeetings.length !== 1 ? "S" : ""} ACTIVE
+          <Badge
+            variant="secondary"
+            className="font-tech text-[10px] tracking-widest px-3 py-1 bg-primary/10 text-primary border-none uppercase"
+          >
+            {todayMeetings.length} NODE{todayMeetings.length !== 1 ? "S" : ""}{" "}
+            ACTIVE
           </Badge>
         )}
       </div>
@@ -347,8 +364,12 @@ function TodaysSchedule({
       {todayMeetings.length === 0 ? (
         <div className="text-center py-12 bg-muted/20 rounded-2xl border border-dashed border-border/60">
           <CalendarIcon className="h-16 w-16 mx-auto mb-4 opacity-10" />
-          <p className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">No active missions detected</p>
-          <p className="text-sm text-muted-foreground/60 mt-2">Enjoy your temporal freedom.</p>
+          <p className="font-tech text-xs font-bold tracking-widest uppercase text-muted-foreground">
+            No active missions detected
+          </p>
+          <p className="text-sm text-muted-foreground/60 mt-2">
+            Enjoy your temporal freedom.
+          </p>
         </div>
       ) : (
         <div className="space-y-4 relative z-10">
@@ -359,7 +380,7 @@ function TodaysSchedule({
                 "flex flex-col md:flex-row md:items-center gap-6 p-5 rounded-2xl border transition-all duration-300 hover:border-primary/40 hover:bg-background/40 group",
                 meeting.status === "confirmed"
                   ? "border-l-4 border-l-green-500 bg-green-500/[0.02]"
-                  : "border-l-4 border-l-primary bg-primary/[0.02]"
+                  : "border-l-4 border-l-primary bg-primary/[0.02]",
               )}
             >
               {/* Time */}
@@ -382,12 +403,14 @@ function TodaysSchedule({
                     {meeting.title}
                   </p>
                   <Badge
-                    variant={meeting.status === "confirmed" ? "default" : "secondary"}
+                    variant={
+                      meeting.status === "confirmed" ? "default" : "secondary"
+                    }
                     className={cn(
                       "font-tech text-[8px] tracking-widest uppercase border-none",
                       meeting.status === "confirmed"
                         ? "bg-green-500 shadow-lg shadow-green-500/20"
-                        : "bg-primary/20 text-primary"
+                        : "bg-primary/20 text-primary",
                     )}
                   >
                     {meeting.status}
@@ -396,9 +419,7 @@ function TodaysSchedule({
                 <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2 font-medium uppercase tracking-tighter">
                     <Users className="h-3.5 w-3.5 text-primary/60" />
-                    <span>
-                      {meeting.participants} PERSONNEL
-                    </span>
+                    <span>{meeting.participants} PERSONNEL</span>
                   </div>
                   <div className="flex items-center gap-2 font-medium uppercase tracking-tighter">
                     <Clock className="h-3.5 w-3.5 text-primary/60" />
@@ -406,7 +427,7 @@ function TodaysSchedule({
                       {Math.round(
                         (new Date(meeting.endTime).getTime() -
                           new Date(meeting.startTime).getTime()) /
-                          60000
+                          60000,
                       )}{" "}
                       MIN SESSION
                     </span>
@@ -416,7 +437,7 @@ function TodaysSchedule({
 
               {/* Join Button */}
               {meeting.meetingLink && (
-                <Button 
+                <Button
                   size="sm"
                   className="font-tech text-[10px] tracking-widest bg-primary hover:bg-primary/90 shadow-lg shadow-primary/10 px-8 py-5 h-auto"
                   asChild
