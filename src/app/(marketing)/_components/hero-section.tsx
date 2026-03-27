@@ -7,6 +7,8 @@ import {
   CheckCircle,
   Zap,
   Sparkles,
+  Github,
+
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -196,9 +198,12 @@ export function HeroSection() {
             <Button
               size="lg"
               variant="outline"
-              className="border-border/50 hover:bg-card/50 px-8 py-3 text-base font-medium backdrop-blur-sm"
+              className="border-border/50 hover:bg-card/50 px-8 py-3 text-base font-medium backdrop-blur-sm gap-2 transition-all duration-300 hover:-translate-y-0.5"
+              asChild
             >
-              <Play className="w-4 h-4 mr-2" /> Watch Demo
+              <Link href="https://github.com/adarshaacharya/cedular" target="_blank">
+                View on GitHub <Github className="w-4 h-4" />
+              </Link>
             </Button>
           </div>
         </div>
